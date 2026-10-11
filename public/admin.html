@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trung tâm Quản trị - ProjectHub Admin Portal</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Project Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/animations.css">
+
+    <style>
+        /* ============================================================
+           ADMIN PORTAL SPECIFIC STYLING
+           ============================================================ */
+        .admin-app {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            background-color: var(--background);
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Admin Sidebar */
+        .admin-sidebar {
+            width: 270px;
+            min-width: 270px;
+            max-width: 270px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            background-color: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 1020;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .admin-brand {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .admin-brand a {
+            text-decoration: none;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-badge-portal {
+            font-size: 0.68rem;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
+        }
+
+        .admin-nav-list {
+            padding: 1rem 0.85rem;
+            flex-grow: 1;
+            overflow-y: auto;
+            list-style: none;
+            margin: 0;
+        }
+
+        .admin-nav-item {
+            margin-bottom: 4px;
+        }
+
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.92rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .admin-nav-link i {
+            font-size: 1.15rem;
+            width: 22px;
+            text-align: center;
+            color: var(--muted);
+            transition: color 0.2s ease;
+        }
+
+        .admin-nav-link:hover {
+            color: var(--primary);
+            background-color: var(--surface-2);
+        }
+
+        .admin-nav-link:hover i {
+            color: var(--primary);
+        }
+
+        .admin-nav-link.active {
+            color: var(--primary) !important;
+            background-color: rgba(99, 102, 241, 0.12) !important;
+            font-weight: 600;
+        }
+
+        .admin-nav-link.active i {
+            color: var(--primary) !important;
+        }
+
+        .admin-sidebar-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--border);
+            background-color: var(--surface);
+        }
+
+        /* Admin Main Content Container */
+        .admin-main {
+            flex-grow: 1;
+            min-width: 0;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--background);
+        }
+
+        /* Admin Topbar */
+        .admin-topbar {
+            height: 68px;
+            min-height: 68px;
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1010;
+        }
+
+        .admin-content-body {
+            padding: 1.75rem;
+            flex-grow: 1;
+        }
+
+        /* Stat KPI Cards */
+        .admin-stat-card {
+            border-radius: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1.25rem 1.4rem;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+        }
+
+        .admin-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+        }
+
+        /* Admin Data Tables */
+        .admin-table-card {
+            border-radius: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .admin-table {
+            margin-bottom: 0;
+            vertical-align: middle;
+        }
+
+        .admin-table th {
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            background-color: var(--surface-2);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 1.2rem;
+            white-space: nowrap;
+        }
+
+        .admin-table td {
+            padding: 0.95rem 1.2rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            font-size: 0.9rem;
+            background-color: var(--surface);
+        }
+
+        .admin-table tr:hover td {
+            background-color: var(--surface-2);
+        }
+
+        /* Tab Transition */
+        .admin-tab-pane {
+            display: none;
+            animation: fadeIn 0.25s ease-in-out forwards;
+        }
+
+        .admin-tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Forbidden 403 Screen */
+        .forbidden-screen {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .forbidden-card {
+            max-width: 520px;
+            padding: 3rem 2rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+        .forbidden-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.12);
+            color: #EF4444;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Mobile Offcanvas Sidebar */
+        @media (max-width: 991.98px) {
+            .admin-sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+                box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
+            }
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+            .admin-sidebar-backdrop {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1015;
+            }
+            .admin-sidebar-backdrop.show {
+                display: block;
+            }
+            .admin-topbar {
+                padding: 0 1rem;
+            }
+            .admin-content-body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 403 Forbidden Screen (Ẩn mặc định, hiển thị khi user không phải Admin) -->
+    <div id="admin-forbidden-view" class="forbidden-screen d-none">
+        <div class="forbidden-card">
+            <div class="forbidden-icon">
+                <i class="bi bi-shield-x"></i>
+            </div>
+            <h2 class="fw-bold font-manrope text-danger mb-2">403 - Quyền Truy Cập Bị Từ Chối</h2>
+            <p class="text-secondary mb-4" id="forbidden-message">
+                Khu vực này chỉ dành riêng cho Ban Quản Trị hệ thống ProjectHub. Tài khoản của bạn không có đủ đặc quyền để truy cập trang này.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="index.html" class="btn btn-primary px-4 rounded-pill">
+                    <i class="bi bi-house-door me-2"></i>Về Trang Chủ
+                </a>
+                <a href="login.html" class="btn btn-outline-secondary px-4 rounded-pill">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Đăng Nhập Khác
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Backdrop -->
+    <div class="admin-sidebar-backdrop" id="admin-sidebar-backdrop"></div>
+
+    <!-- Main Admin App Container -->
+    <div class="admin-app" id="admin-app-view">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar" id="admin-sidebar">
+            <!-- Brand -->
+            <div class="admin-brand">
+                <a href="index.html" title="Về trang chủ ProjectHub">
+                    <div class="brand-logo-icon">
+                        <i class="bi bi-hexagon-fill"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold font-manrope fs-5 lh-1 text-dark">ProjectHub</div>
+                        <span class="admin-badge-portal">Admin Portal</span>
+                    </div>
+                </a>
+                <button class="btn btn-sm btn-light border-0 d-lg-none" id="btn-close-sidebar" aria-label="Đóng menu">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <!-- Nav Links -->
+            <ul class="admin-nav-list">
+                <li class="admin-nav-item">
+                    <a href="#overview" class="admin-nav-link active" data-tab="overview">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Tổng quan KPI</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="#users" class="admin-nav-link" data-tab="users">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Quản lý Sinh viên</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="#projects" class="admin-nav-link" data-tab="projects">
+                        <i class="bi bi-kanban-fill"></i>
+                        <span>Quản lý Dự án</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="#broadcast" class="admin-nav-link" data-tab="broadcast">
+                        <i class="bi bi-megaphone-fill"></i>
+                        <span>Thông báo Toàn sàn</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="#settings" class="admin-nav-link" data-tab="settings">
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <span>Cài đặt & Quyền</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Sidebar Footer / Admin Info -->
+            <div class="admin-sidebar-footer">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2 min-w-0">
+                        <img id="admin-sidebar-avatar" src="https://ui-avatars.com/api/?name=Admin&background=6366F1&color=fff" class="rounded-circle border" style="width: 36px; height: 36px; object-fit: cover;" alt="Admin Avatar">
+                        <div class="min-w-0">
+                            <div class="fw-semibold small text-truncate text-dark" id="admin-sidebar-name">Admin Name</div>
+                            <div class="text-primary small" id="admin-sidebar-email" style="font-size: 0.75rem;">admin@gmail.com</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary border-0 p-1" id="btn-admin-logout" title="Đăng xuất" aria-label="Đăng xuất">
+                        <i class="bi bi-box-arrow-right fs-5"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-main">
+            
+            <!-- Topbar -->
+            <header class="admin-topbar">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-secondary btn-sm d-lg-none" id="btn-toggle-sidebar" aria-label="Mở menu quản trị">
+                        <i class="bi bi-list fs-5"></i>
+                    </button>
+                    <div>
+                        <h5 class="fw-bold mb-0 font-manrope text-dark" id="admin-page-title">Bảng điều khiển Quản trị</h5>
+                        <small class="text-secondary" id="admin-page-subtitle">Giám sát tổng quan số liệu và vận hành hệ thống</small>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Day/Night Switch 2 -->
+                    <label class="theme-switch" title="Chuyển giao diện Sáng / Tối" aria-label="Chuyển chế độ Sáng / Tối" style="--toggle-size: 11px;">
+                        <input type="checkbox" class="theme-switch__checkbox">
+                        <div class="theme-switch__container">
+                            <div class="theme-switch__clouds"></div>
+                            <div class="theme-switch__stars-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 55" fill="none">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M135.831 3.00688C135.055 3.85027 134.111 4.29946 133 4.35447C134.111 4.40947 135.055 4.85867 135.831 5.71123C136.607 6.55462 136.996 7.56303 136.996 8.72727C136.996 7.95722 137.172 7.25134 137.525 6.59129C137.886 5.93124 138.372 5.39954 138.98 5.00535C139.598 4.60199 140.268 4.39114 141 4.35447C139.88 4.2903 138.936 3.85027 138.16 3.00688C137.384 2.16348 136.996 1.16425 136.996 0C136.996 1.16425 136.607 2.16348 135.831 3.00688ZM31 23.3545C32.1114 23.2995 33.0551 22.8503 33.8313 22.0069C34.6075 21.1635 34.9956 20.1642 34.9956 19C34.9956 20.1642 35.3837 21.1635 36.1599 22.0069C36.9361 22.8503 37.8798 23.2903 39 23.3545C38.2679 23.3911 37.5976 23.602 36.9802 24.0053C36.3716 24.3995 35.8864 24.9312 35.5248 25.5913C35.172 26.2513 34.9956 26.9572 34.9956 27.7273C34.9956 26.563 34.6075 25.5546 33.8313 24.7112C33.0551 23.8587 32.1114 23.4095 31 23.3545ZM0 36.3545C1.11136 36.2995 2.05513 35.8503 2.83131 35.0069C3.6075 34.1635 3.99559 33.1642 3.99559 32C3.99559 33.1642 4.38368 34.1635 5.15987 35.0069C5.93605 35.8503 6.87982 36.2903 8 36.3545C7.26792 36.3911 6.59757 36.602 5.98015 37.0053C5.37155 37.3995 4.88644 37.9312 4.52481 38.5913C4.172 39.2513 3.99559 39.9572 3.99559 40.7273C3.99559 39.563 3.6075 38.5546 2.83131 37.7112C2.05513 36.8587 1.11136 36.4095 0 36.3545ZM56.8313 24.0069C56.0551 24.8503 55.1114 25.2995 54 25.3545C55.1114 25.4095 56.0551 25.8587 56.8313 26.7112C57.6075 27.5546 57.9956 28.563 57.9956 29.7273C57.9956 28.9572 58.172 28.2513 58.5248 27.5913C58.8864 26.9312 59.3716 26.3995 59.9802 26.0053C60.5976 25.602 61.2679 25.3911 62 25.3545C60.8798 25.2903 59.9361 24.8503 59.1599 24.0069C58.3837 23.1635 57.9956 22.1642 57.9956 21C57.9956 22.1642 57.6075 23.1635 56.8313 24.0069ZM81 25.3545C82.1114 25.2995 83.0551 24.8503 83.8313 24.0069C84.6075 23.1635 84.9956 22.1642 84.9956 21C84.9956 22.1642 85.3837 23.1635 86.1599 24.0069C86.9361 24.8503 87.8798 25.2903 89 25.3545C88.2679 25.3911 87.5976 25.602 86.9802 26.0053C86.3716 26.3995 85.8864 26.9312 85.5248 27.5913C85.172 28.2513 84.9956 28.9572 84.9956 29.7273C84.9956 28.563 84.6075 27.5546 83.8313 24.7112C83.0551 23.8587 82.1114 25.4095 81 25.3545ZM136 36.3545C137.111 36.2995 138.055 35.8503 138.831 35.0069C139.607 34.1635 139.996 33.1642 139.996 32C139.996 33.1642 140.384 34.1635 141.16 35.0069C141.936 35.8503 142.88 36.2903 144 36.3545C143.268 36.3911 142.598 36.602 141.98 37.0053C141.372 37.3995 140.886 37.9312 140.525 38.5913C140.172 39.2513 139.996 39.9572 139.996 40.7273C139.996 39.563 139.607 38.5546 138.831 37.7112C138.055 36.8587 137.111 36.4095 136 36.3545ZM101.831 49.0069C101.055 49.8503 100.111 50.2995 99 50.3545C100.111 50.4095 101.055 50.8587 101.831 51.7112C102.607 52.5546 102.996 53.563 102.996 54.7273C102.996 53.9572 103.172 53.2513 103.525 52.5913C103.886 51.9312 104.372 51.3995 104.98 51.0053C105.598 50.602 106.268 50.3911 107 50.3545C105.88 50.2903 104.936 49.8503 104.16 49.0069C103.384 48.1635 102.996 47.1642 102.996 46C102.996 47.1642 102.607 48.1635 101.831 49.0069Z" fill="currentColor"></path>
+                                </svg>
+                            </div>
+                            <div class="theme-switch__circle-container">
+                                <div class="theme-switch__sun-moon-container">
+                                    <div class="theme-switch__moon">
+                                        <div class="theme-switch__spot"></div>
+                                        <div class="theme-switch__spot"></div>
+                                        <div class="theme-switch__spot"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- View Website -->
+                    <a href="index.html" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 rounded-pill px-3" target="_blank" title="Xem giao diện người dùng">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                        <span class="d-none d-sm-inline">Xem Website</span>
+                    </a>
+
+                    <!-- Refresh Data -->
+                    <button class="btn btn-sm btn-primary rounded-pill px-3 d-flex align-items-center gap-1" id="btn-refresh-admin">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        <span class="d-none d-sm-inline">Làm mới</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dynamic Content Area -->
+            <div class="admin-content-body">
+
+                <!-- ==========================================
+                     TAB 1: TỔNG QUAN KPI & HOẠT ĐỘNG
+                     ========================================== -->
+                <div class="admin-tab-pane active" id="tab-overview">
+                    
+                    <!-- KPI Cards Row -->
+                    <div class="row g-3 mb-4">
+                        <!-- Total Users -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="admin-stat-card d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-secondary small fw-medium">Tổng Sinh viên</span>
+                                    <h3 class="fw-bold font-manrope my-1 text-dark" id="stat-total-users">0</h3>
+                                    <span class="badge bg-success-soft text-success small"><i class="bi bi-person-check me-1"></i>Đã kích hoạt</span>
+                                </div>
+                                <div class="admin-stat-icon bg-primary bg-opacity-10 text-primary">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Total Projects -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="admin-stat-card d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-secondary small fw-medium">Dự án Toàn sàn</span>
+                                    <h3 class="fw-bold font-manrope my-1 text-dark" id="stat-total-projects">0</h3>
+                                    <span class="badge bg-info-soft text-info small" id="stat-recruiting-projects">0 đang tuyển</span>
+                                </div>
+                                <div class="admin-stat-icon bg-info bg-opacity-10 text-info">
+                                    <i class="bi bi-folder-check"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Tasks Completed -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="admin-stat-card d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-secondary small fw-medium">Task Hoàn thành</span>
+                                    <h3 class="fw-bold font-manrope my-1 text-dark" id="stat-done-tasks">0</h3>
+                                    <span class="badge bg-success-soft text-success small" id="stat-total-tasks">/ 0 tổng task</span>
+                                </div>
+                                <div class="admin-stat-icon bg-success bg-opacity-10 text-success">
+                                    <i class="bi bi-check2-all"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Matching Success Rate -->
+                        <div class="col-12 col-sm-6 col-xl-3">
+                            <div class="admin-stat-card d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-secondary small fw-medium">Tỷ lệ Ghép đội</span>
+                                    <h3 class="fw-bold font-manrope my-1 text-dark" id="stat-matching-rate">98%</h3>
+                                    <span class="badge bg-primary-soft text-primary small"><i class="bi bi-lightning-charge-fill me-1"></i>AI Matching</span>
+                                </div>
+                                <div class="admin-stat-icon bg-warning bg-opacity-10 text-warning">
+                                    <i class="bi bi-bullseye"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts & Recent Projects Row -->
+                    <div class="row g-4 mb-4">
+                        <!-- Chart: Status breakdown -->
+                        <div class="col-12 col-lg-5">
+                            <div class="card card-custom h-100 p-4 border shadow-sm">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold font-manrope mb-0 text-dark">Phân bổ Dự án Theo Thể loại</h6>
+                                    <span class="badge bg-light text-secondary">Tỷ trọng</span>
+                                </div>
+                                <div class="position-relative" style="height: 240px;">
+                                    <canvas id="categoryChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Projects List -->
+                        <div class="col-12 col-lg-7">
+                            <div class="card card-custom h-100 p-4 border shadow-sm">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold font-manrope mb-0 text-dark">Dự án Mới Khởi tạo</h6>
+                                    <a href="#projects" class="btn btn-sm btn-link text-primary text-decoration-none" onclick="switchAdminTab('projects')">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                                        <thead>
+                                            <tr class="text-secondary small">
+                                                <th>Tên dự án</th>
+                                                <th>Thể loại</th>
+                                                <th>Trạng thái</th>
+                                                <th>Tiến độ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="overview-recent-projects-body">
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted py-4">Đang tải dữ liệu...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Broadcast Announcements Preview -->
+                    <div class="card card-custom p-4 border shadow-sm mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold font-manrope mb-0 text-dark">Thông báo Hệ thống Đang Phát hành</h6>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="switchAdminTab('broadcast')">
+                                <i class="bi bi-plus-lg me-1"></i>Soạn thông báo mới
+                            </button>
+                        </div>
+                        <div id="overview-announcements-list" class="d-flex flex-column gap-2">
+                            <!-- Injected by admin.js -->
+                            <div class="text-muted small py-3">Chưa có thông báo nào được phát hành.</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ==========================================
+                     TAB 2: QUẢN LÝ SINH VIÊN (USERS)
+                     ========================================== -->
+                <div class="admin-tab-pane" id="tab-users">
+                    
+                    <!-- Search & Filter Bar -->
+                    <div class="card card-custom p-3 border shadow-sm mb-4">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-12 col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                                    <input type="text" id="users-search-input" class="form-control border-start-0" placeholder="Tìm kiếm theo tên, email, username, kỹ năng...">
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <select id="users-role-filter" class="form-select">
+                                    <option value="all">Tất cả vai trò</option>
+                                    <option value="admin">Quản trị viên (Admin)</option>
+                                    <option value="user">Sinh viên (User)</option>
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <select id="users-status-filter" class="form-select">
+                                    <option value="all">Tất cả trạng thái</option>
+                                    <option value="active">Đang hoạt động</option>
+                                    <option value="banned">Bị khóa</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2 text-md-end">
+                                <button class="btn btn-primary w-100 rounded-pill" id="btn-filter-users">
+                                    <i class="bi bi-funnel me-1"></i>Lọc
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Table Card -->
+                    <div class="admin-table-card">
+                        <div class="table-responsive">
+                            <table class="table admin-table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Sinh viên</th>
+                                        <th>Email</th>
+                                        <th>Kỹ năng chính</th>
+                                        <th>Vai trò</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tham gia</th>
+                                        <th class="text-end">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-5">
+                                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                            Đang tải danh sách người dùng...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                            <span class="text-secondary small" id="users-pagination-info">Hiển thị 0 / 0</span>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary" id="btn-users-prev" disabled><i class="bi bi-chevron-left"></i> Trước</button>
+                                <button class="btn btn-outline-secondary" id="btn-users-next" disabled>Sau <i class="bi bi-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ==========================================
+                     TAB 3: QUẢN LÝ DỰ ÁN (PROJECTS)
+                     ========================================== -->
+                <div class="admin-tab-pane" id="tab-projects">
+                    
+                    <!-- Search & Filter Bar -->
+                    <div class="card card-custom p-3 border shadow-sm mb-4">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-12 col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                                    <input type="text" id="projects-search-input" class="form-control border-start-0" placeholder="Tìm tên dự án...">
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <select id="projects-status-filter" class="form-select">
+                                    <option value="all">Tất cả trạng thái</option>
+                                    <option value="recruiting">Đang tuyển quân</option>
+                                    <option value="in_progress">Đang phát triển</option>
+                                    <option value="completed">Đã hoàn thành</option>
+                                    <option value="archived">Đã lưu trữ</option>
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <select id="projects-category-filter" class="form-select">
+                                    <option value="all">Tất cả thể loại</option>
+                                    <option value="web">Web App</option>
+                                    <option value="mobile">Mobile App</option>
+                                    <option value="ai">AI / Machine Learning</option>
+                                    <option value="iot">IoT / Phần cứng</option>
+                                    <option value="game">Game</option>
+                                    <option value="other">Khác</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2 text-md-end">
+                                <button class="btn btn-primary w-100 rounded-pill" id="btn-filter-projects">
+                                    <i class="bi bi-funnel me-1"></i>Lọc
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Projects Table Card -->
+                    <div class="admin-table-card">
+                        <div class="table-responsive">
+                            <table class="table admin-table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Dự án</th>
+                                        <th>Chủ dự án</th>
+                                        <th>Thể loại</th>
+                                        <th>Thành viên</th>
+                                        <th>Tiến độ</th>
+                                        <th>Hiển thị</th>
+                                        <th>Trạng thái</th>
+                                        <th class="text-end">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projects-table-body">
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted py-5">
+                                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                            Đang tải danh sách dự án...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                            <span class="text-secondary small" id="projects-pagination-info">Hiển thị 0 / 0</span>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary" id="btn-projects-prev" disabled><i class="bi bi-chevron-left"></i> Trước</button>
+                                <button class="btn btn-outline-secondary" id="btn-projects-next" disabled>Sau <i class="bi bi-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ==========================================
+                     TAB 4: THÔNG BÁO TOÀN SÀN (BROADCAST)
+                     ========================================== -->
+                <div class="admin-tab-pane" id="tab-broadcast">
+                    <div class="row g-4">
+                        
+                        <!-- Form Soạn Thông Báo -->
+                        <div class="col-12 col-lg-5">
+                            <div class="card card-custom p-4 border shadow-sm">
+                                <h5 class="fw-bold font-manrope text-dark mb-1">
+                                    <i class="bi bi-send-fill text-primary me-2"></i>Soạn Thông Báo Toàn Sàn
+                                </h5>
+                                <p class="text-secondary small mb-4">
+                                    Thông báo này sẽ được bắn trực tiếp vào hòm thư thông báo của toàn bộ sinh viên trên hệ thống.
+                                </p>
+
+                                <form id="form-broadcast">
+                                    <div class="mb-3">
+                                        <label for="broadcast-title" class="form-label small fw-semibold text-secondary">Tiêu đề thông báo <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="broadcast-title" placeholder="VD: Bảo trì hệ thống định kỳ / Ra mắt tính năng AI" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="broadcast-type" class="form-label small fw-semibold text-secondary">Mức độ ưu tiên & Loại</label>
+                                        <select class="form-select" id="broadcast-type">
+                                            <option value="info">Thông tin chung (Xanh dương)</option>
+                                            <option value="success">Tin vui / Chúc mừng (Xanh lá)</option>
+                                            <option value="warning">Cảnh báo / Nhắc nhở (Vàng cam)</option>
+                                            <option value="urgent">Khẩn cấp / Quan trọng (Đỏ)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="broadcast-message" class="form-label small fw-semibold text-secondary">Nội dung chi tiết <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="broadcast-message" rows="4" placeholder="Nhập nội dung thông báo gửi đến các bạn sinh viên..." required></textarea>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="broadcast-url" class="form-label small fw-semibold text-secondary">Đường dẫn hành động (Action URL)</label>
+                                        <input type="text" class="form-control" id="broadcast-url" placeholder="VD: /projects.html hoặc /guide.html">
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-semibold d-flex align-items-center justify-content-center gap-2" id="btn-send-broadcast">
+                                        <i class="bi bi-broadcast"></i> Phát Sóng Thông Báo Ngay
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Danh sách Thông Báo Đã Gửi -->
+                        <div class="col-12 col-lg-7">
+                            <div class="card card-custom p-4 border shadow-sm">
+                                <h5 class="fw-bold font-manrope text-dark mb-1">
+                                    <i class="bi bi-clock-history text-secondary me-2"></i>Lịch Sử Thông Báo Đã Phát
+                                </h5>
+                                <p class="text-secondary small mb-3">Danh sách các thông báo toàn sàn đã được phát sóng gần đây.</p>
+                                
+                                <div id="broadcast-history-list" class="d-flex flex-column gap-3">
+                                    <!-- Injected by admin.js -->
+                                    <div class="text-muted text-center py-4">Đang tải lịch sử thông báo...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                     TAB 5: CÀI ĐẶT & PHÂN QUYỀN (SETTINGS)
+                     ========================================== -->
+                <div class="admin-tab-pane" id="tab-settings">
+                    <div class="row g-4">
+                        
+                        <!-- Super Admin Information -->
+                        <div class="col-12 col-md-6">
+                            <div class="card card-custom p-4 border shadow-sm h-100">
+                                <h5 class="fw-bold font-manrope text-dark mb-3">
+                                    <i class="bi bi-shield-lock text-primary me-2"></i>Quyền Hạn Super Admin
+                                </h5>
+                                <div class="p-3 rounded-3 bg-light border mb-3">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <i class="bi bi-envelope-check-fill text-success fs-5"></i>
+                                        <span class="fw-semibold text-dark">Email Super Admin Chính:</span>
+                                    </div>
+                                    <div class="fs-6 font-monospace text-primary fw-bold ms-4">
+                                        lamasono80@gmail.com
+                                    </div>
+                                </div>
+                                <p class="text-secondary small">
+                                    Tài khoản có email trên là <strong>Super Admin tối cao</strong> của hệ thống. Tài khoản này không thể bị hạ quyền hoặc khóa bởi các quản trị viên khác, có toàn quyền phân quyền và xóa bỏ nội dung.
+                                </p>
+                                <ul class="small text-secondary ps-3 mb-0">
+                                    <li>Toàn quyền truy cập mọi API quản trị (`/api/admin/*`).</li>
+                                    <li>Cấp và thu hồi quyền Admin của các thành viên khác.</li>
+                                    <li>Khóa tài khoản và xóa dự án vi phạm tiêu chuẩn.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- System Telemetry & Status -->
+                        <div class="col-12 col-md-6">
+                            <div class="card card-custom p-4 border shadow-sm h-100">
+                                <h5 class="fw-bold font-manrope text-dark mb-3">
+                                    <i class="bi bi-cpu text-info me-2"></i>Thông Số Nền Tảng
+                                </h5>
+                                <ul class="list-group list-group-flush small">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent text-secondary">
+                                        <span>Phiên bản Hệ thống:</span>
+                                        <span class="badge bg-primary text-white">ProjectHub v1.0.0</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent text-secondary">
+                                        <span>Cơ sở Dữ liệu:</span>
+                                        <span class="badge bg-success text-white">Supabase PostgreSQL 15</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent text-secondary">
+                                        <span>Bảo mật JWT:</span>
+                                        <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Hoạt động</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent text-secondary">
+                                        <span>Row Level Security (RLS):</span>
+                                        <span class="badge bg-success text-white">Bật 10/10 bảng</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent text-secondary">
+                                        <span>Môi trường chạy:</span>
+                                        <span class="badge bg-secondary text-white">Node.js Express 5.2</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ==========================================
+         MODALS
+         ========================================== -->
+    
+    <!-- Modal: Chi tiết Người dùng -->
+    <div class="modal fade" id="modal-user-detail" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark font-manrope">Hồ Sơ Sinh Viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <img id="detail-user-avatar" src="" class="rounded-circle border mb-3 shadow-sm" style="width: 80px; height: 80px; object-fit: cover;" alt="Avatar">
+                    <h5 class="fw-bold text-dark mb-1" id="detail-user-name">User Name</h5>
+                    <p class="text-muted small mb-2" id="detail-user-email">email@example.com</p>
+                    <div class="mb-3" id="detail-user-badges"></div>
+
+                    <div class="p-3 bg-light rounded-3 text-start small mb-3">
+                        <div class="mb-2"><strong>Username:</strong> <span id="detail-user-username" class="text-secondary"></span></div>
+                        <div class="mb-2"><strong>Trình độ:</strong> <span id="detail-user-exp" class="text-secondary"></span></div>
+                        <div class="mb-2"><strong>Dự án tham gia:</strong> <span id="detail-user-projects" class="text-primary fw-bold"></span></div>
+                        <div><strong>Kỹ năng:</strong> <div id="detail-user-skills" class="d-flex flex-wrap gap-1 mt-1"></div></div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+                        <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Xác nhận Xóa Dự án -->
+    <div class="modal fade" id="modal-confirm-delete-project" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-0 shadow-lg rounded-4 text-center p-4">
+                <div class="text-danger mb-3" style="font-size: 3rem; line-height: 1;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <h5 class="fw-bold text-dark font-manrope mb-2">Xóa Dự Án?</h5>
+                <p class="text-secondary small mb-4">
+                    Bạn có chắc chắn muốn xóa vĩnh viễn dự án <strong id="delete-project-title" class="text-dark"></strong>? Mọi tác vụ, thành viên và thảo luận liên quan sẽ bị gỡ bỏ.
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4" id="btn-confirm-delete-project">
+                        <i class="bi bi-trash3 me-1"></i>Xóa Ngay
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+        <div id="admin-toast" class="toast align-items-center border-0 shadow-lg rounded-3" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-2" id="admin-toast-body">
+                    <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                    <span>Thông báo thành công!</span>
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo dự án mới - ProjectHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        /* Anti-overflow resets for create-project page */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Modern Scoped Styles for create-project */
+        .progress-indicator {
+            position: sticky;
+            top: 68px;
+            z-index: 990;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            max-width: 100%;
+        }
+
+        @media (max-width: 991px) {
+            .progress-indicator {
+                top: 60px;
+                padding: 10px 0;
+                margin-bottom: 18px;
+            }
+        }
+
+        /* Form sections */
+        .form-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem 2rem;
+            margin-bottom: 1.75rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .form-section {
+                padding: 1.25rem 1rem !important;
+                border-radius: var(--radius-md) !important;
+                margin-bottom: 1.25rem !important;
+            }
+        }
+
+        .section-badge-num {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        /* Interactive Difficulty Segmented Cards */
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        @media (max-width: 991px) and (min-width: 769px) {
+            .difficulty-grid {
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .difficulty-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        .difficulty-card-label {
+            display: block;
+            margin: 0;
+            cursor: pointer;
+            height: 100%;
+        }
+
+        .difficulty-card {
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+            background: var(--surface);
+            transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            word-break: break-word;
+        }
+
+        .difficulty-card:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .diff-icon-wrap {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+        }
+
+        .diff-easy .diff-icon-wrap { background: rgba(16, 185, 129, 0.12); color: #10B981; }
+        .diff-medium .diff-icon-wrap { background: rgba(245, 158, 11, 0.12); color: #F59E0B; }
+        .diff-hard .diff-icon-wrap { background: rgba(239, 68, 68, 0.12); color: #EF4444; }
+
+        .diff-check-badge {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--border);
+            color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .w-fit {
+            width: fit-content !important;
+            max-width: 100%;
+        }
+
+        /* Checked states for Difficulty Radios */
+        #diff-easy:checked + .difficulty-card-label .difficulty-card {
+            border-color: #10B981;
+            background-color: rgba(16, 185, 129, 0.05);
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.18);
+        }
+        #diff-easy:checked + .difficulty-card-label .diff-check-badge {
+            background: #10B981;
+            color: #ffffff;
+        }
+
+        #diff-medium:checked + .difficulty-card-label .difficulty-card {
+            border-color: #F59E0B;
+            background-color: rgba(245, 158, 11, 0.05);
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.18);
+        }
+        #diff-medium:checked + .difficulty-card-label .diff-check-badge {
+            background: #F59E0B;
+            color: #ffffff;
+        }
+
+        #diff-hard:checked + .difficulty-card-label .difficulty-card {
+            border-color: #EF4444;
+            background-color: rgba(239, 68, 68, 0.05);
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.18);
+        }
+        #diff-hard:checked + .difficulty-card-label .diff-check-badge {
+            background: #EF4444;
+            color: #ffffff;
+        }
+
+        /* Tech Tags & Quick Suggestions */
+        .tech-tags-container {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 54px;
+            background: var(--surface);
+            transition: var(--transition);
+            max-width: 100%;
+            overflow: hidden;
+        }
+        .tech-tags-container:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+        .tech-tag {
+            background: rgba(79, 70, 229, 0.09);
+            color: var(--primary);
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            border-radius: 999px;
+            padding: 4px 12px;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            max-width: 100%;
+            word-break: break-word;
+        }
+        .tech-tag .remove {
+            margin-left: 8px;
+            cursor: pointer;
+            color: var(--muted);
+            font-weight: bold;
+            font-size: 1rem;
+            line-height: 1;
+        }
+        .tech-tag .remove:hover {
+            color: var(--danger);
+        }
+        .tech-input {
+            border: none;
+            outline: none;
+            flex-grow: 1;
+            min-width: 120px;
+            max-width: 100%;
+            padding: 6px;
+            background: transparent;
+            font-size: 0.95rem;
+        }
+        .quick-chip {
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            color: var(--text-secondary);
+            border-radius: 999px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .quick-chip:hover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.08);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        /* Role Categories & Cards */
+        .role-domain-header {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            margin: 1.25rem 0 0.75rem 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .role-domain-header:first-of-type {
+            margin-top: 0;
+        }
+        .role-card-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px 12px;
+            background: var(--surface);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            min-width: 0;
+            max-width: 100%;
+        }
+        .role-card-item:hover {
+            border-color: #cbd5e1;
+            background: var(--surface-2);
+        }
+        .role-card-item.active-role {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.04);
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
+        }
+        .role-card-item > div:first-child {
+            min-width: 0;
+            flex: 1 1 auto;
+            overflow: hidden;
+        }
+        .role-card-item .form-check-label {
+            word-break: break-word;
+            font-size: 0.875rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .stepper-control {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+        @media (max-width: 480px) {
+            .role-card-item {
+                flex-wrap: wrap;
+                padding: 10px;
+            }
+            .role-card-item .form-check-label {
+                white-space: normal;
+            }
+            .role-card-item .stepper-control {
+                width: 100%;
+                justify-content: flex-end;
+                padding-top: 4px;
+                border-top: 1px dashed var(--border);
+                margin-top: 4px;
+            }
+        }
+        .btn-stepper {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 0;
+            user-select: none;
+        }
+        .btn-stepper:hover {
+            background: var(--surface-2);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .role-qty-input {
+            width: 44px;
+            text-align: center;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 3px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: var(--surface);
+            -moz-appearance: textfield;
+        }
+        .role-qty-input::-webkit-outer-spin-button,
+        .role-qty-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Image Upload & Presets */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            padding: 30px 16px;
+            text-align: center;
+            cursor: pointer;
+            background: var(--surface-2);
+            transition: var(--transition);
+            position: relative;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.03);
+        }
+        .preset-cover-box {
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: var(--transition);
+            height: 72px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            padding: 6px 8px;
+            text-decoration: none;
+            max-width: 100%;
+        }
+        .preset-cover-box:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        .preset-cover-box span {
+            background: rgba(15, 23, 42, 0.75);
+            color: #ffffff;
+            font-size: 0.725rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            backdrop-filter: blur(4px);
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* GitHub Input Group Responsive */
+        .github-input-group {
+            max-width: 100%;
+        }
+        @media (max-width: 768px) {
+            .github-input-group.input-group-lg {
+                flex-wrap: wrap;
+            }
+            .github-input-group.input-group-lg > .form-control {
+                border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
+                flex: 1 1 200px;
+            }
+            .github-input-group.input-group-lg > .btn {
+                border-radius: var(--radius-md) !important;
+                width: 100%;
+                margin-top: 8px;
+                margin-left: 0 !important;
+            }
+        }
+
+        /* Action Toolbar */
+        .action-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 576px) {
+            .action-toolbar {
+                flex-direction: column-reverse;
+                align-items: stretch !important;
+                gap: 10px;
+            }
+            .action-toolbar > a.btn {
+                width: 100%;
+                text-align: center;
+            }
+            .action-toolbar .action-toolbar-right {
+                display: flex;
+                flex-direction: column;
+                gap: 10px !important;
+                width: 100%;
+            }
+            .action-toolbar .action-toolbar-right .btn {
+                width: 100%;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+        }
+
+        /* Preview Right Sticky */
+        .preview-card-wrapper {
+            position: sticky;
+            top: 90px;
+            max-height: calc(100vh - 110px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            padding-right: 4px;
+        }
+
+        /* Visually Hidden Native Select for 100% Form/Script Compatibility */
+        .visually-hidden-select {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <div id="navbar-placeholder"></div>
+    <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <!-- Sticky Progress Bar Header -->
+    <div class="progress-indicator">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                        <i class="bi bi-rocket-takeoff-fill me-1"></i> Dự án mới
+                    </span>
+                    <h5 class="mb-0 fw-bold d-none d-sm-inline">Khởi tạo dự án</h5>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="small text-muted d-none d-md-inline">Điền đầy đủ thông tin để thu hút cộng tác viên</span>
+                    <span id="form-progress-text" class="fw-bold text-primary">0% hoàn thành</span>
+                </div>
+            </div>
+            <div class="progress" style="height: 6px; border-radius: 999px;">
+                <div id="form-progress-bar" class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container pb-5">
+        <!-- Page Header Breadcrumbs -->
+        <div class="mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-2 small text-muted">
+                    <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="projects.html" class="text-decoration-none">Dự án</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Tạo dự án mới</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold mb-1">Khởi tạo dự án công nghệ mới</h2>
+            <p class="text-secondary mb-0">Xây dựng đội ngũ sinh viên liên ngành, kết nối kho mã nguồn và biến ý tưởng thành sản phẩm thực tế.</p>
+        </div>
+
+        <form id="create-project-form" class="row g-4">
+            <!-- Form Left Column (8 col) -->
+            <div class="col-lg-8">
+                <!-- Section 1: Thông tin cơ bản -->
+                <div class="form-section">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h4 class="form-section-title mb-0">
+                            <span class="section-badge-num">1</span>
+                            Thông tin cơ bản & Mục tiêu
+                        </h4>
+                        <span class="badge bg-danger-subtle text-danger small">Bắt buộc</span>
+                    </div>
+                    <p class="form-section-subtitle">Mô tả mục tiêu sản phẩm, tầm nhìn và bài toán thực tiễn mà bạn muốn cùng nhóm giải quyết.</p>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="cp-title">Tên dự án <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg" id="cp-title" required placeholder="VD: EcoRoute - Bản đồ định tuyến giao thông xanh cho sinh viên" maxlength="200">
+                        <div class="form-text">Tên ngắn gọn, nêu bật giá trị cốt lõi (tối đa 200 ký tự).</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="cp-desc">Mô tả ngắn dự án <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="cp-desc" rows="3" required placeholder="Tóm tắt về dự án trong 1-2 câu súc tích. Thông tin này sẽ xuất hiện trên thẻ hiển thị dự án..."></textarea>
+                        <div class="form-text">Mô tả hấp dẫn giúp người xem hiểu ngay dự án trong 5 giây đầu tiên.</div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="cp-goals">Mục tiêu dự án (Goals)</label>
+                            <textarea class="form-control" id="cp-goals" rows="3" placeholder="Sản phẩm mong muốn sau khi hoàn thành: MVP thử nghiệm, NCKH, tham dự Hackathon..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="cp-problem">Vấn đề cần giải quyết (Problem)</label>
+                            <textarea class="form-control" id="cp-problem" rows="3" placeholder="Dự án này giải quyết nỗi đau hoặc nhu cầu thực tế nào trong cuộc sống hoặc học tập?"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Phân loại & Mức độ thử thách -->
+                <div class="form-section">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h4 class="form-section-title mb-0">
+                            <span class="section-badge-num">2</span>
+                            Phân loại & Mức độ thử thách
+                        </h4>
+                        <span class="badge bg-danger-subtle text-danger small">Bắt buộc</span>
+                    </div>
+                    <p class="form-section-subtitle">Giúp thuật toán AI gợi ý đúng các ứng viên có trình độ và chuyên môn phù hợp nhất.</p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="cp-field">Lĩnh vực chuyên ngành <span class="text-danger">*</span></label>
+                            <div class="custom-select-wrapper position-relative" id="cp-field-wrapper">
+                                <button type="button" 
+                                        id="cp-field-btn" 
+                                        class="custom-select-trigger d-flex align-items-center justify-content-between w-100" 
+                                        aria-haspopup="listbox" 
+                                        aria-expanded="false"
+                                        aria-label="Chọn lĩnh vực chuyên ngành">
+                                    <span class="selected-text text-truncate">-- Chọn lĩnh vực dự án --</span>
+                                    <i class="bi bi-chevron-down ms-2"></i>
+                                </button>
+                                <div class="custom-select-dropdown" role="listbox" id="cp-field-dropdown">
+                                    <div class="custom-select-option" data-value="">-- Chọn lĩnh vực dự án --</div>
+                                    <div class="custom-select-option" data-value="web">🌐 Web Development</div>
+                                    <div class="custom-select-option" data-value="mobile">📱 Mobile Development</div>
+                                    <div class="custom-select-option" data-value="ai">🤖 AI / Machine Learning</div>
+                                    <div class="custom-select-option" data-value="game">🎮 Game Development</div>
+                                    <div class="custom-select-option" data-value="data">📊 Data Science</div>
+                                    <div class="custom-select-option" data-value="iot">⚡ IoT / Hardware</div>
+                                    <div class="custom-select-option" data-value="other">💡 Lĩnh vực khác</div>
+                                </div>
+                                <select class="form-select visually-hidden-select" id="cp-field" required aria-hidden="true" tabindex="-1">
+                                    <option value="">-- Chọn lĩnh vực dự án --</option>
+                                    <option value="web">🌐 Web Development</option>
+                                    <option value="mobile">📱 Mobile Development</option>
+                                    <option value="ai">🤖 AI / Machine Learning</option>
+                                    <option value="game">🎮 Game Development</option>
+                                    <option value="data">📊 Data Science</option>
+                                    <option value="iot">⚡ IoT / Hardware</option>
+                                    <option value="other">💡 Lĩnh vực khác</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="cp-deadline">Hạn chót dự kiến (Deadline)</label>
+                            <input type="date" class="form-control" id="cp-deadline">
+                            <div class="form-text">Thời hạn dự kiến hoàn thành sản phẩm hoặc chốt danh sách nhóm.</div>
+                        </div>
+                    </div>
+
+                    <!-- Modern Interactive Difficulty Cards -->
+                    <div>
+                        <label class="form-label fw-semibold d-flex justify-content-between align-items-center mb-2">
+                            <span>Độ khó ước tính <span class="text-danger">*</span></span>
+                            <span class="text-muted small fw-normal">Chọn 1 mức độ phù hợp</span>
+                        </label>
+
+                        <!-- Radios with preserved IDs & Name -->
+                        <div class="difficulty-grid">
+                            <!-- Option 1: Easy -->
+                            <div class="diff-item">
+                                <input type="radio" class="btn-check" name="cp-difficulty" id="diff-easy" value="easy" autocomplete="off" required>
+                                <label class="difficulty-card-label" for="diff-easy">
+                                    <div class="difficulty-card diff-easy">
+                                        <div class="diff-check-badge"><i class="bi bi-check-lg"></i></div>
+                                        <div class="diff-icon-wrap">
+                                            <i class="bi bi-shield-check"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1 text-success">Dễ (Người mới)</h6>
+                                        <span class="badge bg-success-subtle text-success w-fit mb-2 small">Cho SV năm 1-2</span>
+                                        <p class="small text-muted mb-0">Tập trung học hỏi quy trình, làm quen công nghệ và luyện tập làm việc nhóm.</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Option 2: Medium -->
+                            <div class="diff-item">
+                                <input type="radio" class="btn-check" name="cp-difficulty" id="diff-medium" value="medium" autocomplete="off">
+                                <label class="difficulty-card-label" for="diff-medium">
+                                    <div class="difficulty-card diff-medium">
+                                        <div class="diff-check-badge"><i class="bi bi-check-lg"></i></div>
+                                        <div class="diff-icon-wrap">
+                                            <i class="bi bi-lightning-charge-fill"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1 text-warning">Trung bình (Có nền tảng)</h6>
+                                        <span class="badge bg-warning-subtle text-warning w-fit mb-2 small">Cần kiến thức core</span>
+                                        <p class="small text-muted mb-0">Đã từng làm project nhỏ, tự chủ được code hoặc bản thiết kế giao diện.</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Option 3: Hard -->
+                            <div class="diff-item">
+                                <input type="radio" class="btn-check" name="cp-difficulty" id="diff-hard" value="hard" autocomplete="off">
+                                <label class="difficulty-card-label" for="diff-hard">
+                                    <div class="difficulty-card diff-hard">
+                                        <div class="diff-check-badge"><i class="bi bi-check-lg"></i></div>
+                                        <div class="diff-icon-wrap">
+                                            <i class="bi bi-fire"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1 text-danger">Khó (Chuyên sâu)</h6>
+                                        <span class="badge bg-danger-subtle text-danger w-fit mb-2 small">Thử thách thực chiến</span>
+                                        <p class="small text-muted mb-0">Hệ thống phân tán, mô hình AI phức tạp hoặc tối ưu hiệu năng cao.</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Công nghệ sử dụng -->
+                <div class="form-section">
+                    <h4 class="form-section-title">
+                        <span class="section-badge-num">3</span>
+                        Công nghệ sử dụng (Tech Stack)
+                    </h4>
+                    <p class="form-section-subtitle">Thêm các ngôn ngữ, framework, cơ sở dữ liệu sẽ dùng trong dự án để tăng độ chuẩn xác khi ghép đội.</p>
+
+                    <label class="form-label fw-semibold" for="cp-tech-input">Danh sách công nghệ</label>
+                    <div class="tech-tags-container mb-2" id="tech-tags-container">
+                        <!-- Tags go here dynamically -->
+                        <input type="text" class="tech-input" id="cp-tech-input" placeholder="Gõ tên công nghệ rồi nhấn Enter hoặc dấu phẩy (,)...">
+                    </div>
+                    <div class="form-text mb-3">Ví dụ: React, Node.js, Python, PostgreSQL, Figma, Docker...</div>
+
+                    <!-- Quick Suggestions -->
+                    <div>
+                        <span class="small fw-semibold text-muted d-block mb-2"><i class="bi bi-stars text-warning me-1"></i>Gợi ý thêm nhanh:</span>
+                        <div class="d-flex flex-wrap gap-2" id="quick-tech-suggestions">
+                            <span class="quick-chip" data-tech="React"><i class="bi bi-plus"></i> React</span>
+                            <span class="quick-chip" data-tech="Vue.js"><i class="bi bi-plus"></i> Vue.js</span>
+                            <span class="quick-chip" data-tech="Node.js"><i class="bi bi-plus"></i> Node.js</span>
+                            <span class="quick-chip" data-tech="Python"><i class="bi bi-plus"></i> Python</span>
+                            <span class="quick-chip" data-tech="TypeScript"><i class="bi bi-plus"></i> TypeScript</span>
+                            <span class="quick-chip" data-tech="Flutter"><i class="bi bi-plus"></i> Flutter</span>
+                            <span class="quick-chip" data-tech="TailwindCSS"><i class="bi bi-plus"></i> TailwindCSS</span>
+                            <span class="quick-chip" data-tech="Figma"><i class="bi bi-plus"></i> Figma</span>
+                            <span class="quick-chip" data-tech="Docker"><i class="bi bi-plus"></i> Docker</span>
+                            <span class="quick-chip" data-tech="PostgreSQL"><i class="bi bi-plus"></i> PostgreSQL</span>
+                            <span class="quick-chip" data-tech="PyTorch"><i class="bi bi-plus"></i> PyTorch</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Tuyển thành viên theo ngành -->
+                <div class="form-section">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h4 class="form-section-title mb-0">
+                            <span class="section-badge-num">4</span>
+                            Tuyển thành viên theo chuyên ngành
+                        </h4>
+                        <span class="badge bg-secondary-subtle text-secondary small">Tùy chọn</span>
+                    </div>
+                    <p class="form-section-subtitle">Tích chọn các vị trí cần chiêu mộ và điều chỉnh số lượng. Dự án sẽ tự động thông báo đến sinh viên ngành tương ứng.</p>
+
+                    <div id="roles-container">
+                        <!-- Nhóm 1: CNTT & Lập trình -->
+                        <div class="role-domain-header"><i class="bi bi-laptop"></i> Công nghệ thông tin & Phát triển phần mềm</div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6 role-item">
+                                <div class="role-card-item">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0 role-checkbox" type="checkbox" value="Frontend" id="role-fe">
+                                        <label class="form-check-label fw-medium mb-0" for="role-fe">Frontend Developer</label>
+                                    </div>
+                                    <div class="stepper-control">
+                                        <button type="button" class="btn-stepper btn-qty-minus"><i class="bi bi-dash"></i></button>
+                                        <input type="number" class="role-qty-input role-qty" placeholder="SL" min="1" max="10" disabled>
+                                        <button type="button" class="btn-stepper btn-qty-plus"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 role-item">
+                                <div class="role-card-item">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0 role-checkbox" type="checkbox" value="Backend" id="role-be">
+                                        <label class="form-check-label fw-medium mb-0" for="role-be">Backend Developer</label>
+                                    </div>
+                                    <div class="stepper-control">
+                                        <button type="button" class="btn-stepper btn-qty-minus"><i class="bi bi-dash"></i></button>
+                                        <input type="number" class="role-qty-input role-qty" placeholder="SL" min="1" max="10" disabled>
+                                        <button type="button" class="btn-stepper btn-qty-plus"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 role-item">
+                                <div class="role-card-item">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0 role-checkbox" type="checkbox" value="Fullstack" id="role-fs">
+                                        <label class="form-check-label fw-medium mb-0" for="role-fs">Fullstack Developer</label>
+                                    </div>
+                                    <div class="stepper-control">
+                                        <button type="button" class="btn-stepper btn-qty-minus"><i class="bi bi-dash"></i></button>
+                                        <input type="number" class="role-qty-input role-qty" placeholder="SL" min="1" max="10" disabled>
+                                        <button type="button" class="btn-stepper btn-qty-plus"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 role-item">
+                                <div class="role-card-item">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0 role-checkbox" type="checkbox" value="Mobile" id="role-mobile">
+                                        <label class="form-check-label fw-medium mb-0" for="role-mobile">Mobile Developer</label>
+                                    </div>
+                                    <div class="stepper-control">
+                                        <button type="button" class="btn-stepper btn-qty-minus"><i class="bi bi-dash"></i></button>
+                                        <input type="number" class="role-qty-input role-qty" placeholder="SL" min="1" max="10" disabled>
+                                        <button type="button" class="btn-stepper btn-qty-plus"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nhóm 2: Thiết kế & Sáng tạo -->
+                        <div class="role-domain-header"><i class="bi bi-palette"></i> Thiết kế & Sáng tạo đa phương tiện</div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6 role-item">
+                                <div class="role-card-item">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0 role-checkbox" type="checkbox" value="UI/UX Design" id="role-uiux">
+                                        <label class="form-check-label fw-medium mb-0" for="role-uiux">UI/UX Designer</label>
+                                    </div>
+                                    <div class="stepper-control">
+                                        <button type="button" class="btn-stepper btn-qty-minus"><i class="bi bi-dash"></i></button>
+                                        <input type="number" class="role-qty-input role-qty" placeholder="SL" min="1" max="10" disabled>
+                                        <button type="button" class="btn-stepper btn-qty-plus"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 role-item">
+                                <div class="role-card-item">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0 role-checkbox" type="checkbox" value="Graphic Designer" id="role-gd">
+                                        <label class="form-check-label fw-medium mb-0" for="role-gd">Graphic / 3D Designer</label>
+                                    </div>
+                                    <div class="stepper-control">
+                                        <button type="button" class="btn-stepper btn-qty-minus"><i class="bi bi-dash"></i></button>
+                                        <input type="number" class="role-qty-input role-qty" placeholder="SL" min="1" max="10" disabled>
+                                        <button type="button" class="btn-stepper btn-qty-plus"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nhóm 3: Dữ liệu & AI -->
+                        <div class="role-domain-header"><i class="bi bi-cpu"></i> Dữ liệu & Trí tuệ nhân tạo</div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6 role-item">
+                                <div class="role-card-item">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0 role-checkbox" type="checkbox" value="AI Engineer" id="role-ai">
+                                        <label class="form-check-label fw-medium mb-0" for="role-ai">AI / Machine Learning</label>
+                                    </div>
+                                    <div class="stepper-control">
+                                        <button type="button" class="btn-stepper btn-qty-minus"><i class="bi bi-dash"></i></button>
+                                        <input type="number" class="role-qty-input role-qty" placeholder="SL" min="1" max="10" disabled>
+                                        <button type="button" class="btn-stepper btn-qty-plus"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 role-item">
+                                <div class="role-card-item">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0 role-checkbox" type="checkbox" value="Database" id="role-db">
+                                        <label class="form-check-label fw-medium mb-0" for="role-db">Database / Data Analyst</label>
+                                    </div>
+                                    <div class="stepper-control">
+                                        <button type="button" class="btn-stepper btn-qty-minus"><i class="bi bi-dash"></i></button>
+                                        <input type="number" class="role-qty-input role-qty" placeholder="SL" min="1" max="10" disabled>
+                                        <button type="button" class="btn-stepper btn-qty-plus"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nhóm 4: Kinh tế & Quản trị -->
+                        <div class="role-domain-header"><i class="bi bi-briefcase"></i> Kinh tế, Quản trị & Đảm bảo chất lượng</div>
+                        <div class="row g-2">
+                            <div class="col-md-6 role-item">
+                                <div class="role-card-item">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0 role-checkbox" type="checkbox" value="Marketing" id="role-mkt">
+                                        <label class="form-check-label fw-medium mb-0" for="role-mkt">Marketing & Truyền thông</label>
+                                    </div>
+                                    <div class="stepper-control">
+                                        <button type="button" class="btn-stepper btn-qty-minus"><i class="bi bi-dash"></i></button>
+                                        <input type="number" class="role-qty-input role-qty" placeholder="SL" min="1" max="10" disabled>
+                                        <button type="button" class="btn-stepper btn-qty-plus"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 role-item">
+                                <div class="role-card-item">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0 role-checkbox" type="checkbox" value="Tester" id="role-tester">
+                                        <label class="form-check-label fw-medium mb-0" for="role-tester">Tester (QA/QC)</label>
+                                    </div>
+                                    <div class="stepper-control">
+                                        <button type="button" class="btn-stepper btn-qty-minus"><i class="bi bi-dash"></i></button>
+                                        <input type="number" class="role-qty-input role-qty" placeholder="SL" min="1" max="10" disabled>
+                                        <button type="button" class="btn-stepper btn-qty-plus"><i class="bi bi-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Ảnh bìa dự án -->
+                <div class="form-section">
+                    <h4 class="form-section-title">
+                        <span class="section-badge-num">5</span>
+                        Ảnh bìa dự án (Cover Image)
+                    </h4>
+                    <p class="form-section-subtitle">Ảnh đại diện sinh động giúp dự án thu hút thêm 60% lượt quan tâm từ sinh viên trong cộng đồng.</p>
+
+                    <div class="upload-area mb-3" id="image-upload-area">
+                        <i class="bi bi-cloud-arrow-up display-5 text-primary mb-2 d-block"></i>
+                        <h6 class="fw-bold mb-1">Kéo thả ảnh vào đây hoặc bấm để chọn tệp</h6>
+                        <p class="text-muted small mb-2">Định dạng hỗ trợ: JPG, PNG, WebP hoặc GIF (Tối đa 5MB)</p>
+                        <button type="button" class="btn btn-sm btn-outline-primary px-3">
+                            <i class="bi bi-folder2-open me-1"></i> Chọn từ máy tính
+                        </button>
+                        <input type="file" id="cp-image-file" class="d-none" accept="image/jpeg,image/png,image/webp,image/gif">
+
+                        <!-- Preview image container -->
+                        <div id="image-preview-wrapper" class="d-none mt-3 position-relative">
+                            <img id="image-preview" src="" alt="Preview" class="img-fluid rounded border shadow-sm" style="max-height: 220px; width: 100%; object-fit: cover;">
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 shadow" id="btn-remove-image" title="Xóa ảnh bìa">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="cp-image-url">
+
+                    <!-- Preset Cover Library -->
+                    <div>
+                        <span class="small fw-semibold text-muted d-block mb-2"><i class="bi bi-images me-1"></i>Hoặc chọn nhanh ảnh mẫu có sẵn:</span>
+                        <div class="row g-2" id="preset-cover-grid">
+                            <div class="col-6 col-sm-3">
+                                <div class="preset-cover-box" style="background-image: url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80');" data-url="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80">
+                                    <span>Lập trình</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-sm-3">
+                                <div class="preset-cover-box" style="background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80');" data-url="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80">
+                                    <span>Trí tuệ AI</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-sm-3">
+                                <div class="preset-cover-box" style="background-image: url('https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=600&q=80');" data-url="https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=600&q=80">
+                                    <span>Thiết kế</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-sm-3">
+                                <div class="preset-cover-box" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80');" data-url="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80">
+                                    <span>Nhóm Startup</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 6: GitHub Repository -->
+                <div class="form-section">
+                    <h4 class="form-section-title">
+                        <span class="section-badge-num">6</span>
+                        Liên kết GitHub Repository
+                    </h4>
+                    <p class="form-section-subtitle">Minh bạch mã nguồn để các thành viên dễ dàng đánh giá cấu trúc và đóng góp pull request hiệu quả.</p>
+
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold" for="cp-github-url">Đường dẫn kho lưu trữ (Repository URL)</label>
+                        <div class="input-group input-group-lg github-input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-github"></i></span>
+                            <input type="text" class="form-control" id="cp-github-url" placeholder="VD: https://github.com/facebook/react hoặc facebook/react">
+                            <button class="btn btn-outline-primary fw-medium" type="button" id="btn-verify-github">
+                                <i class="bi bi-check-circle me-1"></i>Kiểm tra Repo
+                            </button>
+                        </div>
+                        <div id="github-verify-feedback" class="mt-2 small d-none"></div>
+                        <div class="form-text">Bạn có thể thêm liên kết sau nếu dự án chưa tạo kho mã nguồn trên GitHub.</div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar -->
+                <div class="d-flex flex-wrap align-items-center justify-content-between pt-2 mb-4 action-toolbar gap-3">
+                    <a href="projects.html" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-arrow-left me-1"></i>Hủy bỏ
+                    </a>
+                    <div class="d-flex flex-wrap gap-2 gap-sm-3 action-toolbar-right">
+                        <button type="button" class="btn btn-outline-secondary px-4 fw-medium" id="btn-save-draft">
+                            <i class="bi bi-save me-1"></i>Lưu nháp
+                        </button>
+                        <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow" id="btn-submit-project">
+                            <i class="bi bi-rocket-takeoff me-2"></i>Tạo dự án ngay
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Right Column (4 col) -->
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="preview-card-wrapper">
+                    <!-- Live Preview Card -->
+                    <div class="card border shadow-sm rounded-4 overflow-hidden mb-3">
+                        <div class="card-header bg-surface py-3 px-3 border-bottom d-flex align-items-center justify-content-between">
+                            <span class="fw-bold small text-muted text-uppercase tracking-wider">
+                                <i class="bi bi-eye text-primary me-1"></i> Bản xem trước (Live Preview)
+                            </span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small">
+                                <i class="bi bi-circle-fill me-1" style="font-size: 6px;"></i> Trực quan
+                            </span>
+                        </div>
+
+                        <!-- Card preview body -->
+                        <div class="card-body p-0">
+                            <!-- Image Container -->
+                            <div style="height: 160px; background-color: #e9ecef; position: relative;" id="preview-img-container" class="d-flex align-items-center justify-content-center text-muted">
+                                <i class="bi bi-image display-6 opacity-25"></i>
+                                <span class="badge bg-primary position-absolute top-0 end-0 m-3 shadow-sm" id="preview-status">Đang tuyển</span>
+                                <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 start-0 m-3" id="preview-field">Lĩnh vực</span>
+                            </div>
+
+                            <div class="p-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle" id="preview-difficulty">
+                                        <i class="bi bi-lightning-charge me-1"></i>Trung bình
+                                    </span>
+                                    <small class="text-muted"><i class="bi bi-clock me-1"></i>Vừa xong</small>
+                                </div>
+
+                                <h5 class="fw-bold text-truncate mb-2" id="preview-title">Tên dự án của bạn</h5>
+                                <p class="text-muted small mb-3 line-clamp-2" id="preview-desc" style="min-height: 38px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    Mô tả dự án sẽ tự động xuất hiện tại đây khi bạn nhập nội dung ở biểu mẫu bên trái...
+                                </p>
+
+                                <div class="mb-3 d-flex flex-wrap gap-1" id="preview-tech">
+                                    <span class="badge bg-light text-secondary border">Công nghệ 1</span>
+                                    <span class="badge bg-light text-secondary border">Công nghệ 2</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar bg-primary text-white d-flex justify-content-center align-items-center rounded-circle" style="width:28px; height:28px; font-size:11px; font-weight:700;">You</div>
+                                        <span class="ms-2 small fw-semibold text-dark">Bạn (Chủ nhiệm)</span>
+                                    </div>
+                                    <span class="badge bg-light text-primary border border-primary-subtle px-2 py-1 small">
+                                        <i class="bi bi-people me-1"></i>Tuyển nhóm
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips for great project card -->
+                    <div class="card border-0 bg-primary-subtle rounded-4 p-3 shadow-sm">
+                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-lightbulb-fill me-1"></i> Mẹo khởi tạo dự án thu hút:</h6>
+                        <ul class="list-unstyled small text-secondary mb-0 d-flex flex-column gap-2">
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check2-circle text-primary mt-1"></i>
+                                <span><strong>Mục tiêu cụ thể:</strong> Nêu rõ sản phẩm kết quả sau 4 - 8 tuần.</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check2-circle text-primary mt-1"></i>
+                                <span><strong>Đa ngành nghề:</strong> Kết hợp giữa Lập trình + Thiết kế + Marketing sẽ giúp dự án đi xa hơn.</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check2-circle text-primary mt-1"></i>
+                                <span><strong>Kho GitHub:</strong> Cung cấp link repo giúp cộng tác viên đánh giá cao tính chuyên nghiệp.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/projects.js"></script>
+
+    <!-- Interactive Page Helpers (Quick-add, Steppers, Preset Covers & Difficulty Live Update) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Difficulty Radio Badge Sync to Live Preview
+            const diffMap = {
+                'easy': { label: 'Dễ', class: 'bg-success-subtle text-success border-success-subtle', icon: 'bi-shield-check' },
+                'medium': { label: 'Trung bình', class: 'bg-warning-subtle text-warning border-warning-subtle', icon: 'bi-lightning-charge' },
+                'hard': { label: 'Khó', class: 'bg-danger-subtle text-danger border-danger-subtle', icon: 'bi-fire' }
+            };
+
+            const previewDifficultyEl = document.getElementById('preview-difficulty');
+
+            function syncDifficulty() {
+                const checkedDiff = document.querySelector('input[name="cp-difficulty"]:checked');
+                if (checkedDiff && previewDifficultyEl) {
+                    const info = diffMap[checkedDiff.value] || diffMap['medium'];
+                    previewDifficultyEl.className = `badge border ${info.class}`;
+                    previewDifficultyEl.innerHTML = `<i class="bi ${info.icon} me-1"></i>${info.label}`;
+                }
+            }
+
+            document.querySelectorAll('input[name="cp-difficulty"]').forEach(radio => {
+                radio.addEventListener('change', syncDifficulty);
+            });
+
+            // 2. Quick Tech Tag Suggestions
+            document.querySelectorAll('.quick-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const techName = chip.dataset.tech;
+                    const techInput = document.getElementById('cp-tech-input');
+                    if (techInput && techName) {
+                        techInput.value = techName;
+                        techInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+                    }
+                });
+            });
+
+            // 3. Preset Cover Selectors
+            document.querySelectorAll('.preset-cover-box').forEach(box => {
+                box.addEventListener('click', () => {
+                    const url = box.dataset.url;
+                    if (!url) return;
+
+                    const hiddenUrl = document.getElementById('cp-image-url');
+                    const previewWrapper = document.getElementById('image-preview-wrapper');
+                    const imgPreview = document.getElementById('image-preview');
+                    const previewImg = document.getElementById('preview-img-container');
+
+                    if (hiddenUrl) hiddenUrl.value = url;
+                    if (imgPreview) imgPreview.src = url;
+                    if (previewWrapper) previewWrapper.classList.remove('d-none');
+
+                    if (previewImg) {
+                        previewImg.style.backgroundImage = `url(${url})`;
+                        previewImg.style.backgroundSize = 'cover';
+                        previewImg.style.backgroundPosition = 'center';
+                    }
+
+                    // Highlight selected preset
+                    document.querySelectorAll('.preset-cover-box').forEach(b => b.style.borderColor = 'transparent');
+                    box.style.borderColor = 'var(--primary)';
+                });
+            });
+
+            // 4. Stepper Quantity (+ / -) & Active Role Styling
+            document.addEventListener('click', (e) => {
+                const btnMinus = e.target.closest('.btn-qty-minus');
+                const btnPlus = e.target.closest('.btn-qty-plus');
+
+                if (btnMinus || btnPlus) {
+                    e.preventDefault();
+                    const roleItem = (btnMinus || btnPlus).closest('.role-item');
+                    if (!roleItem) return;
+
+                    const qtyInput = roleItem.querySelector('.role-qty');
+                    const checkbox = roleItem.querySelector('.role-checkbox');
+                    const cardItem = roleItem.querySelector('.role-card-item');
+
+                    if (checkbox && !checkbox.checked) {
+                        checkbox.checked = true;
+                        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                        if (cardItem) cardItem.classList.add('active-role');
+                    }
+
+                    if (qtyInput) {
+                        qtyInput.disabled = false;
+                        let val = parseInt(qtyInput.value) || 1;
+                        if (btnMinus && val > 1) val--;
+                        if (btnPlus && val < 10) val++;
+                        qtyInput.value = val;
+                    }
+                }
+            });
+
+            document.querySelectorAll('.role-checkbox').forEach(cb => {
+                cb.addEventListener('change', (e) => {
+                    const card = e.target.closest('.role-card-item');
+                    if (card) {
+                        if (e.target.checked) {
+                            card.classList.add('active-role');
+                        } else {
+                            card.classList.remove('active-role');
+                        }
+                    }
+                });
+            });
+
+            // 5. Custom Select Handling for cp-field (Chống tràn viền & bo góc đồng bộ)
+            const cpFieldWrapper = document.getElementById('cp-field-wrapper');
+            const cpFieldBtn = document.getElementById('cp-field-btn');
+            const cpFieldDropdown = document.getElementById('cp-field-dropdown');
+            const cpFieldNative = document.getElementById('cp-field');
+
+            if (cpFieldWrapper && cpFieldBtn && cpFieldDropdown && cpFieldNative) {
+                cpFieldBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = cpFieldWrapper.classList.toggle('open');
+                    cpFieldBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
+
+                cpFieldDropdown.querySelectorAll('.custom-select-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const val = option.dataset.value || '';
+                        const text = option.textContent.trim();
+                        const selectedTextEl = cpFieldBtn.querySelector('.selected-text');
+                        if (selectedTextEl) selectedTextEl.textContent = text;
+                        cpFieldNative.value = val;
+                        cpFieldNative.dispatchEvent(new Event('change', { bubbles: true }));
+                        cpFieldNative.dispatchEvent(new Event('input', { bubbles: true }));
+
+                        cpFieldDropdown.querySelectorAll('.custom-select-option').forEach(o => o.classList.remove('active'));
+                        option.classList.add('active');
+
+                        cpFieldWrapper.classList.remove('open');
+                        cpFieldBtn.setAttribute('aria-expanded', 'false');
+                    });
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!cpFieldWrapper.contains(e.target)) {
+                        cpFieldWrapper.classList.remove('open');
+                        cpFieldBtn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                cpFieldNative.addEventListener('change', () => {
+                    const selectedOpt = cpFieldNative.options[cpFieldNative.selectedIndex];
+                    if (selectedOpt) {
+                        const selectedTextEl = cpFieldBtn.querySelector('.selected-text');
+                        if (selectedTextEl) selectedTextEl.textContent = selectedOpt.textContent;
+                        cpFieldDropdown.querySelectorAll('.custom-select-option').forEach(o => {
+                            if (o.dataset.value === cpFieldNative.value) {
+                                o.classList.add('active');
+                            } else {
+                                o.classList.remove('active');
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+    <div id="footer-placeholder"></div>
+    <script src="js/animations.js"></script>
+</body>
+</html>

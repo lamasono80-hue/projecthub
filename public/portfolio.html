@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio - ProjectHub</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .portfolio-header-card {
+      border-radius: var(--radius-lg, 16px);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .portfolio-banner {
+      height: 140px;
+      background: linear-gradient(135deg, var(--primary, #4F46E5) 0%, #7C3AED 50%, var(--secondary, #06B6D4) 100%);
+    }
+    .portfolio-avatar-wrap {
+      margin-top: -65px;
+      position: relative;
+    }
+    .portfolio-avatar {
+      width: 130px;
+      height: 130px;
+      object-fit: cover;
+      border: 4px solid #fff;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+    }
+    .stat-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md, 12px);
+      padding: 1.25rem 1rem;
+      background: #fff;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%;
+    }
+    .stat-box:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+    .project-card {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md, 12px);
+      overflow: hidden;
+      background: #fff;
+    }
+    .project-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    }
+    .project-card-img {
+      height: 180px;
+      object-fit: cover;
+      width: 100%;
+      background: var(--surface-2, #F1F5F9);
+    }
+    .tech-pill {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--surface-2, #F1F5F9);
+      color: var(--text-secondary, #475569);
+      border: 1px solid var(--border, #E2E8F0);
+    }
+    .tech-bar-label {
+      min-width: 120px;
+    }
+    .achievement-card {
+      border-radius: var(--radius-md, 12px);
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 1.25rem;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .achievement-card:hover {
+      transform: translateY(-1px);
+    }
+    .achievement-card.locked {
+      opacity: 0.55;
+      background: #f8fafc;
+    }
+
+    /* Custom Sort Dropdown (Prevents square native OS popup overflow) */
+    .custom-portfolio-sort-dropdown .dropdown-toggle {
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      background-color: var(--surface);
+      transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, color 0.3s ease;
+    }
+    .custom-portfolio-sort-dropdown .dropdown-toggle:hover,
+    .custom-portfolio-sort-dropdown .dropdown-toggle:focus {
+      border-color: var(--primary);
+      color: var(--primary);
+      background-color: var(--surface-2);
+    }
+    .custom-portfolio-sort-dropdown .dropdown-toggle.show {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+      background-color: var(--surface-2);
+    }
+    .custom-portfolio-sort-dropdown .dropdown-menu {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      border-radius: 14px !important;
+      border: 1px solid var(--border) !important;
+      box-shadow: 0 14px 34px -4px rgba(0, 0, 0, 0.14), 0 4px 12px -2px rgba(0, 0, 0, 0.06) !important;
+      padding: 6px !important;
+      background-color: var(--surface) !important;
+      margin-top: 6px !important;
+      z-index: 1050;
+    }
+    .custom-portfolio-sort-dropdown .dropdown-item {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      font-size: 0.875rem;
+      padding: 7px 12px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      transition: background-color 0.18s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .custom-portfolio-sort-dropdown .dropdown-item:hover {
+      background-color: rgba(79, 70, 229, 0.08);
+      color: var(--primary) !important;
+    }
+    .custom-portfolio-sort-dropdown .dropdown-item.active,
+    .custom-portfolio-sort-dropdown .dropdown-item:active {
+      background-color: var(--primary) !important;
+      color: #ffffff !important;
+      font-weight: 600;
+    }
+  </style>
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="min-vh-100 d-flex flex-column">
+  <!-- Skip to main content -->
+  <a href="#main-content" class="visually-hidden-focusable position-fixed top-0 start-0 z-3 btn btn-primary m-2" style="z-index: 9999;">
+    Bỏ qua đến nội dung chính
+  </a>
+
+  <!-- Unified Navbar -->
+  <div id="navbar-placeholder"></div>
+  <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;" aria-live="polite" aria-atomic="true"></div>
+
+  <main id="main-content" class="container py-4 py-md-5 flex-grow-1">
+    <!-- Loading State -->
+    <div id="portfolio-loading" class="text-center py-5">
+      <div class="spinner-border text-primary mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+        <span class="visually-hidden">Đang tải...</span>
+      </div>
+      <h5 class="fw-bold text-dark mb-1">Đang tải Portfolio...</h5>
+      <p class="text-muted small">Đang tổng hợp dữ liệu dự án và thành quả thực tế từ Supabase</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="portfolio-error" class="text-center py-5 d-none bg-white rounded-4 shadow-sm border p-4 p-md-5 my-4">
+      <div class="mb-3 text-danger">
+        <i class="bi bi-exclamation-octagon display-4"></i>
+      </div>
+      <h4 class="fw-bold mb-2" id="portfolio-error-title">Không tìm thấy Portfolio</h4>
+      <p class="text-muted mb-4" id="portfolio-error-msg">Người dùng không tồn tại hoặc chưa có thông tin công khai.</p>
+      <div class="d-flex justify-content-center gap-2">
+        <a href="projects.html" class="btn btn-outline-primary">Khám phá dự án</a>
+        <a href="index.html" class="btn btn-primary">Về trang chủ</a>
+      </div>
+    </div>
+
+    <!-- Portfolio Main Content -->
+    <div id="portfolio-content" class="d-none">
+      <!-- 1. Header Card -->
+      <div class="card border-0 shadow-sm mb-4 portfolio-header-card bg-white">
+        <div class="portfolio-banner"></div>
+        <div class="card-body px-4 px-md-5 pb-4 pt-0">
+          <div class="d-flex flex-column flex-md-row align-items-center align-items-md-end gap-3 gap-md-4 mb-3">
+            <div class="portfolio-avatar-wrap text-center">
+              <img id="portfolio-avatar" src="" alt="Avatar" class="rounded-circle portfolio-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User&background=4F46E5&color=fff&size=128'">
+            </div>
+            <div class="text-center text-md-start flex-grow-1 min-w-0">
+              <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-1">
+                <h2 class="fw-bold mb-0 text-dark" id="portfolio-name">--</h2>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" id="portfolio-role">Lập trình viên</span>
+              </div>
+              <p class="text-muted mb-2 small" id="portfolio-username">@username</p>
+              <div class="d-flex flex-wrap justify-content-center justify-content-md-start align-items-center gap-3 text-secondary small">
+                <a id="portfolio-github" href="#" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-secondary d-none">
+                  <i class="bi bi-github me-1"></i> <span id="portfolio-github-text">GitHub</span>
+                </a>
+                <a id="portfolio-website" href="#" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-secondary d-none">
+                  <i class="bi bi-globe me-1"></i> <span id="portfolio-website-text">Website</span>
+                </a>
+                <span id="portfolio-location" class="d-none"><i class="bi bi-geo-alt me-1"></i> Việt Nam</span>
+              </div>
+            </div>
+            <!-- Action Buttons -->
+            <div class="d-flex flex-wrap gap-2 justify-content-center mt-3 mt-md-0">
+              <button id="btn-share-portfolio" class="btn btn-outline-primary d-inline-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-share"></i> <span>Chia sẻ</span>
+              </button>
+              <a id="btn-edit-profile" href="profile.html" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1 d-none">
+                <i class="bi bi-pencil"></i> <span>Chỉnh sửa hồ sơ</span>
+              </a>
+              <a id="btn-view-profile" href="profile.html" class="btn btn-primary d-inline-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-person"></i> <span>Hồ sơ chi tiết</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Bio -->
+          <div class="pt-3 border-top">
+            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-card-text text-primary me-2"></i>Giới thiệu bản thân</h6>
+            <p id="portfolio-bio" class="text-secondary mb-0">Chưa cập nhật thông tin giới thiệu.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Statistics Row (6 Real Metrics) -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="stat-box text-center">
+            <div class="text-muted small mb-1">Tổng dự án</div>
+            <h3 class="fw-bold text-dark mb-0" id="portfolio-stat-total">0</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="stat-box text-center">
+            <div class="text-muted small mb-1">Đã hoàn thành</div>
+            <h3 class="fw-bold text-success mb-0" id="portfolio-stat-completed">0</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="stat-box text-center">
+            <div class="text-muted small mb-1">Đang thực hiện</div>
+            <h3 class="fw-bold text-primary mb-0" id="portfolio-stat-active">0</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="stat-box text-center">
+            <div class="text-muted small mb-1">Dự án sở hữu</div>
+            <h3 class="fw-bold text-indigo mb-0" id="portfolio-stat-owned" style="color: #4F46E5;">0</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="stat-box text-center">
+            <div class="text-muted small mb-1">Tham gia nhóm</div>
+            <h3 class="fw-bold text-info mb-0" id="portfolio-stat-team">0</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="stat-box text-center">
+            <div class="text-muted small mb-1">Task hoàn thành</div>
+            <h3 class="fw-bold text-warning mb-0" id="portfolio-stat-tasks">0</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Projects Section with Filter & Search -->
+      <div class="card border-0 shadow-sm p-4 rounded-4 mb-4 bg-white">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 pb-3 border-bottom">
+          <div>
+            <h4 class="fw-bold mb-1" style="font-family: 'Manrope', sans-serif;">Dự án thực tế</h4>
+            <p class="text-muted small mb-0">Các dự án người dùng làm chủ hoặc trực tiếp tham gia phát triển</p>
+          </div>
+          <!-- Search box -->
+          <div class="w-100 w-md-auto" style="min-width: 260px;">
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+              <input type="text" id="portfolio-search" class="form-control bg-light border-start-0" placeholder="Tìm theo tên hoặc công nghệ...">
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Pills & Sort -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+          <ul class="nav nav-pills gap-1" id="portfolio-filter-pills">
+            <li class="nav-item">
+              <button class="nav-link active py-1 px-3 small" data-filter="all">Tất cả (<span id="count-all">0</span>)</button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link py-1 px-3 small" data-filter="owned">Sở hữu (<span id="count-owned">0</span>)</button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link py-1 px-3 small" data-filter="participated">Tham gia (<span id="count-participated">0</span>)</button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link py-1 px-3 small" data-filter="completed">Đã hoàn thành (<span id="count-completed">0</span>)</button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link py-1 px-3 small" data-filter="in_progress">Đang làm (<span id="count-in-progress">0</span>)</button>
+            </li>
+          </ul>
+
+          <div class="d-flex align-items-center gap-2 ms-auto">
+            <span class="text-muted small text-nowrap">Sắp xếp:</span>
+            <select id="portfolio-sort" class="d-none" aria-label="Sắp xếp dự án">
+              <option value="newest">Mới nhất</option>
+              <option value="oldest">Cũ nhất</option>
+              <option value="progress_desc">Tiến độ cao nhất</option>
+            </select>
+            <div class="dropdown custom-portfolio-sort-dropdown">
+              <button class="btn btn-sm dropdown-toggle d-flex align-items-center justify-content-between gap-2 shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 145px;">
+                <span class="custom-select-label">Mới nhất</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-lg border py-1" style="min-width: 160px;">
+                <li><a class="dropdown-item active" href="javascript:void(0)" data-value="newest">Mới nhất</a></li>
+                <li><a class="dropdown-item" href="javascript:void(0)" data-value="oldest">Cũ nhất</a></li>
+                <li><a class="dropdown-item" href="javascript:void(0)" data-value="progress_desc">Tiến độ cao nhất</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="row g-4" id="portfolio-projects-grid" aria-live="polite">
+          <!-- Populated by portfolio.js -->
+        </div>
+
+        <!-- Empty State for Projects -->
+        <div id="portfolio-empty-projects" class="text-center py-5 d-none bg-light bg-opacity-50 rounded-3 border my-3">
+          <div class="text-muted mb-3">
+            <i class="bi bi-folder-x display-4 text-secondary" aria-hidden="true"></i>
+          </div>
+          <h5 class="fw-bold mb-1 text-dark">Chưa có dự án nào phù hợp</h5>
+          <p class="text-muted small mb-3">Không có dự án nào khớp với tiêu chí tìm kiếm hoặc bộ lọc hiện tại.</p>
+          <button type="button" id="btn-reset-portfolio-search" class="btn btn-sm btn-outline-secondary px-3">
+            <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>Xóa tìm kiếm &amp; Bộ lọc
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. Skills & Technologies Experience -->
+      <div class="row g-4 mb-4">
+        <!-- Left: Skills from Profile -->
+        <div class="col-lg-5">
+          <div class="card border-0 shadow-sm p-4 rounded-4 h-100 bg-white">
+            <h5 class="fw-bold mb-2" style="font-family: 'Manrope', sans-serif;">
+              <i class="bi bi-code-slash text-primary me-2"></i>Kỹ năng chuyên môn
+            </h5>
+            <p class="text-muted small mb-3">Kỹ năng được người dùng thiết lập trong hồ sơ</p>
+            <div id="portfolio-skills-container" class="d-flex flex-wrap gap-2 mb-4">
+              <!-- Populated by portfolio.js -->
+            </div>
+
+            <h6 class="fw-bold text-dark mb-2 mt-auto pt-3 border-top">
+              <i class="bi bi-heart text-danger me-2"></i>Lĩnh vực quan tâm
+            </h6>
+            <div id="portfolio-interests-container" class="d-flex flex-wrap gap-2">
+              <!-- Populated by portfolio.js -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Technology Experience tally from real projects -->
+        <div class="col-lg-7">
+          <div class="card border-0 shadow-sm p-4 rounded-4 h-100 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="fw-bold mb-0" style="font-family: 'Manrope', sans-serif;">
+                <i class="bi bi-bar-chart-steps text-success me-2"></i>Công nghệ đã áp dụng
+              </h5>
+              <span class="badge bg-light text-dark border small" id="total-tech-count">0 công nghệ</span>
+            </div>
+            <p class="text-muted small mb-3">Thống kê tần suất công nghệ xuất hiện trong các dự án thực tế đã tham gia</p>
+            <div id="portfolio-tech-usage" class="d-flex flex-column gap-3">
+              <!-- Populated by portfolio.js -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Achievements & Milestones (Computed from real activity) -->
+      <div class="card border-0 shadow-sm p-4 rounded-4 mb-4 bg-white">
+        <h5 class="fw-bold mb-2" style="font-family: 'Manrope', sans-serif;">
+          <i class="bi bi-award text-warning me-2"></i>Cột mốc & Thành tựu
+        </h5>
+        <p class="text-muted small mb-4">Huy hiệu đạt được dựa trên số liệu đóng góp thực tế trong ProjectHub</p>
+        <div class="row g-3" id="portfolio-achievements-list">
+          <!-- Populated by portfolio.js -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Project Detail Modal (Read-Only) -->
+  <div class="modal fade" id="portfolioProjectModal" tabindex="-1" aria-labelledby="portfolioProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header border-0 pb-0 position-relative">
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-3 z-2 bg-white p-2 rounded-circle shadow-sm" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body p-4 pt-0">
+          <div class="rounded-3 overflow-hidden mb-3 border position-relative" style="height: 200px; background: #e2e8f0;">
+            <img id="modal-project-cover" src="" alt="Project Cover" class="w-100 h-100 object-fit-cover" onerror="this.src='https://images.unsplash.com/photo-1555066931-4365d14431b9?w=800&q=80'">
+            <div class="position-absolute bottom-0 start-0 p-3 w-100 d-flex justify-content-between align-items-end" style="background: linear-gradient(transparent, rgba(0,0,0,0.7));">
+              <div class="text-white">
+                <span class="badge bg-primary me-2" id="modal-project-category">Web</span>
+                <span class="badge bg-success" id="modal-project-status">Hoàn thành</span>
+              </div>
+              <span class="badge bg-dark bg-opacity-75 text-white" id="modal-user-role"><i class="bi bi-person-badge me-1"></i> Vai trò</span>
+            </div>
+          </div>
+
+          <h4 class="fw-bold mb-2 text-dark" id="modal-project-title">Tên dự án</h4>
+          <p class="text-muted small mb-3" id="modal-project-desc">Mô tả dự án...</p>
+
+          <!-- Progress -->
+          <div class="mb-3 p-3 rounded-3 bg-light border">
+            <div class="d-flex justify-content-between align-items-center mb-1 small fw-semibold">
+              <span>Tiến độ hoàn thành</span>
+              <span id="modal-project-progress-val" class="text-primary">0%</span>
+            </div>
+            <div class="progress" style="height: 8px;">
+              <div class="progress-bar bg-success" id="modal-project-progress-bar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Technologies -->
+          <div class="mb-3">
+            <h6 class="fw-bold small text-dark mb-2">Công nghệ sử dụng:</h6>
+            <div id="modal-project-techs" class="d-flex flex-wrap gap-1"></div>
+          </div>
+
+          <!-- Goal & Problem -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-6" id="modal-problem-col">
+              <div class="p-3 rounded-3 border bg-light h-100">
+                <h6 class="fw-bold small text-danger mb-1"><i class="bi bi-exclamation-triangle me-1"></i> Vấn đề giải quyết</h6>
+                <p class="small text-muted mb-0" id="modal-project-problem">Chưa cập nhật.</p>
+              </div>
+            </div>
+            <div class="col-md-6" id="modal-goal-col">
+              <div class="p-3 rounded-3 border bg-light h-100">
+                <h6 class="fw-bold small text-primary mb-1"><i class="bi bi-bullseye me-1"></i> Mục tiêu dự án</h6>
+                <p class="small text-muted mb-0" id="modal-project-goal">Chưa cập nhật.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Members -->
+          <div class="mb-3">
+            <h6 class="fw-bold small text-dark mb-2">Thành viên tham gia:</h6>
+            <div id="modal-project-members" class="d-flex flex-wrap gap-2">
+              <span class="text-muted small">Đang nạp thành viên...</span>
+            </div>
+          </div>
+
+          <!-- GitHub Info (if available) -->
+          <div id="modal-project-github-container" class="p-3 rounded-3 border bg-light mb-3 d-none">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-github fs-4"></i>
+                <div>
+                  <div class="fw-semibold small" id="modal-github-name">repo</div>
+                  <div class="text-muted" style="font-size: 0.72rem;">Kho lưu trữ mã nguồn mở</div>
+                </div>
+              </div>
+              <a href="#" id="modal-github-link" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark">
+                <i class="bi bi-box-arrow-up-right me-1"></i>Xem Repo
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer border-top bg-light d-flex flex-wrap justify-content-between gap-2">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="#" id="modal-project-page-btn" class="btn btn-sm btn-primary">
+              <i class="bi bi-arrow-right-circle me-1"></i>Trang chi tiết dự án
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer placeholder -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/portfolio.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám phá dự án - ProjectHub</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        /* Page-specific overrides only */
+        .page-hero { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; padding: 3rem 2rem; border-radius: var(--radius-lg); margin-bottom: 2rem; text-align: center; }
+        .project-img { height: 180px; object-fit: cover; width: 100%; background: var(--surface-2); }
+        .avatars-overlap img { margin-left: -10px; border: 2px solid white; }
+        .avatars-overlap img:first-child { margin-left: 0; }
+
+        /* Custom Select Dropdowns for ProjectHub Filters */
+        .filters-card {
+            background-color: var(--surface);
+            border-color: var(--border) !important;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Clean Search Bar (No spinning animation, crisp & accessible) */
+        .search-box-clean {
+            position: relative;
+        }
+        .search-input-clean {
+            background-color: var(--surface-2) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text) !important;
+            font-size: 0.9rem;
+            height: 42px;
+            border-radius: 10px !important;
+            padding-left: 2.6rem !important;
+            padding-right: 1rem !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+        .search-input-clean:hover {
+            border-color: var(--primary-light, #818cf8) !important;
+        }
+        .search-input-clean:focus {
+            background-color: var(--surface) !important;
+            border-color: var(--primary) !important;
+            color: var(--text) !important;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+            outline: none !important;
+        }
+        [data-theme="dark"] .search-input-clean {
+            background-color: var(--surface-2) !important;
+            border-color: var(--border) !important;
+            color: var(--text) !important;
+        }
+        [data-theme="dark"] .search-input-clean:focus {
+            background-color: var(--surface) !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+        }
+
+        /* Dedicated Project Filter Dropdowns (replaces conflicting custom-select-dropdown) */
+        .project-filter-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .project-filter-dropdown.w-100 {
+            display: block;
+        }
+        .project-filter-dropdown.w-100 .dropdown-toggle {
+            width: 100%;
+        }
+        .project-filter-dropdown.w-100 .dropdown-menu {
+            min-width: 100%;
+        }
+        .project-filter-dropdown .dropdown-toggle {
+            background-color: var(--surface) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 8px !important;
+            font-size: 0.85rem !important;
+            font-weight: 500 !important;
+            color: var(--text) !important;
+            padding: 0.45rem 0.85rem !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+            transition: all 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 0.5rem !important;
+        }
+        .project-filter-dropdown .dropdown-toggle:hover,
+        .project-filter-dropdown .dropdown-toggle:focus {
+            border-color: var(--primary) !important;
+            color: var(--primary) !important;
+            background-color: var(--surface-2) !important;
+        }
+        .project-filter-dropdown .dropdown-toggle.show {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+        }
+        .project-filter-dropdown .dropdown-menu {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            border-radius: 12px !important;
+            border: 1px solid var(--border) !important;
+            box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.14), 0 4px 10px -2px rgba(0, 0, 0, 0.05) !important;
+            padding: 6px !important;
+            background-color: var(--surface) !important;
+            margin-top: 6px !important;
+            z-index: 1050 !important;
+        }
+        .project-filter-dropdown .dropdown-item {
+            font-size: 0.85rem !important;
+            padding: 7px 12px !important;
+            border-radius: 6px !important;
+            color: var(--text) !important;
+            transition: all 0.15s ease !important;
+            display: flex;
+            align-items: center;
+        }
+        .project-filter-dropdown .dropdown-item:hover {
+            background-color: rgba(79, 70, 229, 0.08) !important;
+            color: var(--primary) !important;
+        }
+        .project-filter-dropdown .dropdown-item.active {
+            background-color: var(--primary) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }
+        [data-theme="dark"] .project-filter-dropdown .dropdown-item {
+            color: var(--text) !important;
+        }
+        [data-theme="dark"] .project-filter-dropdown .dropdown-item:hover {
+            background-color: rgba(99, 102, 241, 0.18) !important;
+            color: var(--primary-light, #818cf8) !important;
+        }
+
+        /* Sidebar styling */
+        .filters-sidebar {
+            overflow: visible !important;
+            position: relative;
+        }
+
+        /* Category quick chips */
+        .btn-chip {
+            border-radius: 20px;
+            padding: 0.28rem 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background-color: var(--surface-2);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .btn-chip:hover {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+            border-color: rgba(79, 70, 229, 0.3);
+        }
+        .btn-chip.active {
+            background-color: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+        }
+
+        /* Project Card Styling */
+        .project-card {
+            border-radius: 14px;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            background-color: var(--surface);
+            border-color: var(--border) !important;
+        }
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.04) !important;
+            border-color: rgba(79, 70, 229, 0.3) !important;
+        }
+        .project-card .card-img-top {
+            transition: transform 0.35s ease;
+        }
+        .project-card:hover .card-img-top {
+            transform: scale(1.03);
+        }
+        .no-stagger > *,
+        #projects-grid > *,
+        .project-card {
+            opacity: 1 !important;
+        }
+    </style>
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <!-- Skip to main content -->
+    <a href="#main-content" class="visually-hidden-focusable position-fixed top-0 start-0 z-3 btn btn-primary m-2" style="z-index: 9999;">
+        Bỏ qua đến nội dung chính
+    </a>
+
+    <div id="navbar-placeholder"></div>
+    <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" aria-live="polite" aria-atomic="true"></div>
+
+    <main id="main-content" class="container-xl py-4">
+        <!-- Page Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+            <div>
+                <h1 class="fw-bold display-6 mb-1" style="font-family: 'Manrope', sans-serif;">Khám phá dự án</h1>
+                <p class="text-muted lead fs-6 mb-0">Tìm kiếm dự án phù hợp với kỹ năng của bạn, kết nối đồng đội và cùng xây dựng sản phẩm thực tế.</p>
+            </div>
+            <a href="create-project.html" class="btn btn-primary btn-sm px-3 py-2 fw-semibold d-inline-flex align-items-center gap-1 shadow-sm rounded-pill">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                <span>Tạo dự án mới</span>
+            </a>
+        </div>
+
+        <div class="row g-4 no-stagger">
+            <!-- CỘT TRÁI (LEFT SIDEBAR): Khối tìm kiếm & Bộ lọc hoàn chỉnh -->
+            <aside class="col-lg-4 col-xl-3 mb-4 mb-lg-0">
+                <div class="filters-card filters-sidebar p-3 p-xl-3 rounded-3 shadow-sm border bg-surface sticky-lg-top" style="top: 85px; z-index: 20;">
+                    <!-- Header bộ lọc & nút Xóa lọc -->
+                    <div class="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-funnel-fill text-primary" aria-hidden="true"></i>
+                            <span class="fw-bold fs-6">Bộ lọc tìm kiếm</span>
+                        </div>
+                        <button type="button" id="btn-reset-filters-bar" class="btn btn-sm btn-outline-secondary py-0 px-2 d-inline-flex align-items-center gap-1" title="Đặt lại toàn bộ bộ lọc" style="font-size: 0.8rem; height: 26px;">
+                            <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+                            <span>Xóa lọc</span>
+                        </button>
+                    </div>
+
+                    <!-- 1. Ô tìm kiếm -->
+                    <div class="mb-3">
+                        <label for="search-projects" class="form-label small fw-semibold text-muted mb-1 d-flex align-items-center gap-1">
+                            <i class="bi bi-search text-primary"></i>Tìm theo từ khóa
+                        </label>
+                        <div class="search-box-clean position-relative w-100">
+                            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" aria-hidden="true" style="pointer-events: none; font-size: 0.9rem;"></i>
+                            <input id="search-projects" class="form-control search-input-clean w-100" type="search" placeholder="Tên dự án, React, AI..." aria-label="Tìm dự án" />
+                        </div>
+                    </div>
+
+                    <!-- 2. Sắp xếp -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted mb-1 d-flex align-items-center gap-1">
+                            <i class="bi bi-arrow-down-up text-primary"></i>Sắp xếp theo
+                        </label>
+                        <select id="sort-projects" class="d-none" aria-label="Sắp xếp dự án">
+                            <option value="newest">Mới nhất</option>
+                            <option value="oldest">Cũ nhất</option>
+                            <option value="progress">Tiến độ cao</option>
+                        </select>
+                        <div class="dropdown project-filter-dropdown w-100" data-target-select="sort-projects">
+                            <button class="btn btn-sm dropdown-toggle w-100 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="custom-select-label"><i class="bi bi-clock-history me-1 text-primary"></i>Mới nhất</span>
+                            </button>
+                            <ul class="dropdown-menu shadow-lg border py-1 w-100">
+                                <li><a class="dropdown-item active" href="javascript:void(0)" data-value="newest"><i class="bi bi-clock-history me-2 text-primary"></i>Mới nhất</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="oldest"><i class="bi bi-hourglass me-2 text-secondary"></i>Cũ nhất</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="progress"><i class="bi bi-graph-up-arrow me-2 text-success"></i>Tiến độ cao</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 3. Đang tuyển switch -->
+                    <div class="mb-3 p-2 rounded-2 border d-flex align-items-center justify-content-between" style="background-color: var(--surface-2);">
+                        <label class="form-check-label small fw-semibold text-body user-select-none mb-0 d-flex align-items-center gap-1" for="filter-recruiting" style="cursor: pointer;">
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle me-1">Tuyển</span>Đang tuyển thành viên
+                        </label>
+                        <div class="form-check form-switch mb-0">
+                            <input id="filter-recruiting" class="form-check-input mt-0" type="checkbox" role="switch" style="cursor: pointer;" />
+                        </div>
+                    </div>
+
+                    <hr class="my-3 opacity-25">
+
+                    <!-- 4. Lĩnh vực & Quick Chips -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted mb-1 d-flex align-items-center gap-1">
+                            <i class="bi bi-folder2 text-primary"></i>Lĩnh vực
+                        </label>
+                        <select id="filter-category" class="d-none" aria-label="Lọc theo lĩnh vực">
+                            <option value="">Lĩnh vực: Tất cả</option>
+                            <option value="web">Web Development</option>
+                            <option value="mobile">Mobile</option>
+                            <option value="ai">AI / ML</option>
+                            <option value="game">Game</option>
+                            <option value="data">Data Science</option>
+                            <option value="iot">IoT</option>
+                            <option value="other">Khác</option>
+                        </select>
+                        <div class="dropdown project-filter-dropdown w-100" data-target-select="filter-category">
+                            <button class="btn btn-sm dropdown-toggle w-100 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="custom-select-label"><i class="bi bi-folder2 me-1 text-primary"></i>Lĩnh vực: Tất cả</span>
+                            </button>
+                            <ul class="dropdown-menu shadow-lg border py-1 w-100">
+                                <li><a class="dropdown-item active" href="javascript:void(0)" data-value="">Lĩnh vực: Tất cả</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="web"><i class="bi bi-code-slash me-2 text-info"></i>Web Development</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="mobile"><i class="bi bi-phone me-2 text-success"></i>Mobile</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="ai"><i class="bi bi-cpu me-2 text-danger"></i>AI / ML</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="game"><i class="bi bi-controller me-2 text-warning"></i>Game</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="data"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Data Science</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="iot"><i class="bi bi-motherboard me-2 text-secondary"></i>IoT</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="other"><i class="bi bi-three-dots me-2 text-muted"></i>Khác</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Quick Category Chips -->
+                        <div class="category-chips-bar d-flex flex-wrap align-items-center gap-1 mt-2">
+                            <button type="button" class="btn btn-chip active" data-cat="">Tất cả</button>
+                            <button type="button" class="btn btn-chip" data-cat="web"><i class="bi bi-code-slash me-1"></i>Web</button>
+                            <button type="button" class="btn btn-chip" data-cat="mobile"><i class="bi bi-phone me-1"></i>Mobile</button>
+                            <button type="button" class="btn btn-chip" data-cat="ai"><i class="bi bi-cpu me-1"></i>AI</button>
+                            <button type="button" class="btn btn-chip" data-cat="game"><i class="bi bi-controller me-1"></i>Game</button>
+                            <button type="button" class="btn btn-chip" data-cat="data"><i class="bi bi-bar-chart-line me-1"></i>Data</button>
+                            <button type="button" class="btn btn-chip" data-cat="iot"><i class="bi bi-motherboard me-1"></i>IoT</button>
+                        </div>
+                    </div>
+
+                    <!-- 5. Trạng thái -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted mb-1 d-flex align-items-center gap-1">
+                            <i class="bi bi-flag text-primary"></i>Trạng thái
+                        </label>
+                        <select id="filter-status" class="d-none" aria-label="Lọc theo trạng thái">
+                            <option value="">Trạng thái: Tất cả</option>
+                            <option value="recruiting">Đang tuyển</option>
+                            <option value="in_progress">Đang thực hiện</option>
+                            <option value="completed">Hoàn thành</option>
+                            <option value="archived">Lưu trữ</option>
+                        </select>
+                        <div class="dropdown project-filter-dropdown w-100" data-target-select="filter-status">
+                            <button class="btn btn-sm dropdown-toggle w-100 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="custom-select-label"><i class="bi bi-flag me-1 text-primary"></i>Trạng thái: Tất cả</span>
+                            </button>
+                            <ul class="dropdown-menu shadow-lg border py-1 w-100">
+                                <li><a class="dropdown-item active" href="javascript:void(0)" data-value="">Trạng thái: Tất cả</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="recruiting"><span class="badge bg-primary me-2">●</span>Đang tuyển</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="in_progress"><span class="badge bg-warning me-2">●</span>Đang thực hiện</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="completed"><span class="badge bg-success me-2">●</span>Hoàn thành</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="archived"><span class="badge bg-secondary me-2">●</span>Lưu trữ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 6. Độ khó -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted mb-1 d-flex align-items-center gap-1">
+                            <i class="bi bi-bar-chart text-primary"></i>Độ khó
+                        </label>
+                        <select id="filter-difficulty" class="d-none" aria-label="Lọc theo độ khó">
+                            <option value="">Độ khó: Tất cả</option>
+                            <option value="easy">Dễ (Cơ bản)</option>
+                            <option value="medium">Trung bình</option>
+                            <option value="hard">Khó (Chuyên sâu)</option>
+                        </select>
+                        <div class="dropdown project-filter-dropdown w-100" data-target-select="filter-difficulty">
+                            <button class="btn btn-sm dropdown-toggle w-100 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="custom-select-label"><i class="bi bi-bar-chart me-2 text-primary"></i>Độ khó: Tất cả</span>
+                            </button>
+                            <ul class="dropdown-menu shadow-lg border py-1 w-100">
+                                <li><a class="dropdown-item active" href="javascript:void(0)" data-value=""><i class="bi bi-bar-chart me-2 text-primary"></i>Độ khó: Tất cả</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="easy"><i class="bi bi-circle-fill text-success me-2" style="font-size: 0.6rem;"></i>Dễ (Cơ bản)</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="medium"><i class="bi bi-circle-fill text-warning me-2" style="font-size: 0.6rem;"></i>Trung bình</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="hard"><i class="bi bi-circle-fill text-danger me-2" style="font-size: 0.6rem;"></i>Khó (Chuyên sâu)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 7. Quy mô nhóm -->
+                    <div class="mb-2">
+                        <label class="form-label small fw-semibold text-muted mb-1 d-flex align-items-center gap-1">
+                            <i class="bi bi-people text-primary"></i>Quy mô nhóm
+                        </label>
+                        <select id="filter-teamsize" class="d-none" aria-label="Lọc theo quy mô nhóm">
+                            <option value="">Quy mô: Tất cả</option>
+                            <option value="1-3">Nhỏ (1 - 3 người)</option>
+                            <option value="4-6">Vừa (4 - 6 người)</option>
+                            <option value="7+">Lớn (7+ người)</option>
+                        </select>
+                        <div class="dropdown project-filter-dropdown w-100" data-target-select="filter-teamsize">
+                            <button class="btn btn-sm dropdown-toggle w-100 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="custom-select-label"><i class="bi bi-people me-2 text-primary"></i>Quy mô: Tất cả</span>
+                            </button>
+                            <ul class="dropdown-menu shadow-lg border py-1 w-100">
+                                <li><a class="dropdown-item active" href="javascript:void(0)" data-value=""><i class="bi bi-people me-2 text-primary"></i>Quy mô: Tất cả</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="1-3"><i class="bi bi-person me-2 text-info"></i>Nhỏ (1 - 3 người)</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="4-6"><i class="bi bi-people me-2 text-primary"></i>Vừa (4 - 6 người)</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" data-value="7+"><i class="bi bi-person-lines-fill me-2 text-success"></i>Lớn (7+ người)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CỘT PHẢI (MAIN CONTENT): Danh sách dự án & Kết quả -->
+            <section class="col-lg-8 col-xl-9">
+                <!-- Results count + Grid View Switcher -->
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pb-2 border-bottom">
+                    <div id="results-info" class="text-muted fw-semibold" style="font-size: 0.95rem;">Đang tải...</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small d-none d-sm-inline">Xem:</span>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Bố cục hiển thị lưới">
+                            <button type="button" id="btn-grid-4" class="btn btn-outline-secondary active" title="Hiển thị lưới 3 cột">
+                                <i class="bi bi-grid-3x3-gap-fill me-1" aria-hidden="true"></i>3 Cột
+                            </button>
+                            <button type="button" id="btn-grid-3" class="btn btn-outline-secondary" title="Hiển thị lưới 2 cột">
+                                <i class="bi bi-grid-fill me-1" aria-hidden="true"></i>2 Cột
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects Grid -->
+                <div id="projects-grid" class="row g-3 g-xl-4 mb-4 no-stagger" aria-live="polite" aria-label="Danh sách dự án">
+                    <!-- JS renders project cards here -->
+                </div>
+
+                <!-- Pagination -->
+                <div id="pagination" class="d-flex justify-content-center my-4"></div>
+
+                <!-- Empty state -->
+                <div id="empty-state" class="empty-state d-none text-center py-5 bg-white rounded-3 border shadow-sm my-4">
+                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                        <i class="bi bi-search text-muted fs-3" aria-hidden="true"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Không tìm thấy dự án phù hợp</h4>
+                    <p class="text-muted mb-4">Thử thay đổi bộ lọc tìm kiếm hoặc tạo dự án mới để kêu gọi đồng đội cùng tham gia.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" id="btn-reset-filters" class="btn btn-outline-secondary btn-sm px-3">
+                            <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>Xóa bộ lọc
+                        </button>
+                        <a href="create-project.html" class="btn btn-primary btn-sm px-3">
+                            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Tạo dự án mới
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/projects.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

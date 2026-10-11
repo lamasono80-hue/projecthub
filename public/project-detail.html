@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết dự án - ProjectHub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        /* Project Detail Design System Enhancements */
+        .project-header {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg, 16px);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            margin-bottom: 1.5rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .project-banner {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            background-color: var(--surface-2);
+            display: block;
+        }
+        .project-meta {
+            padding: 1.75rem 2rem;
+            background: var(--surface);
+            transition: background-color 0.3s ease;
+        }
+        .badge-tech {
+            background: var(--surface-2);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            display: inline-block;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .badge-tech:hover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+        }
+        .role-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md, 12px);
+            padding: 16px;
+            margin-bottom: 12px;
+            background: var(--surface);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .role-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        }
+        .role-filled {
+            opacity: 0.6;
+            background-color: var(--surface-2);
+        }
+        .card-custom {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--surface);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            margin-bottom: 1.5rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .card-custom .card-header {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.25rem;
+            font-weight: 700;
+            font-family: 'Manrope', sans-serif;
+            color: var(--text);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        .card-custom .card-body {
+            padding: 1.25rem;
+        }
+        @media (max-width: 767.98px) {
+            .project-banner {
+                height: 180px;
+            }
+            .project-meta {
+                padding: 1.25rem 1rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="min-vh-100 d-flex flex-column bg-light">
+    <!-- Skip to main content -->
+    <a href="#main-content" class="visually-hidden-focusable position-fixed top-0 start-0 z-3 btn btn-primary m-2" style="z-index: 9999;">
+        Bỏ qua đến nội dung chính
+    </a>
+
+    <!-- Unified Navbar -->
+    <div id="navbar-placeholder"></div>
+    <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;" aria-live="polite" aria-atomic="true"></div>
+
+    <main id="main-content" class="container py-4 flex-grow-1">
+        <!-- Breadcrumb -->
+        <nav aria-label="Đường dẫn trang" class="mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="projects.html" class="text-decoration-none">Khám phá</a></li>
+                <li class="breadcrumb-item active text-truncate" aria-current="page" id="breadcrumb-title" style="max-width: 320px;">Tên dự án</li>
+            </ol>
+        </nav>
+
+        <!-- Project Header Card -->
+        <div class="project-header">
+            <img class="project-banner" id="project-banner-img" src="" alt="Ảnh đại diện dự án" onerror="this.src='https://images.unsplash.com/photo-1555066931-4365d14431b9?w=1200&q=80'" />
+            <div class="project-meta">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                    <div class="flex-grow-1 min-w-0">
+                        <h1 id="project-title" class="fw-bold mb-2 text-dark" style="font-family: 'Manrope', sans-serif;">Đang tải thông tin dự án...</h1>
+                        <div class="project-badges d-flex flex-wrap gap-1" id="project-badges">
+                            <!-- Status badge, Field badge, Difficulty badge -->
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-2 mt-md-0" id="action-buttons">
+                        <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+                        <button class="btn btn-outline-primary"><i class="bi bi-chat-dots me-1"></i>Liên hệ nhóm</button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#join-modal" id="btn-join-project"><i class="bi bi-person-plus me-1"></i>Tham gia dự án</button>
+                    </div>
+                </div>
+                <p id="project-description" class="text-secondary mt-3 fs-5" style="line-height: 1.6;">...</p>
+                <div id="project-technologies" class="mt-3"></div>
+                <div id="project-owner" class="d-flex align-items-center mt-4 pt-3 border-top">
+                    <!-- Owner info -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Content grid -->
+        <div class="row g-4">
+            <!-- MAIN: 8 col -->
+            <div class="col-lg-8">
+                <!-- 1. About -->
+                <div class="card card-custom">
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-card-text text-primary fs-5"></i>
+                        <span>Tổng quan dự án</span>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-bullseye me-1"></i> Mục tiêu dự án</h6>
+                        <p id="project-goals" class="text-secondary mb-4" style="line-height: 1.6;">...</p>
+                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-exclamation-triangle me-1"></i> Vấn đề cần giải quyết</h6>
+                        <p id="project-problem" class="text-secondary mb-0" style="line-height: 1.6;">...</p>
+                    </div>
+                </div>
+
+                <!-- 2. Timeline/Progress -->
+                <div class="card card-custom">
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-kanban text-primary fs-5"></i>
+                        <span>Tiến độ &amp; Nhiệm vụ</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2 small fw-semibold">
+                            <span class="text-muted">Tiến độ tổng thể</span>
+                            <span id="progress-text" class="fw-bold text-primary">0%</span>
+                        </div>
+                        <div class="progress mb-4" style="height: 10px; border-radius: 6px;">
+                            <div id="progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%; border-radius: 6px;"></div>
+                        </div>
+                        <div id="project-tasks">
+                            <!-- Tasks list -->
+                            <p class="text-muted fst-italic mb-0">Chưa có nhiệm vụ cụ thể.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Join Requests (Owner only) -->
+                <div class="card card-custom d-none" id="owner-requests-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-person-plus-fill text-primary fs-5"></i>
+                            <span>Yêu cầu tham gia dự án</span>
+                        </div>
+                        <span class="badge bg-danger rounded-pill" id="pending-requests-count">0 yêu cầu mới</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="owner-requests-list" class="list-group list-group-flush">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. User Match Card (Applicant view) -->
+                <div class="card card-custom d-none" id="user-match-card" style="border-left: 5px solid var(--primary, #4F46E5) !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-stars text-warning fs-4"></i>
+                                <h5 class="fw-bold mb-0" style="font-family: 'Manrope', sans-serif;">Mức độ phù hợp của bạn</h5>
+                            </div>
+                            <span class="badge bg-primary fs-6 px-3 py-2" id="user-match-score">0% Phù hợp</span>
+                        </div>
+                        <div class="mb-3">
+                            <div class="progress" style="height: 8px; border-radius: 4px;">
+                                <div class="progress-bar bg-primary" id="user-match-bar" role="progressbar" style="width: 0%; border-radius: 4px;"></div>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <small class="text-success fw-semibold d-block mb-1"><i class="bi bi-check-circle me-1"></i>Kỹ năng khớp:</small>
+                                <div id="user-match-skills" class="d-flex flex-wrap gap-1"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted fw-semibold d-block mb-1"><i class="bi bi-info-circle me-1"></i>Đánh giá:</small>
+                                <p class="small text-secondary mb-0" id="user-match-reason">Đang tính toán...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Recommended Candidates (Owner view) -->
+                <div class="card card-custom d-none" id="owner-candidates-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-magic text-purple fs-5" style="color: #7C3AED;"></i>
+                            <span>Ứng viên tiềm năng (AI Matching)</span>
+                        </div>
+                        <a href="matching.html" class="small text-decoration-none fw-medium text-primary">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+                    </div>
+                    <div class="card-body">
+                        <div id="owner-candidates-list" class="row g-3">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. AI Analysis -->
+                <div class="card card-custom ai-analysis-card" style="border-left: 5px solid #7C3AED !important;">
+                    <div class="card-header d-flex align-items-center gap-2" style="color: #7C3AED;">
+                        <i class="bi bi-magic fs-5"></i>
+                        <span>Phân tích từ ProjectHub AI</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="ai-loading" class="text-center py-4">
+                            <div class="spinner-border text-primary mb-2" role="status" style="width: 2rem; height: 2rem;">
+                                <span class="visually-hidden">Đang phân tích...</span>
+                            </div>
+                            <p class="text-muted small mb-0">ProjectHub AI đang phân tích dữ liệu dự án...</p>
+                        </div>
+                        <div id="ai-result" class="d-none">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-3 h-100 border">
+                                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-lightbulb text-warning me-1"></i> Kỹ năng cần thiết</h6>
+                                        <ul id="ai-skills" class="text-secondary ps-3 mb-0 small"></ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-3 h-100 border">
+                                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-tools text-primary me-1"></i> Công nghệ đề xuất</h6>
+                                        <div id="ai-tech" class="d-flex flex-wrap gap-1"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-3 h-100 border">
+                                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-speedometer2 text-danger me-1"></i> Độ khó dự án</h6>
+                                        <span id="ai-difficulty" class="badge bg-danger text-white"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded-3 h-100 border">
+                                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-people text-info me-1"></i> Quy mô đội nhóm lý tưởng</h6>
+                                        <p id="ai-team-size" class="text-secondary mb-0 small"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. Community Reviews & 5-Star Rating Component -->
+                <div class="card card-custom mb-4" id="project-reviews-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-star-fill text-warning fs-5"></i>
+                            <span class="fw-bold">Đánh giá &amp; Nhận xét từ cộng đồng</span>
+                        </div>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1">
+                            <i class="bi bi-star-fill me-1"></i> 4.9 / 5.0 (18 đánh giá)
+                        </span>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Rating Summary Bar -->
+                        <div class="row align-items-center mb-4 pb-3 border-bottom g-3">
+                            <div class="col-sm-4 text-center border-end">
+                                <div class="display-4 fw-bold text-warning mb-0" style="line-height: 1;">4.9</div>
+                                <div class="text-warning small my-2">
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                </div>
+                                <div class="text-muted small">18 thành viên đánh giá</div>
+                            </div>
+                            <div class="col-sm-8 ps-sm-4">
+                                <div class="d-flex align-items-center gap-2 mb-1 small">
+                                    <span class="text-muted" style="width: 45px;">5 sao</span>
+                                    <div class="progress flex-grow-1" style="height: 6px;">
+                                        <div class="progress-bar bg-warning" style="width: 88%;"></div>
+                                    </div>
+                                    <span class="text-muted small" style="width: 30px;">16</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mb-1 small">
+                                    <span class="text-muted" style="width: 45px;">4 sao</span>
+                                    <div class="progress flex-grow-1" style="height: 6px;">
+                                        <div class="progress-bar bg-warning" style="width: 12%;"></div>
+                                    </div>
+                                    <span class="text-muted small" style="width: 30px;">2</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 small">
+                                    <span class="text-muted" style="width: 45px;">3 sao</span>
+                                    <div class="progress flex-grow-1" style="height: 6px;">
+                                        <div class="progress-bar bg-warning" style="width: 0%;"></div>
+                                    </div>
+                                    <span class="text-muted small" style="width: 30px;">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Interactive 5-Star Rating Form (Pure HTML/CSS Component) -->
+                        <div class="p-3 rounded-4 bg-light border mb-4" id="submit-review-box">
+                            <h6 class="fw-bold mb-2 text-dark">
+                                <i class="bi bi-pencil-square text-primary me-1"></i> Để lại đánh giá của bạn
+                            </h6>
+                            <form id="project-rating-form" onsubmit="return false;">
+                                <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                                    <!-- 5-Star Rating Component Pure CSS -->
+                                    <div class="rating star-rating" id="interactive-star-rating" role="radiogroup" aria-label="Đánh giá chất lượng dự án">
+                                        <input value="5" name="rate" id="star5" type="radio" checked>
+                                        <label title="5 sao - Tuyệt vời" for="star5" aria-label="5 sao"></label>
+                                        <input value="4" name="rate" id="star4" type="radio">
+                                        <label title="4 sao - Rất tốt" for="star4" aria-label="4 sao"></label>
+                                        <input value="3" name="rate" id="star3" type="radio">
+                                        <label title="3 sao - Khá tốt" for="star3" aria-label="3 sao"></label>
+                                        <input value="2" name="rate" id="star2" type="radio">
+                                        <label title="2 sao - Tạm ổn" for="star2" aria-label="2 sao"></label>
+                                        <input value="1" name="rate" id="star1" type="radio">
+                                        <label title="1 sao - Cần cải thiện" for="star1" aria-label="1 sao"></label>
+                                    </div>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold px-3 py-2 rounded-pill" id="rating-status-text">
+                                        Tuyệt vời (5/5 sao)
+                                    </span>
+                                </div>
+                                <div class="mb-3">
+                                    <textarea class="form-control" id="review-comment-input" rows="3" placeholder="Chia sẻ cảm nhận về dự án, chất lượng ý tưởng, quy trình hợp tác hoặc công nghệ áp dụng..." style="border-radius: 12px;"></textarea>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button type="button" class="btn btn-primary px-4 shadow-sm" id="btn-submit-review">
+                                        <i class="bi bi-send me-1"></i> Gửi đánh giá
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Community Reviews List -->
+                        <div class="d-flex flex-column gap-3" id="community-reviews-list">
+                            <!-- Review 1 -->
+                            <div class="p-3 rounded-3 border bg-white review-card-item">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="https://ui-avatars.com/api/?name=Tran+Minh&background=4F46E5&color=fff&size=64" width="36" height="36" class="rounded-circle" alt="Avatar">
+                                        <div>
+                                            <div class="fw-semibold text-dark small">Trần Nhật Minh</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">Frontend Developer • Đại học Bách Khoa</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-warning small">
+                                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                                    </div>
+                                </div>
+                                <p class="text-secondary small mb-0">Ý tưởng dự án cực kỳ thiết thực cho sinh viên. Trưởng nhóm phân chia task trên Kanban rất rõ ràng, review code nhanh và giải quyết khúc mắc kịp thời!</p>
+                            </div>
+
+                            <!-- Review 2 -->
+                            <div class="p-3 rounded-3 border bg-white review-card-item">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="https://ui-avatars.com/api/?name=Le+Thu&background=10B981&color=fff&size=64" width="36" height="36" class="rounded-circle" alt="Avatar">
+                                        <div>
+                                            <div class="fw-semibold text-dark small">Lê Thu Hà</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">UI/UX Designer • ĐH FPT</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-warning small">
+                                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                                    </div>
+                                </div>
+                                <p class="text-secondary small mb-0">Tech stack hiện đại, tài liệu kiến trúc dự án chỉn chu. Mình học hỏi được rất nhiều về quy trình làm việc nhóm thực chiến khi tham gia dự án này.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIDEBAR: 4 col -->
+            <div class="col-lg-4">
+                <!-- GitHub Repository Card -->
+                <div class="card card-custom" id="project-github-card" style="display:none;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-github fs-5 text-dark"></i>
+                            <span>Kho mã nguồn GitHub</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary" id="btn-refresh-github" title="Làm mới dữ liệu từ GitHub" aria-label="Làm mới dữ liệu từ GitHub">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                    <div class="card-body p-3" id="project-github-body">
+                        <!-- Loaded by JS -->
+                    </div>
+                </div>
+
+                <!-- GitHub Unlinked State (for Owner) -->
+                <div class="card card-custom" id="project-github-unlinked" style="display:none;">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-github display-6 text-muted mb-2 d-block"></i>
+                        <h6 class="fw-bold mb-1 text-dark">Chưa liên kết GitHub</h6>
+                        <p class="text-muted small mb-3">Kết nối mã nguồn để hiển thị số sao, ngôn ngữ và theo dõi dự án.</p>
+                        <a href="#" id="link-github-now-btn" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-link-45deg me-1"></i>Liên kết GitHub ngay
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 1. Quick Stats -->
+                <div class="card card-custom">
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle text-primary"></i>
+                        <span>Thông tin nhanh</span>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                                <span class="text-muted small"><i class="bi bi-calendar-event me-2"></i>Hạn chót</span>
+                                <span class="fw-semibold text-dark" id="stat-deadline">-</span>
+                            </li>
+                            <li class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                                <span class="text-muted small"><i class="bi bi-people me-2"></i>Thành viên</span>
+                                <span class="fw-semibold text-dark" id="stat-members">-</span>
+                            </li>
+                            <li class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small"><i class="bi bi-check2-square me-2"></i>Trạng thái</span>
+                                <span class="fw-semibold" id="stat-status">-</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 2. Team Members -->
+                <div class="card card-custom">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-people text-primary"></i>
+                            <span>Thành viên nhóm</span>
+                        </div>
+                        <span class="badge bg-primary rounded-pill" id="team-members-count">1</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <div id="team-members-list" class="d-flex flex-column gap-3">
+                            <!-- Members -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Open Positions -->
+                <div class="card card-custom" id="open-positions-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-briefcase text-primary"></i>
+                            <span>Vị trí tuyển dụng</span>
+                        </div>
+                        <span class="badge bg-primary rounded-pill" id="open-positions-count">0</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <div id="open-positions-list">
+                            <!-- Roles -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Related Projects -->
+                <div class="card card-custom">
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-collection text-primary"></i>
+                        <span>Dự án liên quan</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="related-projects">
+                            <div class="text-center p-4 text-muted small">Không có dự án liên quan</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Join Modal -->
+    <div id="join-modal" class="modal fade" tabindex="-1" aria-labelledby="join-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header border-bottom py-3 px-4">
+                    <h5 class="modal-title fw-bold text-dark" id="join-modal-title">
+                        <i class="bi bi-person-plus text-primary me-2"></i>Ứng tuyển tham gia dự án
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="join-form" onsubmit="return false;">
+                        <div class="mb-3">
+                            <label for="join-role" class="form-label fw-semibold text-dark small">Chọn vị trí ứng tuyển <span class="text-danger">*</span></label>
+                            <select id="join-role" class="form-select" required>
+                                <option value="">-- Chọn vị trí --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="join-message" class="form-label fw-semibold text-dark small">Giới thiệu bản thân &amp; Kinh nghiệm <span class="text-danger">*</span></label>
+                            <textarea id="join-message" class="form-control" rows="4" placeholder="Nêu rõ điểm mạnh, công nghệ thành thạo và lý do bạn muốn đồng hành cùng dự án này..." required></textarea>
+                            <div class="form-text text-muted" style="font-size: 0.75rem;">Lời giới thiệu ấn tượng giúp tăng 80% cơ hội được trưởng nhóm phê duyệt.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top bg-light px-4 py-3 d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="button" class="btn btn-primary px-4" id="btn-submit-join">
+                        <i class="bi bi-send me-1"></i>Gửi yêu cầu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer placeholder (Placed properly before script tags) -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/projects.js"></script>
+    <script src="js/matching.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

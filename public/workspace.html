@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workspace - ProjectHub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <!-- Mobile Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <div class="app-container d-flex">
+        <!-- Sidebar -->
+        <aside class="sidebar bg-white border-end d-flex flex-column" aria-label="Điều hướng chính">
+            <div class="sidebar-brand p-3 border-bottom">
+                <a href="index.html" class="d-flex align-items-center text-decoration-none text-dark" title="Về trang chủ ProjectHub">
+                    <div class="brand-icon bg-primary text-white rounded d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-weight: bold;">P</div>
+                    <span class="fs-4 fw-bold" style="font-family: 'Manrope', sans-serif;">ProjectHub</span>
+                </a>
+            </div>
+            <div class="sidebar-nav flex-grow-1 p-3 overflow-auto">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link d-flex align-items-center p-2 rounded text-dark hover-bg-light">
+                            <i class="bi bi-grid-1x2-fill me-3 text-muted"></i><span>Tổng quan</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" id="sidebar-workspace-link" class="nav-link active d-flex align-items-center p-2 rounded text-primary bg-primary bg-opacity-10">
+                            <i class="bi bi-kanban-fill me-3"></i><span>Workspace</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="projects.html" class="nav-link d-flex align-items-center p-2 rounded text-dark hover-bg-light">
+                            <i class="bi bi-folder-fill me-3 text-muted"></i><span>Dự án</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3 mb-2">
+                        <span class="text-uppercase text-muted small fw-bold px-2" style="font-size: 0.75rem;">Khám phá</span>
+                    </li>
+                    <li class="nav-item">
+                        <a href="matching.html" class="nav-link d-flex align-items-center p-2 rounded text-dark hover-bg-light">
+                            <i class="bi bi-people-fill me-3 text-muted"></i><span>Tìm thành viên</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="profile.html" class="nav-link d-flex align-items-center p-2 rounded text-dark hover-bg-light">
+                            <i class="bi bi-person-circle me-3 text-muted"></i><span>Hồ sơ cá nhân</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer p-3 border-top">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="" id="sidebar-user-avatar" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;" alt="Avatar">
+                        <div>
+                            <div class="fw-medium small text-truncate" id="sidebar-user-name" style="max-width: 110px;">User</div>
+                            <div class="text-muted" style="font-size: 0.75rem;" id="sidebar-user-role">Thành viên</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-light border-0" id="btn-logout" title="Đăng xuất"><i class="bi bi-box-arrow-right text-muted"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1 bg-light d-flex flex-column" id="main-content" style="height: 100vh; overflow-y: auto;">
+            
+            <!-- No Projects State (Friendly welcoming empty state when user has 0 projects) -->
+            <div id="no-projects-view" class="text-center py-5 d-none my-auto px-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <i class="bi bi-kanban fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-2">Bạn chưa có Không gian làm việc nào</h3>
+                <p class="text-muted mb-4 mx-auto" style="max-width: 520px;">
+                    Không gian làm việc (Workspace) giúp bạn lập bảng Kanban, phân chia nhiệm vụ và tìm kiếm thành viên phù hợp. Hãy tạo một dự án mới để làm Chủ dự án hoặc tham gia dự án của các nhóm khác.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-2">
+                    <a href="create-project.html" class="btn btn-primary px-3 py-2 fw-semibold rounded-pill d-inline-flex align-items-center gap-1 shadow-sm">
+                        <i class="bi bi-plus-lg"></i><span>Tạo dự án mới</span>
+                    </a>
+                    <a href="projects.html" class="btn btn-outline-secondary px-3 py-2 rounded-pill d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-compass"></i><span>Khám phá dự án</span>
+                    </a>
+                    <a href="matching.html" class="btn btn-outline-primary px-3 py-2 rounded-pill d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-stars"></i><span>Tìm việc theo kỹ năng</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Access Denied State (Only when user explicitly visits a project they are not a member of) -->
+            <div id="access-denied-view" class="text-center py-5 d-none my-auto px-3">
+                <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <i class="bi bi-shield-lock-fill fs-1"></i>
+                </div>
+                <h3 class="fw-bold mb-2">Không thể truy cập Không gian làm việc này</h3>
+                <p class="text-muted mb-4 mx-auto" id="access-denied-msg" style="max-width: 520px;">
+                    Chỉ có Chủ dự án và các Thành viên chính thức mới có quyền vào Không gian làm việc của dự án này.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-2">
+                    <a href="workspace.html" id="btn-return-my-workspace" class="btn btn-primary rounded-pill px-3 py-2 shadow-sm d-none">
+                        <i class="bi bi-kanban me-1"></i>Về Workspace của tôi
+                    </a>
+                    <a href="project-detail.html" id="btn-return-detail" class="btn btn-outline-primary rounded-pill px-3 py-2">
+                        <i class="bi bi-info-circle me-1"></i>Xem trang chi tiết dự án
+                    </a>
+                    <a href="projects.html" class="btn btn-outline-secondary rounded-pill px-3 py-2">
+                        <i class="bi bi-arrow-left me-1"></i>Danh sách dự án
+                    </a>
+                </div>
+            </div>
+
+            <!-- Workspace Active Content Container -->
+            <div id="workspace-view" class="d-flex flex-column flex-grow-1">
+                <!-- Workspace Topbar -->
+                <div class="bg-white border-bottom px-3 px-md-4 pt-3 pb-0 sticky-top" style="z-index: 90;">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 gap-md-3 mb-3">
+                        <div class="d-flex align-items-center min-w-0">
+                            <button class="btn btn-outline-secondary btn-sm d-lg-none shadow-sm me-2 flex-shrink-0" id="btn-toggle-sidebar" aria-label="Mở menu điều hướng">
+                                <i class="bi bi-list fs-5"></i>
+                            </button>
+                            <a href="projects.html" id="btn-back-to-project" class="btn btn-sm btn-light border me-2 me-md-3 flex-shrink-0" title="Trở lại chi tiết dự án">
+                                <i class="bi bi-arrow-left"></i>
+                            </a>
+                            <div class="min-w-0">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="dropdown" id="ws-project-switcher-dropdown">
+                                        <button class="btn btn-sm dropdown-toggle d-flex align-items-center gap-1 fw-bold fs-5 p-0 border-0 text-dark bg-transparent shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-family: 'Manrope', sans-serif;">
+                                            <span class="text-truncate" id="ws-project-title" style="max-width: 280px;">Đang tải...</span>
+                                        </button>
+                                        <ul class="dropdown-menu shadow border" id="ws-project-switcher-list" style="min-width: 260px; max-height: 320px; overflow-y: auto;">
+                                            <!-- Populated by JS -->
+                                        </ul>
+                                    </div>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary flex-shrink-0" id="ws-project-field">...</span>
+                                </div>
+                                <small class="text-muted d-block text-truncate" id="ws-owner-label">Chủ dự án: --</small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex flex-wrap align-items-center gap-2 gap-md-3">
+                            <!-- Task Progress -->
+                            <div class="d-flex flex-column align-items-end d-none d-sm-flex" style="min-width: 120px;">
+                                <div class="d-flex justify-content-between w-100 mb-1">
+                                    <small class="text-muted" style="font-size: 0.75rem;">Tiến độ</small>
+                                    <span class="small fw-bold text-success" id="ws-progress-text">0%</span>
+                                </div>
+                                <div class="progress w-100" style="height: 6px;">
+                                    <div class="progress-bar bg-success" id="ws-progress-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Team Avatars -->
+                            <div class="d-flex align-items-center ps-2 border-start">
+                                <div class="d-flex" id="ws-team-avatars">
+                                    <!-- Populated by JS -->
+                                </div>
+                                <span class="badge bg-light text-dark border ms-2" id="ws-members-count">0 thành viên</span>
+                            </div>
+                            
+                            <!-- Online Presence Indicator -->
+                            <div class="d-flex align-items-center px-2 py-1 bg-success bg-opacity-10 text-success rounded-pill small fw-medium" id="ws-presence-indicator" title="Thành viên đang online">
+                                <span class="spinner-grow spinner-grow-sm text-success me-1" style="width: 8px; height: 8px;" role="status"></span>
+                                <span id="ws-online-count">1</span>&nbsp;online
+                            </div>
+
+                            <!-- Deadline -->
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-warning text-dark px-2 py-1" id="ws-deadline"><i class="bi bi-calendar3 me-1"></i>--</span>
+                            </div>
+
+                            <!-- Button Find Members with AI Matching -->
+                            <a href="matching.html" id="btn-ws-find-members" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 shadow-sm" title="Tìm thành viên phù hợp qua AI Matching">
+                                <i class="bi bi-magic text-primary"></i><span class="d-none d-md-inline">Tìm ứng viên (AI)</span>
+                            </a>
+
+                            <!-- Link to Project Detail -->
+                            <a href="#" id="link-view-project-detail" class="btn btn-sm btn-outline-secondary" title="Xem trang giới thiệu dự án">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>Chi tiết
+                            </a>
+
+                            <!-- Theme Toggle Button -->
+                            <label class="theme-switch" title="Chuyển giao diện Sáng / Tối" aria-label="Chuyển chế độ Sáng / Tối" style="--toggle-size: 11px;">
+                                <input type="checkbox" class="theme-switch__checkbox">
+                                <div class="theme-switch__container">
+                                    <div class="theme-switch__clouds"></div>
+                                    <div class="theme-switch__stars-container">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 55" fill="none">
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M135.831 3.00688C135.055 3.85027 134.111 4.29946 133 4.35447C134.111 4.40947 135.055 4.85867 135.831 5.71123C136.607 6.55462 136.996 7.56303 136.996 8.72727C136.996 7.95722 137.172 7.25134 137.525 6.59129C137.886 5.93124 138.372 5.39954 138.98 5.00535C139.598 4.60199 140.268 4.39114 141 4.35447C139.88 4.2903 138.936 3.85027 138.16 3.00688C137.384 2.16348 136.996 1.16425 136.996 0C136.996 1.16425 136.607 2.16348 135.831 3.00688ZM31 23.3545C32.1114 23.2995 33.0551 22.8503 33.8313 22.0069C34.6075 21.1635 34.9956 20.1642 34.9956 19C34.9956 20.1642 35.3837 21.1635 36.1599 22.0069C36.9361 22.8503 37.8798 23.2903 39 23.3545C38.2679 23.3911 37.5976 23.602 36.9802 24.0053C36.3716 24.3995 35.8864 24.9312 35.5248 25.5913C35.172 26.2513 34.9956 26.9572 34.9956 27.7273C34.9956 26.563 34.6075 25.5546 33.8313 24.7112C33.0551 23.8587 32.1114 23.4095 31 23.3545ZM0 36.3545C1.11136 36.2995 2.05513 35.8503 2.83131 35.0069C3.6075 34.1635 3.99559 33.1642 3.99559 32C3.99559 33.1642 4.38368 34.1635 5.15987 35.0069C5.93605 35.8503 6.87982 36.2903 8 36.3545C7.26792 36.3911 6.59757 36.602 5.98015 37.0053C5.37155 37.3995 4.88644 37.9312 4.52481 38.5913C4.172 39.2513 3.99559 39.9572 3.99559 40.7273C3.99559 39.563 3.6075 38.5546 2.83131 37.7112C2.05513 36.8587 1.11136 36.4095 0 36.3545ZM56.8313 24.0069C56.0551 24.8503 55.1114 25.2995 54 25.3545C55.1114 25.4095 56.0551 25.8587 56.8313 26.7112C57.6075 27.5546 57.9956 28.563 57.9956 29.7273C57.9956 28.9572 58.172 28.2513 58.5248 27.5913C58.8864 26.9312 59.3716 26.3995 59.9802 26.0053C60.5976 25.602 61.2679 25.3911 62 25.3545C60.8798 25.2903 59.9361 24.8503 59.1599 24.0069C58.3837 23.1635 57.9956 22.1642 57.9956 21C57.9956 22.1642 57.6075 23.1635 56.8313 24.0069ZM81 25.3545C82.1114 25.2995 83.0551 24.8503 83.8313 24.0069C84.6075 23.1635 84.9956 22.1642 84.9956 21C84.9956 22.1642 85.3837 23.1635 86.1599 24.0069C86.9361 24.8503 87.8798 25.2903 89 25.3545C88.2679 25.3911 87.5976 25.602 86.9802 26.0053C86.3716 26.3995 85.8864 26.9312 85.5248 27.5913C85.172 28.2513 84.9956 28.9572 84.9956 29.7273C84.9956 28.563 84.6075 27.5546 83.8313 26.7112C83.0551 25.8587 82.1114 25.4095 81 25.3545ZM136 36.3545C137.111 36.2995 138.055 35.8503 138.831 35.0069C139.607 34.1635 139.996 33.1642 139.996 32C139.996 33.1642 140.384 34.1635 141.16 35.0069C141.936 35.8503 142.88 36.2903 144 36.3545C143.268 36.3911 142.598 36.602 141.98 37.0053C141.372 37.3995 140.886 37.9312 140.525 38.5913C140.172 39.2513 139.996 39.9572 139.996 40.7273C139.996 39.563 139.607 38.5546 138.831 37.7112C138.055 36.8587 137.111 36.4095 136 36.3545ZM101.831 49.0069C101.055 49.8503 100.111 50.2995 99 50.3545C100.111 50.4095 101.055 50.8587 101.831 51.7112C102.607 52.5546 102.996 53.563 102.996 54.7273C102.996 53.9572 103.172 53.2513 103.525 52.5913C103.886 51.9312 104.372 51.3995 104.98 51.0053C105.598 50.602 106.268 50.3911 107 50.3545C105.88 50.2903 104.936 49.8503 104.16 49.0069C103.384 48.1635 102.996 47.1642 102.996 46C102.996 47.1642 102.607 48.1635 101.831 49.0069Z" fill="currentColor"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="theme-switch__circle-container">
+                                        <div class="theme-switch__sun-moon-container">
+                                            <div class="theme-switch__moon">
+                                                <div class="theme-switch__spot"></div>
+                                                <div class="theme-switch__spot"></div>
+                                                <div class="theme-switch__spot"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabs Header -->
+                    <div class="d-flex gap-2 ws-tabs-header overflow-x-auto text-nowrap pb-2">
+                        <button class="ws-tab active" data-tab="tasks"><i class="bi bi-kanban me-2"></i>Bảng Kanban</button>
+                        <button class="ws-tab" data-tab="overview"><i class="bi bi-info-circle me-2"></i>Tổng quan</button>
+                        <button class="ws-tab" data-tab="members"><i class="bi bi-people me-2"></i>Thành viên nhóm</button>
+                        <button class="ws-tab position-relative" data-tab="chat">
+                            <i class="bi bi-chat-dots me-2"></i>Thảo luận nhóm
+                            <span class="badge bg-danger rounded-pill d-none ms-1" id="ws-chat-badge">0</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Tab Contents Area -->
+                <div class="flex-grow-1 p-4">
+                    
+                    <!-- 1. KANBAN TAB (Default) -->
+                    <div class="ws-tab-content active" id="tab-tasks">
+                        <!-- Toolbar: Search, Filters, Add Button -->
+                        <div class="card border-0 shadow-sm p-3 mb-4">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-12 col-md-4">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                                        <input type="text" class="form-control border-start-0 ps-0" id="task-search-input" placeholder="Tìm theo tên công việc...">
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <select class="form-select form-select-sm" id="task-filter-priority">
+                                        <option value="all">Tất cả độ ưu tiên</option>
+                                        <option value="urgent">Khẩn cấp</option>
+                                        <option value="high">Cao</option>
+                                        <option value="medium">Trung bình</option>
+                                        <option value="low">Thấp</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <select class="form-select form-select-sm" id="task-filter-assignee">
+                                        <option value="all">Tất cả người phụ trách</option>
+                                        <option value="unassigned">Chưa giao ai</option>
+                                        <!-- Members populated by JS -->
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <select class="form-select form-select-sm" id="task-sort-by">
+                                        <option value="position">Thứ tự Kanban</option>
+                                        <option value="deadline">Hạn chót gần nhất</option>
+                                        <option value="priority">Độ ưu tiên cao nhất</option>
+                                        <option value="newest">Mới tạo gần đây</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-1 text-end">
+                                    <button class="btn btn-sm btn-primary w-100 d-flex align-items-center justify-content-center gap-1" onclick="openAddTaskModal('todo')">
+                                        <i class="bi bi-plus-lg"></i><span>Thêm</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Kanban 4 Columns -->
+                        <div class="kanban-board">
+                            <!-- Column 1: TODO -->
+                            <div class="kanban-col">
+                                <div class="kanban-col-header todo d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-circle me-2 text-secondary"></i>Cần làm</span>
+                                    <span class="badge bg-secondary rounded-pill" id="count-todo">0</span>
+                                </div>
+                                <div class="kanban-tasks" id="tasks-todo" ondragover="allowDrop(event)" ondrop="dropTask(event, 'todo')">
+                                    <!-- Populated by JS -->
+                                </div>
+                                <div class="p-2 border-top bg-white">
+                                    <button class="btn btn-sm btn-light w-100 text-muted" onclick="openAddTaskModal('todo')">
+                                        <i class="bi bi-plus me-1"></i>Thêm task
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Column 2: IN_PROGRESS -->
+                            <div class="kanban-col">
+                                <div class="kanban-col-header inprogress d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-play-circle me-2 text-warning"></i>Đang làm</span>
+                                    <span class="badge bg-warning text-dark rounded-pill" id="count-in_progress">0</span>
+                                </div>
+                                <div class="kanban-tasks" id="tasks-in_progress" ondragover="allowDrop(event)" ondrop="dropTask(event, 'in_progress')">
+                                    <!-- Populated by JS -->
+                                </div>
+                                <div class="p-2 border-top bg-white">
+                                    <button class="btn btn-sm btn-light w-100 text-muted" onclick="openAddTaskModal('in_progress')">
+                                        <i class="bi bi-plus me-1"></i>Thêm task
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Column 3: REVIEW -->
+                            <div class="kanban-col">
+                                <div class="kanban-col-header review d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-eye me-2 text-info"></i>Review</span>
+                                    <span class="badge bg-info text-dark rounded-pill" id="count-review">0</span>
+                                </div>
+                                <div class="kanban-tasks" id="tasks-review" ondragover="allowDrop(event)" ondrop="dropTask(event, 'review')">
+                                    <!-- Populated by JS -->
+                                </div>
+                                <div class="p-2 border-top bg-white">
+                                    <button class="btn btn-sm btn-light w-100 text-muted" onclick="openAddTaskModal('review')">
+                                        <i class="bi bi-plus me-1"></i>Thêm task
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Column 4: DONE -->
+                            <div class="kanban-col">
+                                <div class="kanban-col-header done d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-check-circle me-2 text-success"></i>Hoàn thành</span>
+                                    <span class="badge bg-success rounded-pill" id="count-done">0</span>
+                                </div>
+                                <div class="kanban-tasks" id="tasks-done" ondragover="allowDrop(event)" ondrop="dropTask(event, 'done')">
+                                    <!-- Populated by JS -->
+                                </div>
+                                <div class="p-2 border-top bg-white">
+                                    <button class="btn btn-sm btn-light w-100 text-muted" onclick="openAddTaskModal('done')">
+                                        <i class="bi bi-plus me-1"></i>Thêm task
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 2. OVERVIEW TAB -->
+                    <div class="ws-tab-content" id="tab-overview">
+                        <div id="overview-content">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- 3. MEMBERS TAB -->
+                    <div class="ws-tab-content" id="tab-members">
+                        <div id="members-content">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- 4. CHAT TAB (Phase 6 Realtime Collaboration) -->
+                    <div class="ws-tab-content" id="tab-chat" style="height: calc(100vh - 180px);">
+                        <div class="card border-0 shadow-sm rounded-3 h-100 d-flex flex-column overflow-hidden">
+                            <!-- Chat Header -->
+                            <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                        <i class="bi bi-chat-dots-fill fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Thảo luận dự án</h6>
+                                        <small class="text-muted">Kênh trao đổi trực tiếp thời gian thực cho thành viên</small>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-secondary" id="btn-load-more-messages">
+                                    <i class="bi bi-arrow-up-circle me-1"></i>Tải thêm tin nhắn cũ
+                                </button>
+                            </div>
+                            <!-- Chat Messages Scroll Container -->
+                            <div class="card-body p-3 p-md-4 flex-grow-1 overflow-auto bg-light bg-opacity-50" id="chat-messages-container" style="scroll-behavior: smooth;">
+                                <div id="chat-loading-spinner" class="text-center py-4 d-none">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                    <small class="text-muted ms-2">Đang tải tin nhắn...</small>
+                                </div>
+                                <div id="chat-messages-list">
+                                    <!-- Populated by chat.js -->
+                                </div>
+                            </div>
+                            <!-- Chat Input Box -->
+                            <div class="card-footer bg-white border-top p-3">
+                                <div class="input-group">
+                                    <textarea class="form-control border-end-0" id="chat-input" placeholder="Nhập tin nhắn thảo luận... (Enter để gửi, Shift+Enter xuống dòng)" rows="1" style="resize: none;"></textarea>
+                                    <button class="btn btn-primary px-4 d-flex align-items-center" id="btn-send-message">
+                                        <i class="bi bi-send-fill me-1"></i><span>Gửi</span>
+                                    </button>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1 px-1">
+                                    <small class="text-muted" style="font-size: 0.72rem;">Nhấn <strong>Enter</strong> để gửi, <strong>Shift + Enter</strong> để xuống dòng</small>
+                                    <small class="text-muted" style="font-size: 0.72rem;">Hỗ trợ tối đa 2000 ký tự</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Task Create/Edit Modal -->
+    <div class="modal fade" id="taskModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold" id="taskModalTitle">Thêm công việc</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="task-form">
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Tên công việc <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="task-title-input" placeholder="Nhập tên công việc" required>
+                            <div class="invalid-feedback" id="task-title-error">Vui lòng nhập tên công việc</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Mô tả chi tiết</label>
+                            <textarea class="form-control" id="task-desc-input" rows="3" placeholder="Mô tả công việc cần làm..."></textarea>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Người phụ trách</label>
+                                <select class="form-select" id="task-assignee-input">
+                                    <option value="">-- Chưa phân công --</option>
+                                    <!-- Populated by JS -->
+                                </select>
+                                <div id="task-assignee-hint" class="small text-muted mt-1"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Độ ưu tiên</label>
+                                <select class="form-select" id="task-priority-input">
+                                    <option value="low">Thấp</option>
+                                    <option value="medium" selected>Trung bình</option>
+                                    <option value="high">Cao</option>
+                                    <option value="urgent">Khẩn cấp</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Trạng thái</label>
+                                <select class="form-select" id="task-status-input">
+                                    <option value="todo">Cần làm</option>
+                                    <option value="in_progress">Đang làm</option>
+                                    <option value="review">Review</option>
+                                    <option value="done">Hoàn thành</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium">Hạn chót (Deadline)</label>
+                                <input type="date" class="form-control" id="task-deadline-input">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer bg-light border-top d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-danger" id="btn-delete-task" style="display: none;">
+                        <i class="bi bi-trash me-1"></i>Xóa task
+                    </button>
+                    <div class="ms-auto d-flex gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn btn-primary" id="btn-save-task">Lưu công việc</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index: 1080;"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/projects.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/workspace.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment — KHÔNG BAO GIỜ commit file này
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Logs
+logs/
+*.log
+
+# Build output
+dist/
+build/
+
+# Uploads tạm
+uploads/
+public/uploads/*
+!public/uploads/.gitkeep
+tmp/
+
+# Scratch & Local Backups
+scratch/
+*.bak
+*.bak*

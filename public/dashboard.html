@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng điều khiển - ProjectHub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Dashboard Layout & Stat Cards Fix */
+        .app-container {
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+        }
+        .sidebar {
+            width: 260px !important;
+            min-width: 260px;
+            max-width: 260px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            flex-shrink: 0;
+            background-color: var(--surface);
+            border-right: 1px solid var(--border);
+            z-index: 100;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .main-content {
+            margin-left: 0 !important;
+            width: calc(100% - 260px) !important;
+            max-width: calc(100% - 260px) !important;
+            flex-grow: 1;
+            min-width: 0;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 1.5rem 2rem !important;
+            background-color: var(--background);
+            transition: background-color 0.3s ease;
+        }
+
+        /* Stat Cards: Chống vỡ chữ và tràn viền */
+        .stat-card {
+            border-radius: var(--radius-md, 14px);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+        }
+        .stat-card .card-body {
+            padding: 1rem 1.15rem;
+        }
+        .stat-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .stat-title {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+        .stat-value {
+            font-size: 1.65rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text);
+        }
+
+        /* Standard Cards */
+        .card-custom-dash {
+            border-radius: var(--radius-lg, 16px);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            background: var(--surface);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            margin-bottom: 1.5rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .card-custom-dash .card-header {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            color: var(--text);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Select styling */
+        #project-perf-selector {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.85rem;
+            font-size: 0.875rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            background-color: var(--surface);
+            color: var(--text);
+            transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, color 0.3s ease;
+        }
+        #project-perf-selector:focus {
+            border-color: var(--primary, #4F46E5);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+            outline: none;
+        }
+
+        /* Mobile Sidebar */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 1030;
+            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-backdrop.show {
+            display: block;
+        }
+        @media (max-width: 991.98px) {
+            .sidebar {
+                width: 280px !important;
+                min-width: 280px;
+                max-width: 280px;
+                position: fixed !important;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 1045;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-left: 0 !important;
+                padding: 1.25rem 1rem !important;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="min-vh-100">
+    <!-- Skip to main content -->
+    <a href="#main-content" class="visually-hidden-focusable position-fixed top-0 start-0 z-3 btn btn-primary m-2" style="z-index: 9999;">
+        Bỏ qua đến nội dung chính
+    </a>
+
+    <!-- Mobile Backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar d-flex flex-column" aria-label="Điều hướng chính">
+            <div class="sidebar-brand p-4 border-bottom">
+                <a href="index.html" class="d-flex align-items-center text-decoration-none text-dark" title="Về trang chủ ProjectHub">
+                    <div class="brand-icon bg-primary text-white rounded-3 d-flex align-items-center justify-content-center me-2 shadow-sm" style="width: 34px; height: 34px; font-weight: bold;">P</div>
+                    <span class="fs-4 fw-bold" style="font-family: 'Manrope', sans-serif;">ProjectHub</span>
+                </a>
+            </div>
+            <div class="sidebar-nav flex-grow-1 p-3 overflow-auto">
+                <ul class="nav flex-column gap-1">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="nav-link active d-flex align-items-center p-2 rounded text-primary bg-primary bg-opacity-10" aria-current="page">
+                            <i class="bi bi-grid-1x2-fill me-3"></i><span>Tổng quan</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="create-project.html" class="nav-link d-flex align-items-center p-2 rounded text-dark hover-bg-light">
+                            <i class="bi bi-plus-circle me-3 text-muted"></i><span>Tạo dự án mới</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="projects.html" class="nav-link d-flex align-items-center p-2 rounded text-dark hover-bg-light">
+                            <i class="bi bi-collection me-3 text-muted"></i><span>Khám phá dự án</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="workspace.html" class="nav-link d-flex align-items-center p-2 rounded text-dark hover-bg-light">
+                            <i class="bi bi-kanban-fill me-3 text-muted"></i><span>Workspace</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4 mb-2">
+                        <span class="text-uppercase text-muted small fw-bold px-2" style="font-size: 0.72rem; letter-spacing: 0.5px;">Khám phá</span>
+                    </li>
+                    <li class="nav-item">
+                        <a href="matching.html" class="nav-link d-flex align-items-center p-2 rounded text-dark hover-bg-light">
+                            <i class="bi bi-people-fill me-3 text-muted"></i><span>Tìm thành viên</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="workspace.html" class="nav-link d-flex align-items-center p-2 rounded text-dark hover-bg-light">
+                            <i class="bi bi-robot me-3 text-muted"></i><span>AI Assistant</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="portfolio.html" class="nav-link d-flex align-items-center p-2 rounded text-dark hover-bg-light">
+                            <i class="bi bi-briefcase-fill me-3 text-muted"></i><span>Portfolio</span>
+                        </a>
+                    </li>
+                    <li class="nav-item d-none" id="sidebar-admin-link">
+                        <a href="admin.html" class="nav-link d-flex align-items-center p-2 rounded text-primary hover-bg-light fw-bold">
+                            <i class="bi bi-shield-lock-fill me-3 text-primary"></i><span>Admin Portal</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mt-auto pt-4">
+                        <a href="profile.html" class="nav-link d-flex align-items-center p-2 rounded text-dark hover-bg-light">
+                            <i class="bi bi-gear-fill me-3 text-muted"></i><span>Cài đặt</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer p-3 border-top">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2 min-w-0">
+                        <img src="" id="sidebar-user-avatar" class="avatar avatar-sm rounded-circle flex-shrink-0" style="width: 36px; height: 36px; object-fit: cover;" alt="User" onerror="this.src='https://ui-avatars.com/api/?name=User&background=4F46E5&color=fff&size=128'">
+                        <div class="min-w-0">
+                            <div class="fw-medium small text-truncate" id="sidebar-user-name" style="max-width: 120px;">User Name</div>
+                            <div class="text-muted" id="sidebar-user-role" style="font-size: 0.75rem;">Thành viên</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-light border-0 flex-shrink-0" id="btn-logout" title="Đăng xuất" aria-label="Đăng xuất"><i class="bi bi-box-arrow-right text-muted"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main id="main-content" class="main-content flex-grow-1 bg-light">
+            <!-- Welcome Header -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-secondary d-lg-none shadow-sm" id="btn-toggle-sidebar" aria-label="Mở menu điều hướng">
+                        <i class="bi bi-list fs-5"></i>
+                    </button>
+                    <div>
+                        <h2 class="fw-bold mb-1 text-dark" id="dashboard-welcome" style="font-family: 'Manrope', sans-serif;">Xin chào!</h2>
+                        <p class="text-muted mb-0 small" id="dashboard-date">Đang tải...</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="theme-switch me-1" title="Chuyển giao diện Sáng / Tối" aria-label="Chuyển chế độ Sáng / Tối">
+                        <input type="checkbox" class="theme-switch__checkbox">
+                        <div class="theme-switch__container">
+                            <div class="theme-switch__clouds"></div>
+                            <div class="theme-switch__stars-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 55" fill="none">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M135.831 3.00688C135.055 3.85027 134.111 4.29946 133 4.35447C134.111 4.40947 135.055 4.85867 135.831 5.71123C136.607 6.55462 136.996 7.56303 136.996 8.72727C136.996 7.95722 137.172 7.25134 137.525 6.59129C137.886 5.93124 138.372 5.39954 138.98 5.00535C139.598 4.60199 140.268 4.39114 141 4.35447C139.88 4.2903 138.936 3.85027 138.16 3.00688C137.384 2.16348 136.996 1.16425 136.996 0C136.996 1.16425 136.607 2.16348 135.831 3.00688ZM31 23.3545C32.1114 23.2995 33.0551 22.8503 33.8313 22.0069C34.6075 21.1635 34.9956 20.1642 34.9956 19C34.9956 20.1642 35.3837 21.1635 36.1599 22.0069C36.9361 22.8503 37.8798 23.2903 39 23.3545C38.2679 23.3911 37.5976 23.602 36.9802 24.0053C36.3716 24.3995 35.8864 24.9312 35.5248 25.5913C35.172 26.2513 34.9956 26.9572 34.9956 27.7273C34.9956 26.563 34.6075 25.5546 33.8313 24.7112C33.0551 23.8587 32.1114 23.4095 31 23.3545ZM0 36.3545C1.11136 36.2995 2.05513 35.8503 2.83131 35.0069C3.6075 34.1635 3.99559 33.1642 3.99559 32C3.99559 33.1642 4.38368 34.1635 5.15987 35.0069C5.93605 35.8503 6.87982 36.2903 8 36.3545C7.26792 36.3911 6.59757 36.602 5.98015 37.0053C5.37155 37.3995 4.88644 37.9312 4.52481 38.5913C4.172 39.2513 3.99559 39.9572 3.99559 40.7273C3.99559 39.563 3.6075 38.5546 2.83131 37.7112C2.05513 36.8587 1.11136 36.4095 0 36.3545ZM56.8313 24.0069C56.0551 24.8503 55.1114 25.2995 54 25.3545C55.1114 25.4095 56.0551 25.8587 56.8313 26.7112C57.6075 27.5546 57.9956 28.563 57.9956 29.7273C57.9956 28.9572 58.172 28.2513 58.5248 27.5913C58.8864 26.9312 59.3716 26.3995 59.9802 26.0053C60.5976 25.602 61.2679 25.3911 62 25.3545C60.8798 25.2903 59.9361 24.8503 59.1599 24.0069C58.3837 23.1635 57.9956 22.1642 57.9956 21C57.9956 22.1642 57.6075 23.1635 56.8313 24.0069ZM81 25.3545C82.1114 25.2995 83.0551 24.8503 83.8313 24.0069C84.6075 23.1635 84.9956 22.1642 84.9956 21C84.9956 22.1642 85.3837 23.1635 86.1599 24.0069C86.9361 24.8503 87.8798 25.2903 89 25.3545C88.2679 25.3911 87.5976 25.602 86.9802 26.0053C86.3716 26.3995 85.8864 26.9312 85.5248 27.5913C85.172 28.2513 84.9956 28.9572 84.9956 29.7273C84.9956 28.563 84.6075 27.5546 83.8313 26.7112C83.0551 25.8587 82.1114 25.4095 81 25.3545ZM136 36.3545C137.111 36.2995 138.055 35.8503 138.831 35.0069C139.607 34.1635 139.996 33.1642 139.996 32C139.996 33.1642 140.384 34.1635 141.16 35.0069C141.936 35.8503 142.88 36.2903 144 36.3545C143.268 36.3911 142.598 36.602 141.98 37.0053C141.372 37.3995 140.886 37.9312 140.525 38.5913C140.172 39.2513 139.996 39.9572 139.996 40.7273C139.996 39.563 139.607 38.5546 138.831 37.7112C138.055 36.8587 137.111 36.4095 136 36.3545ZM101.831 49.0069C101.055 49.8503 100.111 50.2995 99 50.3545C100.111 50.4095 101.055 50.8587 101.831 51.7112C102.607 52.5546 102.996 53.563 102.996 54.7273C102.996 53.9572 103.172 53.2513 103.525 52.5913C103.886 51.9312 104.372 51.3995 104.98 51.0053C105.598 50.602 106.268 50.3911 107 50.3545C105.88 50.2903 104.936 49.8503 104.16 49.0069C103.384 48.1635 102.996 47.1642 102.996 46C102.996 47.1642 102.607 48.1635 101.831 49.0069Z" fill="currentColor"></path>
+                                </svg>
+                            </div>
+                            <div class="theme-switch__circle-container">
+                                <div class="theme-switch__sun-moon-container">
+                                    <div class="theme-switch__moon">
+                                        <div class="theme-switch__spot"></div>
+                                        <div class="theme-switch__spot"></div>
+                                        <div class="theme-switch__spot"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    <a href="projects.html" class="btn btn-outline-primary d-inline-flex align-items-center gap-1 shadow-sm px-3">
+                        <i class="bi bi-compass"></i> <span>Khám phá dự án</span>
+                    </a>
+                    <a href="create-project.html" class="btn btn-primary d-inline-flex align-items-center gap-1 shadow-sm px-3">
+                        <i class="bi bi-plus-lg"></i> <span>Dự án mới</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- User Profile & Completion Banner -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden bg-white" style="border-left: 5px solid var(--primary, #4F46E5) !important;">
+                <div class="card-body p-4">
+                    <div class="row align-items-center gy-3">
+                        <div class="col-md-7 d-flex align-items-center gap-3">
+                            <img src="" id="dash-user-avatar" class="rounded-circle shadow-sm flex-shrink-0" style="width: 64px; height: 64px; object-fit: cover;" alt="Avatar" onerror="this.src='https://ui-avatars.com/api/?name=User&background=4F46E5&color=fff&size=128'">
+                            <div class="min-w-0 flex-grow-1">
+                                <h4 class="fw-bold mb-1 text-dark text-truncate" id="dash-user-name">Đang tải hồ sơ...</h4>
+                                <div class="d-flex flex-wrap align-items-center gap-2 text-muted small mb-2">
+                                    <span id="dash-user-username" class="fw-medium text-dark">@username</span>
+                                    <span>•</span>
+                                    <span id="dash-user-email" class="text-truncate" style="max-width: 240px;">email@example.com</span>
+                                </div>
+                                <div id="dash-user-skills" class="d-flex flex-wrap gap-1"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="bg-light bg-opacity-75 p-3 rounded-3 border">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small fw-semibold text-dark">Mức độ hoàn thiện hồ sơ</span>
+                                    <span class="small fw-bold text-primary" id="profile-completion-text">0%</span>
+                                </div>
+                                <div class="progress mb-2" style="height: 8px; border-radius: 4px;">
+                                    <div class="progress-bar bg-primary" id="profile-completion-bar" role="progressbar" style="width: 0%; border-radius: 4px;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted" style="font-size: 0.75rem;">Cập nhật hồ sơ để kết nối đồng đội tốt hơn</span>
+                                    <a href="profile.html" class="small text-decoration-none fw-medium text-primary">Cập nhật <i class="bi bi-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Row (6 Real Analytics Cards: 2 rows of 3 on laptop, 1 row on ultra-wide) -->
+            <div class="row g-3 mb-4">
+                <!-- 1. Dự án sở hữu -->
+                <div class="col-6 col-md-4 col-xxl-2">
+                    <div class="card stat-card border-0 h-100">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="stat-icon-wrap bg-primary bg-opacity-10 text-primary">
+                                <i class="bi bi-folder-fill fs-5"></i>
+                            </div>
+                            <div class="min-w-0 flex-grow-1">
+                                <span class="stat-title" title="Dự án sở hữu">Dự án sở hữu</span>
+                                <div class="stat-value text-dark" id="stat-projects-owned">0</div>
+                                <span id="stat-projects" class="d-none">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Dự án tham gia -->
+                <div class="col-6 col-md-4 col-xxl-2">
+                    <div class="card stat-card border-0 h-100">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="stat-icon-wrap bg-info bg-opacity-10 text-info">
+                                <i class="bi bi-people-fill fs-5"></i>
+                            </div>
+                            <div class="min-w-0 flex-grow-1">
+                                <span class="stat-title" title="Dự án tham gia">Dự án tham gia</span>
+                                <div class="stat-value text-info" id="stat-projects-joined">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Đã hoàn thành -->
+                <div class="col-6 col-md-4 col-xxl-2">
+                    <div class="card stat-card border-0 h-100">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="stat-icon-wrap bg-success bg-opacity-10 text-success">
+                                <i class="bi bi-trophy-fill fs-5"></i>
+                            </div>
+                            <div class="min-w-0 flex-grow-1">
+                                <span class="stat-title" title="Đã hoàn thành">Đã hoàn thành</span>
+                                <div class="stat-value text-success" id="stat-projects-completed">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Task đã xong -->
+                <div class="col-6 col-md-4 col-xxl-2">
+                    <div class="card stat-card border-0 h-100">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="stat-icon-wrap bg-success bg-opacity-10 text-success">
+                                <i class="bi bi-check-circle-fill fs-5"></i>
+                            </div>
+                            <div class="min-w-0 flex-grow-1">
+                                <span class="stat-title" title="Task đã xong">Task đã xong</span>
+                                <div class="stat-value text-success" id="stat-tasks-completed">0</div>
+                                <span id="stat-done-tasks" class="d-none">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Task đang làm -->
+                <div class="col-6 col-md-4 col-xxl-2">
+                    <div class="card stat-card border-0 h-100">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="stat-icon-wrap bg-warning bg-opacity-10 text-warning">
+                                <i class="bi bi-clock-fill fs-5"></i>
+                            </div>
+                            <div class="min-w-0 flex-grow-1">
+                                <span class="stat-title" title="Task đang làm">Task đang làm</span>
+                                <div class="stat-value text-warning" id="stat-active-tasks">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Task quá hạn -->
+                <div class="col-6 col-md-4 col-xxl-2">
+                    <div class="card stat-card border-0 h-100">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="stat-icon-wrap bg-danger bg-opacity-10 text-danger">
+                                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                            </div>
+                            <div class="min-w-0 flex-grow-1">
+                                <span class="stat-title" title="Task quá hạn">Task quá hạn</span>
+                                <div class="stat-value text-danger" id="stat-overdue-tasks">0</div>
+                                <span id="stat-deadline" class="d-none">0</span>
+                                <span id="stat-deadline-label" class="d-none"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Columns -->
+            <div class="row g-4 mb-4">
+                <!-- My Projects (real data from Supabase) -->
+                <div class="col-lg-8">
+                    <div class="card card-custom-dash h-100">
+                        <div class="card-header pt-4 pb-2 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <h5 class="fw-bold mb-0">Dự án của tôi</h5>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="create-project.html" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-plus-lg me-1"></i>Tạo mới
+                                </a>
+                                <a href="projects.html" class="btn btn-sm btn-outline-secondary">Tất cả dự án</a>
+                            </div>
+                        </div>
+                        <div class="card-body px-4 pb-4">
+                            <div id="dashboard-projects-list" class="d-flex flex-column">
+                                <!-- Populated by projects.js via loadDashboardMyProjects() -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- My Join Requests -->
+                <div class="col-lg-4">
+                    <div class="card card-custom-dash h-100">
+                        <div class="card-header pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">Yêu cầu tham gia</h5>
+                        </div>
+                        <div class="card-body px-4 pb-4">
+                            <div id="dashboard-requests-list" class="d-flex flex-column">
+                                <!-- Populated by loadDashboardJoinRequests() -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Assigned Tasks (Workspace Integration) -->
+            <div class="card card-custom-dash mb-4">
+                <div class="card-header pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-kanban text-primary fs-5"></i>
+                        <h5 class="fw-bold mb-0">Nhiệm vụ được giao cho bạn</h5>
+                    </div>
+                    <span class="badge bg-primary rounded-pill" id="dashboard-tasks-count">0 nhiệm vụ</span>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <div id="dashboard-tasks-list" class="d-flex flex-column">
+                        <!-- Populated by dashboard.js via loadDashboardAssignedTasks() -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommended Projects (AI Matching) Row -->
+            <div class="card card-custom-dash mb-4">
+                <div class="card-header pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-stars text-warning fs-5"></i>
+                        <h5 class="fw-bold mb-0">Dự án phù hợp với bạn (AI Matching)</h5>
+                    </div>
+                    <a href="matching.html" class="btn btn-sm btn-outline-primary">Khám phá thêm</a>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <div id="dashboard-recommended-list">
+                        <!-- Populated by loadDashboardRecommendedProjects() -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Productivity Widget -->
+            <div class="card card-custom-dash mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="bi bi-speedometer2 text-primary fs-5"></i>
+                                <h5 class="fw-bold mb-0">Hiệu suất công việc cá nhân</h5>
+                            </div>
+                            <p class="text-muted small mb-0">Tỉ lệ hoàn thành các nhiệm vụ được giao cho bạn trên toàn bộ các dự án</p>
+                        </div>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <span class="badge bg-light text-dark border px-2 py-1 small" id="personal-stat-total">0 nhiệm vụ</span>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 small" id="personal-stat-done">0 xong</span>
+                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1 small" id="personal-stat-active">0 đang làm</span>
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1 small" id="personal-stat-overdue">0 quá hạn</span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-1 small">
+                        <span class="text-muted">Tỉ lệ hoàn thành (DONE / ASSIGNED)</span>
+                        <span class="fw-bold text-primary" id="personal-productivity-val">0%</span>
+                    </div>
+                    <div class="progress" style="height: 10px; border-radius: 6px;">
+                        <div class="progress-bar bg-success" id="personal-productivity-bar" role="progressbar" style="width: 0%; border-radius: 6px;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row (Real Data from Supabase) -->
+            <div class="row g-4 mb-4">
+                <!-- Projects by Status -->
+                <div class="col-lg-6">
+                    <div class="card card-custom-dash h-100 mb-0">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0">Dự án theo trạng thái</h5>
+                                <span class="badge bg-light text-dark border small" id="project-status-total">0 dự án</span>
+                            </div>
+                            <div class="flex-grow-1 d-flex align-items-center justify-content-center" style="position: relative; min-height: 250px;">
+                                <canvas id="projectStatusChart"></canvas>
+                                <div id="projectStatusEmpty" class="text-center py-4 text-muted d-none position-absolute">
+                                    <i class="bi bi-pie-chart fs-1 d-block mb-2 text-secondary"></i>
+                                    <small>Chưa có dữ liệu thống kê dự án.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks by Status -->
+                <div class="col-lg-6">
+                    <div class="card card-custom-dash h-100 mb-0">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0">Công việc theo trạng thái</h5>
+                                <span class="badge bg-light text-dark border small" id="task-status-total">0 task</span>
+                            </div>
+                            <div class="flex-grow-1 d-flex align-items-center justify-content-center" style="position: relative; min-height: 250px;">
+                                <canvas id="taskStatusChart"></canvas>
+                                <div id="taskStatusEmpty" class="text-center py-4 text-muted d-none position-absolute">
+                                    <i class="bi bi-pie-chart fs-1 d-block mb-2 text-secondary"></i>
+                                    <small>Chưa có dữ liệu thống kê công việc.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Performance Drill-Down -->
+            <div class="card card-custom-dash mb-4">
+                <div class="card-header pt-4 pb-2 px-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                    <div>
+                        <h5 class="fw-bold mb-0"><i class="bi bi-graph-up-arrow text-primary me-2"></i>Hiệu suất chi tiết từng dự án</h5>
+                        <p class="text-muted small mb-0">Xem thống kê tiến độ, thành viên và công việc của dự án bạn đang tham gia</p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 w-100 w-md-auto">
+                        <label for="project-perf-selector" class="small text-muted text-nowrap">Chọn dự án:</label>
+                        <select id="project-perf-selector" class="form-select form-select-sm" style="min-width: 220px;" aria-label="Chọn dự án để xem hiệu suất">
+                            <option value="">-- Đang nạp danh sách dự án --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    <div id="project-perf-content">
+                        <!-- Populated by dashboard.js via renderProjectPerformance() -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="card card-custom-dash mb-4">
+                <div class="card-header pt-4 pb-0 px-4">
+                    <h5 class="fw-bold mb-0">Hoạt động gần đây</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="timeline" id="dashboard-activity">
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-activity fs-2 mb-2 d-block"></i>
+                            <small>Chưa có hoạt động gần đây.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer spacing -->
+            <div class="py-2"></div>
+        </main>
+    </div>
+
+    <!-- Toast Container & Modals Placeholder -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container" style="z-index: 1090;" aria-live="polite" aria-atomic="true"></div>
+    <div id="modal-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/projects.js"></script>
+    <script src="js/matching.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/workspace.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

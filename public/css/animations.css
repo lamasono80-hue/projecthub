@@ -1,0 +1,243 @@
+/* ================================================================
+   ProjectHub animations.css — Global animation library
+   ================================================================ */
+
+/* ============================================================
+   1. BACKGROUND — Indigo/Violet gradient mesh (thay trắng xám)
+   ============================================================ */
+body:not(.register-page) {
+  background-color: #EEF0FF;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 10% -10%,  rgba(99,102,241,0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 65% 55% at 95% 110%,  rgba(139,92,246,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 55%  50%,  rgba(6,182,212,0.07)  0%, transparent 60%),
+    radial-gradient(circle, rgba(99,102,241,0.09) 1px, transparent 1px);
+  background-size: auto, auto, auto, 26px 26px;
+  background-attachment: fixed, fixed, fixed, scroll;
+}
+
+/* Sections trắng giữ nhưng hơi trong */
+.hero-section { background: rgba(255,255,255,0.90); backdrop-filter: blur(4px); }
+section.bg-white { background: rgba(255,255,255,0.88); }
+div.bg-light:not(.main-content) { background: rgba(241,243,249,0.85); }
+
+/* Sidebar + navbar solid */
+.sidebar, aside.sidebar { background: #ffffff; background-image: none; }
+.navbar-projecthub { background: rgba(255,255,255,0.94); background-image: none; }
+
+/* Cards */
+.card { background: rgba(255,255,255,0.96); }
+
+/* Sidebar main content */
+.main-content, .main-content.bg-light {
+  background-color: #EEF0FF;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 10% -10%, rgba(99,102,241,0.12) 0%, transparent 55%),
+    radial-gradient(circle, rgba(99,102,241,0.06) 1px, transparent 1px);
+  background-size: auto, 24px 24px;
+}
+
+/* ============================================================
+   2. PAGE LOAD FADE-IN
+   ============================================================ */
+@keyframes pageLoad {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+body:not(.register-page) { animation: pageLoad 0.3s cubic-bezier(0.4, 0, 0.2, 1) both; }
+
+/* ============================================================
+   3. SCROLL REVEAL (JS injects .is-visible)
+   ============================================================ */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-reveal="left"]  { transform: translateX(-32px); }
+[data-reveal="right"] { transform: translateX(32px); }
+[data-reveal="scale"] { transform: scale(0.95); }
+[data-reveal].is-visible { opacity: 1; transform: none; }
+
+[data-reveal-stagger] > * {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-reveal-stagger].is-visible > *:nth-child(1)  { opacity:1; transform:none; transition-delay:0.00s; }
+[data-reveal-stagger].is-visible > *:nth-child(2)  { opacity:1; transform:none; transition-delay:0.04s; }
+[data-reveal-stagger].is-visible > *:nth-child(3)  { opacity:1; transform:none; transition-delay:0.08s; }
+[data-reveal-stagger].is-visible > *:nth-child(4)  { opacity:1; transform:none; transition-delay:0.12s; }
+[data-reveal-stagger].is-visible > *:nth-child(5)  { opacity:1; transform:none; transition-delay:0.16s; }
+[data-reveal-stagger].is-visible > *:nth-child(6)  { opacity:1; transform:none; transition-delay:0.20s; }
+[data-reveal-stagger].is-visible > *:nth-child(n+7){ opacity:1; transform:none; transition-delay:0.24s; }
+
+/* ============================================================
+   4. CARD HOVER LIFT (Component-scoped, subtle -1px)
+   ============================================================ */
+.feature-card, .stat-card, .choice-card, .project-card, .card-hover {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.feature-card:hover, .stat-card:hover, .choice-card:hover, .project-card:hover, .card-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px -8px rgba(79,70,229,0.18), 0 4px 10px -3px rgba(0,0,0,0.06);
+}
+
+/* ============================================================
+   5. BUTTON RIPPLE + PRESS
+   ============================================================ */
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn:active { transform: scale(0.98); }
+.btn-ripple-effect {
+  position: absolute; border-radius: 50%;
+  transform: scale(0); animation: ripple 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: rgba(255,255,255,0.35); pointer-events: none;
+}
+@keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+/* ============================================================
+   6. NAVBAR SLIDE DOWN
+   ============================================================ */
+@keyframes navSlideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+#navbar-placeholder nav { animation: navSlideDown 0.4s cubic-bezier(0.4,0,0.2,1) both; }
+
+/* ============================================================
+   7. ICON BOX HOVER BOUNCE
+   ============================================================ */
+.icon-box { transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.card:hover .icon-box { transform: scale(1.18) rotate(-4deg); }
+
+/* ============================================================
+   8. HERO TEXT STAGGER
+   ============================================================ */
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-section .badge        { animation: heroFadeUp 0.5s  0.10s both; }
+.hero-section h1            { animation: heroFadeUp 0.6s  0.22s both; }
+.hero-section .lead         { animation: heroFadeUp 0.55s 0.36s both; }
+.hero-section .d-flex.gap-3 { animation: heroFadeUp 0.5s  0.50s both; }
+.hero-section .mt-5         { animation: heroFadeUp 0.5s  0.60s both; }
+.hero-section .col-lg-6:last-child { animation: heroFadeUp 0.7s 0.30s both; }
+
+/* ============================================================
+   9. SKELETON SHIMMER
+   ============================================================ */
+.skeleton {
+  background: linear-gradient(90deg, rgba(200,200,230,0.4) 25%, rgba(180,180,220,0.7) 50%, rgba(200,200,230,0.4) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ============================================================
+   10. FLOATING BADGE
+   ============================================================ */
+@keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.hero-section .badge, .badge.bg-primary-soft { animation: floatY 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+/* ============================================================
+   11. PROGRESS BAR FILL
+   ============================================================ */
+@keyframes progressFill { from { width: 0%; } }
+.progress-bar { animation: progressFill 1.2s cubic-bezier(0.4,0,0.2,1) both; }
+
+/* ============================================================
+   12. STEPPER SLIDE
+   ============================================================ */
+@keyframes stepIn  { from { opacity:0; transform:translateX(24px); } to { opacity:1; transform:translateX(0); } }
+@keyframes stepOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(-24px); } }
+.step-panel.entering { animation: stepIn  0.32s cubic-bezier(0.4,0,0.2,1) both; }
+.step-panel.leaving  { animation: stepOut 0.22s cubic-bezier(0.4,0,0.2,1) both; }
+
+/* ============================================================
+   13. NOTIFICATION BADGE PULSE
+   ============================================================ */
+@keyframes pulseBadge { 0%,100% { box-shadow:0 0 0 0 rgba(239,68,68,0.5); } 50% { box-shadow:0 0 0 5px rgba(239,68,68,0); } }
+.badge.bg-danger { animation: pulseBadge 2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+/* ============================================================
+   14. TOAST SLIDE
+   ============================================================ */
+@keyframes toastSlideIn { from { opacity:0; transform:translateX(60px); } to { opacity:1; transform:translateX(0); } }
+.toast-custom { animation: toastSlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+/* ============================================================
+   15. FORM FOCUS GLOW (Do not override dark-input)
+   ============================================================ */
+.form-control:not(.dark-input), .form-select:not(.dark-input) {
+  transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.form-control:focus:not(.dark-input), .form-select:focus:not(.dark-input) {
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+  background-color: #fff;
+}
+
+/* ============================================================
+   16. DIFFICULTY CARD CHECKED POP
+   ============================================================ */
+@keyframes cardPop { 0% { transform:scale(1); } 50% { transform:scale(1.04); } 100% { transform:scale(1); } }
+.btn-check:checked + .difficulty-card-label { animation: cardPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* ============================================================
+   17. SPINNER
+   ============================================================ */
+@keyframes spinSmooth { to { transform: rotate(360deg); } }
+.spinner-border { animation: spinSmooth 0.85s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+/* ============================================================
+   18. MOCKUP CARD FLOAT (hero)
+   ============================================================ */
+@keyframes mockupFloat {
+  0%,100% { transform: perspective(1000px) rotateY(-4deg) translateY(0px); }
+  50%      { transform: perspective(1000px) rotateY(-2deg) translateY(-8px); }
+}
+.mockup-card { animation: mockupFloat 5s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+.mockup-card:hover { animation-play-state: paused; transform: perspective(1000px) rotateY(0deg); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* ============================================================
+   19. STEP NUMBER POP (How it works)
+   ============================================================ */
+@keyframes stepNumPop { from { opacity:0; transform:scale(0.5); } to { opacity:1; transform:scale(1); } }
+.is-visible .step-number { animation: stepNumPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+/* ============================================================
+   20. FOOTER LINK HOVER
+   ============================================================ */
+#footer-placeholder a:not(.footer-social-link) { transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-block; }
+#footer-placeholder a:not(.footer-social-link):hover { transform: translateY(-1px); }
+
+/* ============================================================
+   21. GRADIENT DIVIDER
+   ============================================================ */
+.gradient-divider {
+  height: 3px; border: none;
+  background: linear-gradient(90deg, transparent, #4F46E5, #8B5CF6, transparent);
+  border-radius: 2px; opacity: 0.4; margin: 0;
+}
+
+/* ============================================================
+   22. REDUCED MOTION (accessibility)
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

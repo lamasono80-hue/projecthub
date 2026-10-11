@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo tài khoản ProjectHub - Nền tảng kết nối dự án sinh viên</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Project Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        :root {
+            --bg-base: #EEF0FF;
+            --card-bg: #FFFFFF;
+            --card-border: #E2E8F0;
+            --input-bg: #F8FAFC;
+            --input-border: #CBD5E1;
+            --input-focus-border: #6366F1;
+            --accent-purple: #6366F1;
+            --accent-purple-hover: #4F46E5;
+            --accent-purple-active: #4338CA;
+            --accent-purple-glow: rgba(99, 102, 241, 0.18);
+            --text-primary: #0F172A;
+            --text-secondary: #4B5563;
+            --text-muted: #94A3B8;
+            --color-success: #10B981;
+            --color-danger: #EF4444;
+            --color-warning: #F59E0B;
+        }
+
+        [data-theme="dark"],
+        body.theme-dark {
+            --bg-base: #090B10;
+            --card-bg: #11141D;
+            --card-border: #222736;
+            --input-bg: #0F1117;
+            --input-border: #2A2F3A;
+            --input-focus-border: #6366F1;
+            --accent-purple: #818CF8;
+            --accent-purple-hover: #6366F1;
+            --accent-purple-active: #4F46E5;
+            --accent-purple-glow: rgba(99, 102, 241, 0.28);
+            --text-primary: #F9FAFB;
+            --text-secondary: #9CA3AF;
+            --text-muted: #6B7280;
+        }
+
+        /* Font Smoothing & Global Layout */
+        body.register-page {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 55%),
+                radial-gradient(circle at 85% 90%, rgba(79, 70, 229, 0.04) 0%, transparent 40%);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+
+        /* Sleek Modern Dark Scrollbar (Thanh kéo lên xuống) */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232838;
+            border-radius: 9999px;
+            transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366F1;
+        }
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #232838 transparent;
+        }
+
+        /* Minimalist Top Bar */
+        .register-navbar {
+            background: transparent;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 16px 28px;
+        }
+        .brand-logo-icon {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.15rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .brand-logo-icon:hover {
+            transform: scale(1.08) rotate(5deg);
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.5);
+        }
+        .btn-nav-login {
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+        }
+        .btn-nav-login:hover {
+            background: rgba(99, 102, 241, 0.08);
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+            transform: translateY(-1px);
+        }
+
+        /* Card Entrance Animation */
+        @keyframes cardEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.985);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Centered Register Card - Viewport Optimized */
+        .register-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 16px 24px 16px;
+        }
+        .register-main-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.02);
+            padding: 28px 36px 24px 36px;
+            max-width: 650px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            animation: cardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Top Ambient Glow Line on Card */
+        .register-main-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10%;
+            right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.6), transparent);
+            pointer-events: none;
+        }
+        @media (max-width: 575.98px) {
+            .register-main-card {
+                padding: 20px 16px;
+                border-radius: 16px;
+            }
+        }
+
+        /* Brand Badge in Card */
+        .card-brand-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.25rem;
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: default;
+        }
+        .card-brand-badge:hover {
+            transform: translateY(-2px) scale(1.06);
+            box-shadow: 0 10px 22px rgba(99, 102, 241, 0.45);
+        }
+
+        /* Stepper Component */
+        .stepper-container {
+            max-width: 440px;
+            margin: 0 auto 20px auto;
+            width: 100%;
+        }
+        .step-item {
+            width: 76px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+        .step-indicator {
+            width: 2.3rem;
+            height: 2.3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.92rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        /* Stepper Active Pulse Animation */
+        @keyframes pulseActiveRing {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.45), 0 0 16px var(--accent-purple-glow);
+            }
+            50% {
+                box-shadow: 0 0 0 5px rgba(99, 102, 241, 0), 0 0 22px rgba(99, 102, 241, 0.55);
+            }
+        }
+        .step-active {
+            background-color: var(--accent-purple);
+            color: #ffffff;
+            border: 2px solid #818CF8;
+            animation: pulseActiveRing 2.4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Stepper Completed Pop Animation */
+        @keyframes stepPop {
+            0% { transform: scale(0.82); }
+            55% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+        .step-completed {
+            background-color: var(--color-success);
+            color: #ffffff;
+            border: 2px solid var(--color-success);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+            animation: stepPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .step-pending {
+            background-color: var(--input-bg);
+            color: var(--text-muted);
+            border: 2px solid var(--input-border);
+        }
+        .step-line {
+            flex-grow: 1;
+            height: 2px;
+            background-color: var(--input-border);
+            margin: 0 4px 22px 4px;
+            transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .step-line-active {
+            background-color: var(--accent-purple);
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.35);
+        }
+        .step-label {
+            font-size: 0.82rem;
+            text-align: center;
+            margin-top: 8px;
+            transition: color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+        }
+        .step-label-active {
+            color: #A5B4FC !important;
+            font-weight: 600;
+        }
+        .step-label-completed {
+            color: #34D399 !important;
+            font-weight: 500;
+        }
+        .step-label-pending {
+            color: #9CA3AF !important;
+            font-weight: 500;
+        }
+
+        /* Form Step Slide Entrance */
+        @keyframes stepSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .form-step:not(.d-none) {
+            animation: stepSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Form Controls */
+        .form-label-modern {
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            font-weight: 500;
+            margin-bottom: 7px;
+            display: block;
+            letter-spacing: 0.005em;
+        }
+        .dark-input {
+            background-color: var(--input-bg) !important;
+            border: 1px solid var(--input-border) !important;
+            color: var(--text-primary) !important;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.94rem;
+            transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dark-input:hover:not(:focus) {
+            border-color: var(--accent-purple) !important;
+        }
+        .dark-input:focus {
+            background-color: var(--input-bg) !important;
+            border-color: var(--input-focus-border) !important;
+            box-shadow: 0 0 0 3px var(--accent-purple-glow) !important;
+            color: var(--text-primary) !important;
+            outline: none;
+        }
+        .dark-input::placeholder {
+            color: var(--text-muted) !important;
+            opacity: 1;
+        }
+        .dark-input:-webkit-autofill,
+        .dark-input:-webkit-autofill:hover, 
+        .dark-input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px #0F1117 inset !important;
+            -webkit-text-fill-color: #F9FAFB !important;
+            transition: background-color 5000s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+        }
+        .is-valid-dark {
+            border-color: #10B981 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+        }
+        .is-invalid-dark {
+            border-color: #EF4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        /* ==========================================
+           FLOATING LABEL INPUT (PROJECTHUB)
+           ========================================== */
+        .floating-group {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .floating-input {
+            width: 100%;
+            height: 54px;
+            background-color: var(--input-bg) !important;
+            border: 1.5px solid var(--input-border) !important;
+            color: var(--text-primary) !important;
+            border-radius: 12px;
+            padding: 16px 16px 4px 16px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            outline: none;
+            transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+                        box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+                        background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .floating-input.pe-5 {
+            padding-right: 48px !important;
+        }
+
+        .floating-input::placeholder {
+            color: transparent !important;
+            transition: color 0.15s ease;
+        }
+
+        .floating-input:focus::placeholder {
+            color: var(--text-muted) !important;
+        }
+
+        .floating-input:hover:not(:focus) {
+            border-color: #383F52 !important;
+        }
+
+        .floating-input:focus {
+            border-color: var(--input-focus-border) !important;
+            box-shadow: 0 0 0 3px var(--accent-purple-glow) !important;
+            background-color: var(--input-bg) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .floating-label {
+            position: absolute;
+            left: 16px;
+            top: 27px;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            pointer-events: none;
+            transform-origin: left top;
+            transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1), 
+                        top 180ms cubic-bezier(0.4, 0, 0.2, 1), 
+                        color 180ms cubic-bezier(0.4, 0, 0.2, 1), 
+                        background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+                        font-size 180ms cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            z-index: 2;
+            padding: 0 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        /* Float on Focus, Filled Text, or Autofill */
+        .floating-input:focus ~ .floating-label,
+        .floating-input:not(:placeholder-shown) ~ .floating-label,
+        .floating-input:-webkit-autofill ~ .floating-label {
+            top: 0;
+            transform: translateY(-50%) scale(0.82);
+            background-color: var(--card-bg);
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+
+        .floating-input:focus ~ .floating-label {
+            color: var(--accent-purple);
+        }
+
+        /* Validation Colors on Floating Labels & Inputs */
+        .floating-input.is-valid-dark ~ .floating-label,
+        .floating-input.is-valid ~ .floating-label {
+            color: #34D399 !important;
+        }
+
+        .floating-input.is-invalid-dark ~ .floating-label,
+        .floating-input.is-invalid ~ .floating-label {
+            color: #F87171 !important;
+        }
+
+        .floating-group .password-toggle-icon {
+            position: absolute;
+            top: 27px;
+            right: 14px;
+            transform: translateY(-50%);
+            z-index: 5;
+        }
+
+        /* Password Eye Toggle */
+        .password-toggle-icon {
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            cursor: pointer;
+            font-size: 1rem;
+            user-select: none;
+            border-radius: 6px;
+            transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 5;
+        }
+        .password-toggle-icon:hover {
+            color: #E5E7EB;
+            background-color: rgba(255, 255, 255, 0.08);
+            transform: translateY(-50%) scale(1.12);
+        }
+        .password-toggle-icon:active {
+            transform: translateY(-50%) scale(0.92);
+        }
+
+        /* Password Strength & Requirements - Clean, Simple, Normal Modern Form */
+        .password-strength-box {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+        }
+        .password-strength-text {
+            font-size: 0.84rem;
+            color: #9CA3AF;
+            margin-bottom: 6px;
+        }
+        .password-strength-text #strengthLabel {
+            font-weight: 600;
+            color: #6B7280;
+            transition: color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Requirement Pop Animation */
+        @keyframes ruleCheckPop {
+            0% {
+                transform: scale(0.75);
+                opacity: 0.6;
+            }
+            55% {
+                transform: scale(1.28);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .rule-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            user-select: none;
+            transition: color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .rule-item.rule-invalid {
+            color: #6B7280;
+        }
+        .rule-item.rule-invalid .rule-icon {
+            color: #6B7280;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+        .rule-item.rule-valid {
+            color: #10B981;
+        }
+        .rule-item.rule-valid .rule-icon {
+            color: #10B981;
+            font-size: 0.82rem;
+            font-weight: 700;
+            display: inline-block;
+            animation: ruleCheckPop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Confirm Password Inline Feedback */
+        @keyframes fadeInDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .confirm-pwd-status {
+            font-size: 0.8rem;
+            font-weight: 500;
+            animation: fadeInDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Buttons */
+        .btn-primary-action {
+            background-color: var(--accent-purple);
+            border: 1px solid var(--accent-purple-hover);
+            color: #ffffff;
+            height: 50px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+            text-decoration: none;
+            position: relative;
+        }
+        .btn-primary-action:hover:not(:disabled) {
+            background-color: var(--accent-purple-hover);
+            border-color: var(--accent-purple-active);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(99, 102, 241, 0.45);
+        }
+        .btn-primary-action:active:not(:disabled) {
+            transform: translateY(0) scale(0.985);
+            box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary-action:disabled {
+            background-color: #3730A3;
+            border-color: #312E81;
+            color: #9CA3AF;
+            cursor: not-allowed;
+            opacity: 0.75;
+            box-shadow: none;
+            transform: none;
+        }
+        .btn-secondary-action {
+            background-color: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+            height: 50px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 22px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+        }
+        .btn-secondary-action:hover {
+            background-color: rgba(99, 102, 241, 0.08);
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+            transform: translateY(-1px);
+        }
+        .btn-secondary-action:active {
+            transform: translateY(0) scale(0.985);
+        }
+
+        /* Pills Container & Compact Wrap for Skills & Interests */
+        .pills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            align-items: center;
+            max-height: 190px;
+            overflow-y: auto;
+            padding: 8px;
+            border-radius: 14px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+        }
+        .pill-checkbox {
+            display: inline-flex !important;
+            margin: 0 !important;
+        }
+        .pill-checkbox input[type="checkbox"] { display: none; }
+        .pill-checkbox label {
+            border: 1.5px solid var(--input-border);
+            border-radius: 50rem;
+            padding: 0.35rem 0.95rem;
+            cursor: pointer;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            font-size: 0.84rem;
+            font-weight: 500;
+        }
+        .pill-checkbox label:hover {
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+            background: rgba(99, 102, 241, 0.08);
+            transform: translateY(-1px);
+        }
+        .pill-checkbox label:active {
+            transform: scale(0.96);
+        }
+        .pill-checkbox input[type="checkbox"]:checked + label {
+            background-color: var(--accent-purple);
+            color: #ffffff;
+            border-color: var(--accent-purple);
+            box-shadow: 0 3px 10px rgba(99, 102, 241, 0.35);
+        }
+        .pill-checkbox.is-custom-skill label {
+            border-style: dashed !important;
+            border-color: var(--accent-purple) !important;
+        }
+        .pill-checkbox .remove-custom-skill-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            font-size: 11px;
+            line-height: 1;
+            cursor: pointer;
+            margin-left: 4px;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+        .pill-checkbox .remove-custom-skill-btn:hover {
+            background: rgba(239, 68, 68, 0.85);
+            color: #fff;
+            transform: scale(1.15);
+        }
+
+        /* Bottom Link */
+        .text-accent-link {
+            color: #818CF8 !important;
+            transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .text-accent-link:hover {
+            color: #A5B4FC !important;
+            text-decoration: underline !important;
+        }
+
+        /* Form Feedback */
+        .invalid-feedback {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: #F87171;
+        }
+    </style>
+</head>
+<body class="register-page">
+
+    <!-- Minimalist Top Bar -->
+    <nav class="register-navbar d-flex align-items-center justify-content-between">
+        <a href="index.html" class="text-decoration-none d-flex align-items-center fw-bold fs-5 font-manrope" style="color: var(--text-primary);">
+            <span class="brand-logo-icon me-2"><i class="bi bi-hexagon-fill"></i></span>
+            ProjectHub
+        </a>
+        <div class="d-flex align-items-center gap-2">
+            <label class="theme-switch" title="Chuyển giao diện Sáng / Tối" aria-label="Chuyển chế độ Sáng / Tối" style="--toggle-size: 11px;">
+                <input type="checkbox" class="theme-switch__checkbox">
+                <div class="theme-switch__container">
+                    <div class="theme-switch__clouds"></div>
+                    <div class="theme-switch__stars-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 55" fill="none">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M135.831 3.00688C135.055 3.85027 134.111 4.29946 133 4.35447C134.111 4.40947 135.055 4.85867 135.831 5.71123C136.607 6.55462 136.996 7.56303 136.996 8.72727C136.996 7.95722 137.172 7.25134 137.525 6.59129C137.886 5.93124 138.372 5.39954 138.98 5.00535C139.598 4.60199 140.268 4.39114 141 4.35447C139.88 4.2903 138.936 3.85027 138.16 3.00688C137.384 2.16348 136.996 1.16425 136.996 0C136.996 1.16425 136.607 2.16348 135.831 3.00688ZM31 23.3545C32.1114 23.2995 33.0551 22.8503 33.8313 22.0069C34.6075 21.1635 34.9956 20.1642 34.9956 19C34.9956 20.1642 35.3837 21.1635 36.1599 22.0069C36.9361 22.8503 37.8798 23.2903 39 23.3545C38.2679 23.3911 37.5976 23.602 36.9802 24.0053C36.3716 24.3995 35.8864 24.9312 35.5248 25.5913C35.172 26.2513 34.9956 26.9572 34.9956 27.7273C34.9956 26.563 34.6075 25.5546 33.8313 24.7112C33.0551 23.8587 32.1114 23.4095 31 23.3545ZM0 36.3545C1.11136 36.2995 2.05513 35.8503 2.83131 35.0069C3.6075 34.1635 3.99559 33.1642 3.99559 32C3.99559 33.1642 4.38368 34.1635 5.15987 35.0069C5.93605 35.8503 6.87982 36.2903 8 36.3545C7.26792 36.3911 6.59757 36.602 5.98015 37.0053C5.37155 37.3995 4.88644 37.9312 4.52481 38.5913C4.172 39.2513 3.99559 39.9572 3.99559 40.7273C3.99559 39.563 3.6075 38.5546 2.83131 37.7112C2.05513 36.8587 1.11136 36.4095 0 36.3545ZM56.8313 24.0069C56.0551 24.8503 55.1114 25.2995 54 25.3545C55.1114 25.4095 56.0551 25.8587 56.8313 26.7112C57.6075 27.5546 57.9956 28.563 57.9956 29.7273C57.9956 28.9572 58.172 28.2513 58.5248 27.5913C58.8864 26.9312 59.3716 26.3995 59.9802 26.0053C60.5976 25.602 61.2679 25.3911 62 25.3545C60.8798 25.2903 59.9361 24.8503 59.1599 24.0069C58.3837 23.1635 57.9956 22.1642 57.9956 21C57.9956 22.1642 57.6075 23.1635 56.8313 24.0069ZM81 25.3545C82.1114 25.2995 83.0551 24.8503 83.8313 24.0069C84.6075 23.1635 84.9956 22.1642 84.9956 21C84.9956 22.1642 85.3837 23.1635 86.1599 24.0069C86.9361 24.8503 87.8798 25.2903 89 25.3545C88.2679 25.3911 87.5976 25.602 86.9802 26.0053C86.3716 26.3995 85.8864 26.9312 85.5248 27.5913C85.172 28.2513 84.9956 28.9572 84.9956 29.7273C84.9956 28.563 84.6075 27.5546 83.8313 24.7112C83.0551 23.8587 82.1114 25.4095 81 25.3545ZM136 36.3545C137.111 36.2995 138.055 35.8503 138.831 35.0069C139.607 34.1635 139.996 33.1642 139.996 32C139.996 33.1642 140.384 34.1635 141.16 35.0069C141.936 35.8503 142.88 36.2903 144 36.3545C143.268 36.3911 142.598 36.602 141.98 37.0053C141.372 37.3995 140.886 37.9312 140.525 38.5913C140.172 39.2513 139.996 39.9572 139.996 40.7273C139.996 39.563 139.607 38.5546 138.831 37.7112C138.055 36.8587 137.111 36.4095 136 36.3545ZM101.831 49.0069C101.055 49.8503 100.111 50.2995 99 50.3545C100.111 50.4095 101.055 50.8587 101.831 51.7112C102.607 52.5546 102.996 53.563 102.996 54.7273C102.996 53.9572 103.172 53.2513 103.525 52.5913C103.886 51.9312 104.372 51.3995 104.98 51.0053C105.598 50.602 106.268 50.3911 107 50.3545C105.88 50.2903 104.936 49.8503 104.16 49.0069C103.384 48.1635 102.996 47.1642 102.996 46C102.996 47.1642 102.607 48.1635 101.831 49.0069Z" fill="currentColor"></path>
+                        </svg>
+                    </div>
+                    <div class="theme-switch__circle-container">
+                        <div class="theme-switch__sun-moon-container">
+                            <div class="theme-switch__moon">
+                                <div class="theme-switch__spot"></div>
+                                <div class="theme-switch__spot"></div>
+                                <div class="theme-switch__spot"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </label>
+            <a href="login.html" class="btn-nav-login">Đăng nhập</a>
+        </div>
+    </nav>
+
+    <!-- Centered Form Container -->
+    <main class="register-container">
+        <div class="register-main-card">
+            
+            <!-- Card Header: Branding & Title -->
+            <div class="text-center mb-3">
+                <div class="card-brand-badge mb-2">
+                    <i class="bi bi-hexagon-fill"></i>
+                </div>
+                <h1 class="fw-bold font-manrope mb-1" style="font-size: 1.55rem; letter-spacing: -0.02em; color: var(--text-primary);">
+                    Tạo tài khoản ProjectHub
+                </h1>
+                <p class="mb-0 text-muted" style="font-size: 0.9rem;">
+                    Tạo tài khoản để bắt đầu xây dựng và tham gia dự án.
+                </p>
+            </div>
+
+            <!-- Stepper (3 Steps) -->
+            <div class="stepper-container">
+                <div class="d-flex align-items-center justify-content-between position-relative">
+                    <!-- Step 1 -->
+                    <div class="step-item">
+                        <div class="step-indicator step-active" id="ind-1">1</div>
+                        <span class="step-label step-label-active" id="text-1">Thông tin</span>
+                    </div>
+                    <!-- Line 1 -->
+                    <div class="step-line" id="line-1"></div>
+                    <!-- Step 2 -->
+                    <div class="step-item">
+                        <div class="step-indicator step-pending" id="ind-2">2</div>
+                        <span class="step-label step-label-pending" id="text-2">Kỹ năng</span>
+                    </div>
+                    <!-- Line 2 -->
+                    <div class="step-line" id="line-2"></div>
+                    <!-- Step 3 -->
+                    <div class="step-item">
+                        <div class="step-indicator step-pending" id="ind-3">3</div>
+                        <span class="step-label step-label-pending" id="text-3">Sở thích</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <form id="registerForm" novalidate>
+                
+                <!-- STEP 1: Basic Info -->
+                <div class="form-step" id="step-1">
+                    
+                    <!-- 1. Họ và tên -->
+                    <div class="floating-group">
+                        <input type="text" class="form-control dark-input floating-input" id="regName" placeholder="VD: Nguyễn Văn A" required autocomplete="name">
+                        <label for="regName" class="floating-label">Họ và tên</label>
+                        <div class="invalid-feedback">Vui lòng nhập họ và tên của bạn.</div>
+                    </div>
+                    
+                    <!-- 2. Tên người dùng (Username) -->
+                    <div class="floating-group">
+                        <input type="text" class="form-control dark-input floating-input" id="regUsername" placeholder="nguyenvana" required pattern="^[a-zA-Z0-9_]{4,20}$" autocomplete="username">
+                        <label for="regUsername" class="floating-label">Tên người dùng (Username)</label>
+                        <div class="invalid-feedback">Tên người dùng từ 4-20 ký tự, không chứa dấu cách hoặc ký tự đặc biệt.</div>
+                    </div>
+                    
+                    <!-- 3. Email -->
+                    <div class="floating-group">
+                        <input type="email" class="form-control dark-input floating-input" id="regEmail" placeholder="nguyenvana@example.com" required autocomplete="email">
+                        <label for="regEmail" class="floating-label">Email</label>
+                        <div class="invalid-feedback">Vui lòng nhập địa chỉ email hợp lệ.</div>
+                    </div>
+                    
+                    <!-- 4. Mật khẩu -->
+                    <div class="floating-group">
+                        <input type="password" class="form-control dark-input floating-input pe-5" id="regPassword" placeholder="Tối thiểu 8 ký tự" required minlength="8" autocomplete="new-password">
+                        <label for="regPassword" class="floating-label">Mật khẩu</label>
+                        <span class="password-toggle-icon" id="toggleRegPassword" role="button" aria-label="Hiện hoặc ẩn mật khẩu" tabindex="0" title="Hiện/Ẩn mật khẩu"><i class="bi bi-eye"></i></span>
+                        <div class="invalid-feedback">Mật khẩu chưa đạt đủ các điều kiện bảo mật bên dưới.</div>
+                        
+                        <!-- Password Strength & Requirements -->
+                        <div class="password-strength-box mt-3 mb-1">
+                            <div class="password-strength-text">
+                                <span>Độ mạnh mật khẩu:</span> <span id="strengthLabel">Chưa nhập</span>
+                            </div>
+                            
+                            <!-- Hidden bar for test compatibility -->
+                            <div class="d-none" id="strengthProgressBar"></div>
+                            
+                            <!-- 3 Conditions Checklist -->
+                            <div class="d-flex flex-column gap-1" id="passwordChecklist">
+                                <div class="rule-item rule-invalid" id="rule-length">
+                                    <span class="rule-icon">✓</span>
+                                    <span>Ít nhất 8 ký tự</span>
+                                </div>
+                                <div class="rule-item rule-invalid" id="rule-uppercase">
+                                    <span class="rule-icon">✓</span>
+                                    <span>Có 1 chữ hoa</span>
+                                </div>
+                                <div class="rule-item rule-invalid" id="rule-special">
+                                    <span class="rule-icon">✓</span>
+                                    <span>1 ký tự đặc biệt</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Xác nhận mật khẩu -->
+                    <div class="floating-group mb-4">
+                        <input type="password" class="form-control dark-input floating-input pe-5" id="regConfirmPassword" placeholder="Nhập lại mật khẩu" required autocomplete="new-password">
+                        <label for="regConfirmPassword" class="floating-label">Xác nhận mật khẩu</label>
+                        <span class="password-toggle-icon" id="toggleRegConfirmPassword" role="button" aria-label="Hiện hoặc ẩn mật khẩu" tabindex="0" title="Hiện/Ẩn mật khẩu"><i class="bi bi-eye"></i></span>
+                        <div class="confirm-pwd-status mt-1" id="confirmPasswordFeedback" style="display: none;"></div>
+                        <div class="invalid-feedback">Mật khẩu xác nhận không khớp.</div>
+                    </div>
+
+                    <!-- Step 1 Actions -->
+                    <div class="mt-4 pt-1">
+                        <button type="button" class="btn btn-primary-action w-100" id="btnNext1">
+                            Tiếp tục <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Skills -->
+                <div class="form-step d-none" id="step-2">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div>
+                            <h5 class="fw-bold mb-1 font-manrope fs-6" style="color: var(--text-primary);">Kỹ năng của bạn</h5>
+                            <p class="text-muted small mb-0">Chọn các kỹ năng bạn đang có (Chọn ít nhất 1).</p>
+                        </div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill px-3 py-1 text-nowrap" id="skillsSelectedBadge">
+                            Đã chọn: <b id="skillsCountNum">0</b>
+                        </span>
+                    </div>
+
+                    <!-- Quick search filter for skills -->
+                    <div class="position-relative mb-2">
+                        <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted small" style="pointer-events: none;"></i>
+                        <input type="text" id="skillSearchInput" class="form-control form-control-sm ps-5 rounded-pill dark-input" placeholder="Lọc nhanh kỹ năng (React, Python, Java, Figma...)..." style="font-size: 0.84rem; height: 36px;">
+                    </div>
+                    
+                    <div class="pills-container mb-3" id="skillsContainer">
+                        <!-- Skill pills dynamically populated by auth.js -->
+                    </div>
+
+                    <!-- Tự thêm kỹ năng ngoài danh sách ví dụ -->
+                    <div class="custom-skills-box p-3 rounded-4 mb-3 border" style="background: rgba(99, 102, 241, 0.04); border-color: rgba(99, 102, 241, 0.2) !important;">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label for="customSkillRegisterInput" class="form-label small fw-semibold mb-0 d-flex align-items-center gap-1.5" style="color: var(--text-primary); font-size: 0.82rem;">
+                                <i class="bi bi-patch-plus text-primary"></i>
+                                <span>Kỹ năng của bạn không có trong ví dụ trên?</span>
+                            </label>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill font-monospace" style="font-size: 0.7rem;">Tự thêm</span>
+                        </div>
+                        <p class="text-muted small mb-2" style="font-size: 0.76rem;">
+                            Hãy tự gõ các kỹ năng của bạn (VD: Flutter, C#, Unity, Next.js, SEO, Photoshop...) rồi nhấn Thêm hoặc Enter:
+                        </p>
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="customSkillRegisterInput" class="form-control rounded-start-pill ps-3 dark-input" placeholder="Nhập tên kỹ năng khác..." style="font-size: 0.82rem; height: 36px;">
+                            <button type="button" id="btnAddCustomSkillRegister" class="btn btn-primary rounded-end-pill px-3 fw-medium d-inline-flex align-items-center gap-1" style="font-size: 0.82rem;">
+                                <i class="bi bi-plus-lg"></i> <span>Thêm</span>
+                            </button>
+                        </div>
+                        <div id="customSkillsRegisterList" class="pills-container mt-2 d-none">
+                            <!-- Các pill kỹ năng người dùng tự gõ sẽ xuất hiện ở đây -->
+                        </div>
+                    </div>
+
+                    <div class="invalid-feedback d-none text-danger mb-2" id="skillsError" style="display: block;">Vui lòng chọn ít nhất 1 kỹ năng.</div>
+
+                    <div class="d-flex align-items-center justify-content-between gap-3 mt-3 pt-1">
+                        <button type="button" class="btn btn-secondary-action flex-grow-1" id="btnBack1">
+                            <i class="bi bi-arrow-left"></i> Quay lại
+                        </button>
+                        <button type="button" class="btn btn-primary-action flex-grow-1" id="btnNext2">
+                            Tiếp tục <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Interests -->
+                <div class="form-step d-none" id="step-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div>
+                            <h5 class="fw-bold mb-1 font-manrope fs-6" style="color: var(--text-primary);">Lĩnh vực quan tâm</h5>
+                            <p class="text-muted small mb-0">Chọn các lĩnh vực bạn muốn tham gia dự án (Chọn ít nhất 1).</p>
+                        </div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill px-3 py-1 text-nowrap" id="interestsSelectedBadge">
+                            Đã chọn: <b id="interestsCountNum">0</b>
+                        </span>
+                    </div>
+
+                    <div class="pills-container mb-3" id="interestsContainer">
+                        <!-- Interest pills dynamically populated by auth.js -->
+                    </div>
+                    <div class="invalid-feedback d-none text-danger mb-2" id="interestsError" style="display: block;">Vui lòng chọn ít nhất 1 lĩnh vực.</div>
+
+                    <div class="p-2 px-3 rounded-3 mb-3" style="background: rgba(99, 102, 241, 0.06); border: 1px solid rgba(99, 102, 241, 0.18);">
+                        <div class="d-flex align-items-center small" style="color: var(--text-secondary); font-size: 0.82rem;">
+                            <i class="bi bi-stars me-2 text-primary fs-6"></i>
+                            <span>Thông tin kỹ năng và lĩnh vực giúp AI Matching đề xuất dự án phù hợp nhất cho bạn.</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between gap-3 mt-3 pt-1">
+                        <button type="button" class="btn btn-secondary-action flex-grow-1" id="btnBack2">
+                            <i class="bi bi-arrow-left"></i> Quay lại
+                        </button>
+                        <button type="submit" class="btn btn-primary-action flex-grow-1" id="btnSubmit">
+                            <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true" id="registerSpinner"></span>
+                            Tạo tài khoản <i class="bi bi-check2-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Bottom Card Footer: Login Link -->
+            <div class="text-center pt-3 mt-3 border-top" style="border-color: #1F2432 !important;">
+                <p class="text-muted mb-0" style="font-size: 0.92rem; color: #9CA3AF !important;">
+                    Đã có tài khoản? <a href="login.html" class="text-accent-link fw-semibold text-decoration-none ms-1">Đăng nhập</a>
+                </p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Core Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if(typeof initRegisterForm === 'function') {
+                initRegisterForm();
+            }
+
+            // Eye Toggle Handlers
+            const toggleRegPwd = document.getElementById('toggleRegPassword');
+            const regPwdInput = document.getElementById('regPassword');
+            if (toggleRegPwd && regPwdInput) {
+                toggleRegPwd.addEventListener('click', () => {
+                    const isPwd = regPwdInput.getAttribute('type') === 'password';
+                    regPwdInput.setAttribute('type', isPwd ? 'text' : 'password');
+                    toggleRegPwd.innerHTML = isPwd ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+                });
+            }
+
+            const toggleRegConfirmPwd = document.getElementById('toggleRegConfirmPassword');
+            const regConfirmPwdInput = document.getElementById('regConfirmPassword');
+            if (toggleRegConfirmPwd && regConfirmPwdInput) {
+                toggleRegConfirmPwd.addEventListener('click', () => {
+                    const isPwd = regConfirmPwdInput.getAttribute('type') === 'password';
+                    regConfirmPwdInput.setAttribute('type', isPwd ? 'text' : 'password');
+                    toggleRegConfirmPwd.innerHTML = isPwd ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+                });
+            }
+        });
+    </script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

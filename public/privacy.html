@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chính Sách Bảo Mật - ProjectHub</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    section[id] {
+      scroll-margin-top: 100px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .privacy-hero {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(79, 70, 229, 0.08) 100%);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+    .privacy-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .privacy-nav-sticky {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 90px;
+      z-index: 10;
+      max-height: calc(100vh - 110px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    .privacy-nav-link {
+      color: #64748b;
+      padding: 0.625rem 0.85rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .privacy-nav-link:hover {
+      color: var(--success, #10B981);
+      background-color: rgba(16, 185, 129, 0.08);
+    }
+    .privacy-nav-link.active {
+      color: var(--success, #10B981) !important;
+      background-color: rgba(16, 185, 129, 0.12) !important;
+      border-left: 3px solid var(--success, #10B981) !important;
+      font-weight: 700 !important;
+      box-shadow: 0 1px 3px rgba(16, 185, 129, 0.08);
+    }
+    .privacy-nav-link .active-indicator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: rgba(16, 185, 129, 0.18);
+      color: var(--success, #10B981);
+      font-size: 0.65rem;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .privacy-nav-link.active .active-indicator {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .privacy-highlight {
+      border-left: 4px solid var(--success, #10B981);
+      background-color: #f0fdf4;
+      padding: 1rem 1.25rem;
+      border-radius: 0 10px 10px 0;
+    }
+    .privacy-section {
+      border-radius: 12px;
+      padding: 0.75rem;
+      margin: -0.75rem;
+      transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .privacy-section.is-active-section {
+      background-color: rgba(16, 185, 129, 0.02);
+    }
+  </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+  <!-- Navbar placeholder injected by app.js -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="container py-4 flex-grow-1">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">Trang chủ</a></li>
+        <li class="breadcrumb-item text-muted">Pháp lý</li>
+        <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Bảo mật thông tin</li>
+      </ol>
+    </nav>
+
+    <!-- Hero Header -->
+    <div class="privacy-hero text-center mb-5">
+      <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill px-3 py-2 mb-3 fw-semibold">
+        <i class="bi bi-shield-lock-fill me-1"></i> Bảo vệ quyền riêng tư người học
+      </span>
+      <h1 class="fw-bold text-dark mb-3" style="font-family: 'Manrope', sans-serif;">Chính Sách Bảo Mật Thông Tin</h1>
+      <p class="text-muted mx-auto mb-0" style="max-width: 650px;">
+        Chúng tôi cam kết bảo vệ dữ liệu cá nhân của sinh viên bằng các chuẩn mã hóa hiện đại và nguyên tắc minh bạch tuyệt đối.
+      </p>
+      <small class="text-muted d-block mt-2">Cập nhật lần cuối: Tháng 09/2026</small>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="row g-4 align-items-start position-relative">
+      <!-- Table of Contents (Desktop) -->
+      <div class="col-lg-3 d-none d-lg-block sticky-sidebar-col sticky-lg-top align-self-start sticky top-24 self-start h-fit" style="top: 90px; z-index: 10;">
+        <div class="privacy-nav-sticky bg-white p-3 rounded-4 border shadow-sm">
+          <div class="d-flex align-items-center justify-content-between px-2 mb-2">
+            <h6 class="fw-bold text-dark mb-0">Mục lục bảo mật</h6>
+            <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill small px-2 py-1">6 điều</span>
+          </div>
+          <div class="small text-muted px-2 mb-2 d-flex align-items-center gap-1">
+            <i class="bi bi-geo-alt-fill text-success"></i>
+            <span>Đang xem: <strong class="text-success" id="desktop-current-section">Điều 1</strong></span>
+          </div>
+          <hr class="my-2 opacity-25">
+          <nav class="nav flex-column gap-1" id="privacy-nav-list">
+            <a class="privacy-nav-link active" href="#privacy-collect" data-section="privacy-collect">
+              <span>1. Dữ liệu thu thập</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+            <a class="privacy-nav-link" href="#privacy-purpose" data-section="privacy-purpose">
+              <span>2. Mục đích sử dụng</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+            <a class="privacy-nav-link" href="#privacy-security" data-section="privacy-security">
+              <span>3. Cơ chế mã hóa</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+            <a class="privacy-nav-link" href="#privacy-noshare" data-section="privacy-noshare">
+              <span>4. Không bán dữ liệu</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+            <a class="privacy-nav-link" href="#privacy-rights" data-section="privacy-rights">
+              <span>5. Quyền người dùng</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+            <a class="privacy-nav-link" href="#privacy-contact" data-section="privacy-contact">
+              <span>6. Liên hệ khiếu nại</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Privacy Content -->
+      <div class="col-lg-9">
+        <!-- Mobile Sticky Section Tracker -->
+        <div class="d-lg-none mb-3 sticky-top" style="top: 72px; z-index: 1020;">
+          <div class="bg-white border rounded-3 p-2 shadow-sm d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2 overflow-hidden">
+              <span class="badge bg-success text-white rounded-pill px-2 py-1 small">Đang xem</span>
+              <span id="mobile-current-title" class="small fw-semibold text-truncate text-dark">1. Dữ liệu thu thập</span>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-success dropdown-toggle py-1 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Mục lục
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm border py-1" style="min-width: 230px;">
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#privacy-collect">1. Dữ liệu thu thập</a></li>
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#privacy-purpose">2. Mục đích sử dụng</a></li>
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#privacy-security">3. Cơ chế mã hóa</a></li>
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#privacy-noshare">4. Không bán dữ liệu</a></li>
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#privacy-rights">5. Quyền người dùng</a></li>
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#privacy-contact">6. Liên hệ khiếu nại</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="privacy-card p-4 p-md-5 shadow-sm d-flex flex-column gap-5">
+
+          <!-- Section 1 -->
+          <section id="privacy-collect" class="privacy-section">
+            <h4 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+              <span class="badge bg-success text-white rounded-pill fs-6">1</span> Dữ Liệu Chúng Tôi Thu Thập
+            </h4>
+            <p class="text-secondary leading-relaxed mb-3">
+              ProjectHub chỉ thu thập các thông tin thực sự cần thiết nhằm phục vụ hoạt động kết nối học tập và làm việc nhóm của sinh viên:
+            </p>
+            <ul class="text-secondary ps-3 mb-3">
+              <li class="mb-2"><strong>Thông tin đăng ký cơ bản:</strong> Họ và tên, địa chỉ email của bạn, trường/khoa học tập.</li>
+              <li class="mb-2"><strong>Hồ sơ năng lực học thuật:</strong> Danh sách kỹ năng công nghệ (Skills), sở thích nghiên cứu, cấp độ kinh nghiệm thực tế.</li>
+              <li><strong>Liên kết bổ trợ tự nguyện:</strong> Liên kết tài khoản GitHub hoặc hồ sơ LinkedIn công khai do bạn chủ động cung cấp để làm giàu Portfolio.</li>
+            </ul>
+            <div class="privacy-highlight">
+              <p class="small text-muted mb-0">
+                <strong>Tuyệt đối không lưu trữ:</strong> Hệ thống không yêu cầu và không lưu trữ thông tin thẻ ngân hàng, số căn cước công dân hoặc bất kỳ dữ liệu định danh nhạy cảm nào.
+              </p>
+            </div>
+          </section>
+
+          <!-- Section 2 -->
+          <section id="privacy-purpose" class="privacy-section">
+            <h4 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+              <span class="badge bg-success text-white rounded-pill fs-6">2</span> Mục Đích Sử Dụng Thông Tin
+            </h4>
+            <p class="text-secondary leading-relaxed mb-3">
+              Các dữ liệu được bạn cung cấp chỉ được sử dụng cho các mục đích hợp pháp sau:
+            </p>
+            <ol class="text-secondary ps-3 mb-0">
+              <li class="mb-2">Cung cấp tài khoản xác thực phiên đăng nhập an toàn vào nền tảng.</li>
+              <li class="mb-2">Tính toán độ tương đồng kỹ năng (Match Score) trong tính năng <strong>AI Ghép đội</strong> nhằm gợi ý các dự án phù hợp nhất cho bạn.</li>
+              <li class="mb-2">Gửi thông báo thời gian thực khi có người gửi yêu cầu gia nhập nhóm hoặc tin nhắn mới trong dự án.</li>
+              <li>Tổng hợp số liệu thống kê học tập cho trang Portfolio cá nhân của bạn.</li>
+            </ol>
+          </section>
+
+          <!-- Section 3 -->
+          <section id="privacy-security" class="privacy-section">
+            <h4 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+              <span class="badge bg-success text-white rounded-pill fs-6">3</span> Cơ Chế Mã Hóa &amp; Bảo Vệ Dữ Liệu
+            </h4>
+            <p class="text-secondary leading-relaxed mb-3">
+              ProjectHub áp dụng các tiêu chuẩn công nghệ bảo mật cao nhất hiện nay:
+            </p>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border h-100">
+                  <h6 class="fw-bold text-dark mb-1"><i class="bi bi-key-fill text-primary me-1"></i> Băm Mật Khẩu An Toàn</h6>
+                  <p class="small text-muted mb-0">Mật khẩu được băm một chiều (hash) thông qua Supabase Auth SDK. Quản trị viên hệ thống tuyệt đối không thể đọc được mật khẩu của bạn.</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border h-100">
+                  <h6 class="fw-bold text-dark mb-1"><i class="bi bi-shield-check text-success me-1"></i> Phân Quyền Hàng (RLS)</h6>
+                  <p class="small text-muted mb-0">Toàn bộ database áp dụng Row Level Security (RLS) của PostgreSQL. Chỉ thành viên trong nhóm mới có quyền xem dữ liệu bảng công việc của dự án đó.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 4 -->
+          <section id="privacy-noshare" class="privacy-section">
+            <h4 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+              <span class="badge bg-success text-white rounded-pill fs-6">4</span> Cam Kết Không Chia Sẻ Dữ Liệu
+            </h4>
+            <p class="text-secondary leading-relaxed mb-0">
+              ProjectHub cam kết <strong>100% không bán, không cho thuê, không chia sẻ</strong> thông tin cá nhân hoặc địa chỉ email của sinh viên cho bất kỳ bên quảng cáo thứ ba nào dưới bất kỳ hình thức nào. Nền tảng được tạo ra hoàn toàn vì mục đích phụng sự cộng đồng học tập của sinh viên.
+            </p>
+          </section>
+
+          <!-- Section 5 -->
+          <section id="privacy-rights" class="privacy-section">
+            <h4 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+              <span class="badge bg-success text-white rounded-pill fs-6">5</span> Quyền Kiểm Soát &amp; Xóa Dữ Liệu
+            </h4>
+            <p class="text-secondary leading-relaxed mb-3">
+              Bạn có toàn quyền kiểm soát dữ liệu của mình trên ProjectHub:
+            </p>
+            <ul class="text-secondary ps-3 mb-0">
+              <li class="mb-2"><strong>Chỉnh sửa hồ sơ:</strong> Bạn có thể cập nhật thông tin cá nhân, thay đổi ảnh đại diện hoặc bổ sung kỹ năng bất cứ lúc nào tại trang Profile.</li>
+              <li class="mb-2"><strong>Quyền riêng tư dự án:</strong> Bạn có quyền bật/tắt hiển thị dự án trên Portfolio công khai sang chế độ riêng tư (Private).</li>
+              <li><strong>Xóa tài khoản vĩnh viễn:</strong> Bạn có quyền gửi yêu cầu xóa toàn bộ tài khoản và các dữ liệu liên quan khỏi cơ sở dữ liệu hệ thống.</li>
+            </ul>
+          </section>
+
+          <!-- Section 6 -->
+          <section id="privacy-contact" class="privacy-section">
+            <h4 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+              <span class="badge bg-success text-white rounded-pill fs-6">6</span> Kênh Liên Hệ Về Quyền Riêng Tư
+            </h4>
+            <p class="text-secondary leading-relaxed mb-3">
+              Nếu bạn có bất kỳ câu hỏi nào về chính sách bảo mật hoặc phát hiện lỗ hổng an ninh thông tin, vui lòng gửi thông báo ngay tới:
+            </p>
+            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
+              <i class="bi bi-envelope-check-fill text-success fs-3"></i>
+              <div>
+                <strong class="d-block text-dark">Bộ phận An toàn Thông tin ProjectHub</strong>
+                <a href="mailto:privacy@projecthub.edu.vn" class="text-primary text-decoration-none small">privacy@projecthub.edu.vn</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer placeholder injected by app.js -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/animations.js"></script>
+
+  <!-- Active Section Scrollspy Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const desktopLinks = document.querySelectorAll('.privacy-nav-link');
+      const mobileLinks = document.querySelectorAll('.mobile-toc-link');
+      const desktopBadge = document.getElementById('desktop-current-section');
+      const mobileBadge = document.getElementById('mobile-current-title');
+
+      const sectionMeta = [
+        { id: 'privacy-collect', short: 'Điều 1', title: '1. Dữ liệu thu thập' },
+        { id: 'privacy-purpose', short: 'Điều 2', title: '2. Mục đích sử dụng' },
+        { id: 'privacy-security', short: 'Điều 3', title: '3. Cơ chế mã hóa' },
+        { id: 'privacy-noshare', short: 'Điều 4', title: '4. Không bán dữ liệu' },
+        { id: 'privacy-rights', short: 'Điều 5', title: '5. Quyền người dùng' },
+        { id: 'privacy-contact', short: 'Điều 6', title: '6. Liên hệ khiếu nại' }
+      ];
+
+      const sections = sectionMeta.map(m => document.getElementById(m.id)).filter(Boolean);
+
+      function setActiveSection(activeId) {
+        const meta = sectionMeta.find(m => m.id === activeId) || sectionMeta[0];
+
+        desktopLinks.forEach(link => {
+          const target = link.getAttribute('data-section') || link.getAttribute('href').replace('#', '');
+          if (target === activeId) {
+            link.classList.add('active');
+            link.setAttribute('aria-current', 'true');
+          } else {
+            link.classList.remove('active');
+            link.removeAttribute('aria-current');
+          }
+        });
+
+        mobileLinks.forEach(link => {
+          const href = link.getAttribute('href').replace('#', '');
+          if (href === activeId) {
+            link.classList.add('active', 'text-success', 'fw-bold');
+          } else {
+            link.classList.remove('active', 'text-success', 'fw-bold');
+          }
+        });
+
+        sections.forEach(sec => {
+          if (sec.id === activeId) {
+            sec.classList.add('is-active-section');
+          } else {
+            sec.classList.remove('is-active-section');
+          }
+        });
+
+        if (desktopBadge) {
+          desktopBadge.textContent = meta.short;
+        }
+        if (mobileBadge) {
+          mobileBadge.textContent = meta.title;
+        }
+      }
+
+      function onScroll() {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight;
+
+        if (scrollY + windowHeight >= docHeight - 80) {
+          setActiveSection(sectionMeta[sectionMeta.length - 1].id);
+          return;
+        }
+
+        let currentId = sectionMeta[0].id;
+        for (let i = 0; i < sections.length; i++) {
+          const sec = sections[i];
+          const rect = sec.getBoundingClientRect();
+          if (rect.top <= 140) {
+            currentId = sec.id;
+          }
+        }
+        setActiveSection(currentId);
+      }
+
+      let isTicking = false;
+      window.addEventListener('scroll', () => {
+        if (!isTicking) {
+          window.requestAnimationFrame(() => {
+            onScroll();
+            isTicking = false;
+          });
+          isTicking = true;
+        }
+      }, { passive: true });
+
+      // Click smooth scrolling
+      [...desktopLinks, ...mobileLinks].forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            e.preventDefault();
+            const targetEl = document.querySelector(href);
+            if (targetEl) {
+              targetEl.scrollIntoView({ behavior: 'smooth' });
+              history.replaceState(null, null, href);
+              setActiveSection(href.replace('#', ''));
+            }
+          }
+        });
+      });
+
+      onScroll();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hướng Dẫn Sử Dụng - ProjectHub</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .guide-hero {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      border: 1px solid rgba(79, 70, 229, 0.12);
+    }
+    .guide-step-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease;
+      background: var(--surface);
+    }
+    .guide-step-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+    .step-number-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    section[id] {
+      scroll-margin-top: 100px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .guide-nav-sticky {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 90px;
+      z-index: 10;
+      max-height: calc(100vh - 110px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    .guide-nav-link {
+      color: #64748b;
+      padding: 0.625rem 0.85rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .guide-nav-link:hover {
+      color: var(--primary, #4F46E5);
+      background-color: rgba(79, 70, 229, 0.06);
+    }
+    .guide-nav-link.active {
+      color: var(--primary, #4F46E5) !important;
+      background-color: rgba(79, 70, 229, 0.1) !important;
+      border-left: 3px solid var(--primary, #4F46E5) !important;
+      font-weight: 700 !important;
+      box-shadow: 0 1px 3px rgba(79, 70, 229, 0.08);
+    }
+    .guide-nav-link .active-indicator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: rgba(79, 70, 229, 0.15);
+      color: var(--primary, #4F46E5);
+      font-size: 0.65rem;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .guide-nav-link.active .active-indicator {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* SVG Scroll Progress Track */
+    .guide-steps-wrapper {
+      position: relative;
+    }
+    .svg-scroll-container {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 48px;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .svg-scroll-container svg {
+      width: 48px;
+      height: 100%;
+      overflow: visible;
+    }
+    .svg-step-node circle {
+      transition: fill 0.35s ease, stroke 0.35s ease, filter 0.35s ease, transform 0.35s ease;
+    }
+    .svg-step-node text {
+      transition: fill 0.35s ease;
+      user-select: none;
+    }
+    .guide-step-card {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                  border-color 0.3s ease;
+    }
+    .guide-step-card.active-step-glow {
+      border-color: #4F46E5 !important;
+      box-shadow: 0 10px 30px -4px rgba(79, 70, 229, 0.16) !important;
+    }
+
+    /* Dark Mode Support */
+    [data-theme="dark"] .guide-hero {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(139, 92, 246, 0.12) 100%);
+      border-color: rgba(99, 102, 241, 0.25);
+    }
+    [data-theme="dark"] .guide-step-card {
+      background: #1E293B;
+      border-color: #334155;
+    }
+    [data-theme="dark"] .guide-step-card.active-step-glow {
+      border-color: #818CF8 !important;
+      box-shadow: 0 10px 32px -4px rgba(99, 102, 241, 0.35) !important;
+    }
+    [data-theme="dark"] .guide-nav-sticky {
+      background: #1E293B !important;
+      border-color: #334155 !important;
+    }
+    [data-theme="dark"] #onboarding-banner {
+      background: rgba(30, 41, 59, 0.9) !important;
+      border-color: rgba(99, 102, 241, 0.4) !important;
+    }
+  </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+  <!-- Navbar placeholder injected by app.js -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="container py-4 flex-grow-1">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">Trang chủ</a></li>
+        <li class="breadcrumb-item text-muted">Hỗ trợ</li>
+        <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Hướng dẫn sử dụng</li>
+      </ol>
+    </nav>
+
+    <!-- Onboarding Welcome Banner (Shown only upon registration or ?onboarding=true) -->
+    <div id="onboarding-banner" class="alert alert-primary border-primary-subtle shadow-sm rounded-4 p-4 mb-4 d-none position-relative overflow-hidden" role="alert">
+      <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 position-relative" style="z-index: 2;">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 54px; height: 54px;">
+            <i class="bi bi-stars fs-3"></i>
+          </div>
+          <div>
+            <h5 class="alert-heading fw-bold mb-1 text-dark">🎉 Chào mừng bạn gia nhập cộng đồng ProjectHub!</h5>
+            <p class="mb-0 text-secondary" style="font-size: 0.92rem;">
+              Tài khoản của bạn đã sẵn sàng. Dưới đây là lộ trình 6 bước hướng dẫn sinh viên mới để bạn tự tin tìm kiếm đồng đội, phân chia công việc và thực chiến dự án.
+            </p>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+          <button type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm" id="btn-start-onboarding">
+            <i class="bi bi-arrow-down-circle me-1"></i> Bắt đầu khám phá
+          </button>
+          <button type="button" class="btn-close" id="btn-dismiss-onboarding" aria-label="Đóng thông báo"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Header -->
+    <div class="guide-hero text-center mb-5">
+      <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill px-3 py-2 mb-3 fw-semibold">
+        <i class="bi bi-book-half me-1"></i> Cẩm nang thành viên ProjectHub
+      </span>
+      <h1 class="fw-bold text-dark mb-3" style="font-family: 'Manrope', sans-serif;">Hướng Dẫn Sử Dụng Nền Tảng</h1>
+      <p class="text-muted mx-auto mb-0" style="max-width: 680px; font-size: 1.05rem;">
+        Khám phá quy trình toàn diện từ lúc tạo tài khoản, kết nối kỹ năng liên ngành, tìm kiếm đồng đội đến quản lý dự án học tập hiệu quả trên ProjectHub.
+      </p>
+    </div>
+
+    <!-- Main Content Layout -->
+    <div class="row g-4 align-items-start position-relative">
+      <!-- Sidebar Navigation (Desktop) -->
+      <div class="col-lg-3 d-none d-lg-block sticky-sidebar-col sticky-lg-top align-self-start sticky top-24 self-start h-fit" style="top: 90px; z-index: 10;">
+        <div class="guide-nav-sticky bg-white p-3 rounded-4 border shadow-sm">
+          <div class="d-flex align-items-center justify-content-between px-2 mb-2">
+            <h6 class="fw-bold text-dark mb-0">Mục lục hướng dẫn</h6>
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill small px-2 py-1">6 bước</span>
+          </div>
+          <div class="small text-muted px-2 mb-2 d-flex align-items-center gap-1">
+            <i class="bi bi-geo-alt-fill text-primary"></i>
+            <span>Đang xem: <strong class="text-primary" id="desktop-current-section">Bước 1</strong></span>
+          </div>
+          <hr class="my-2 opacity-25">
+          <nav class="nav flex-column gap-1" id="guide-nav-list">
+            <a class="guide-nav-link active" href="#step-profile" data-section="step-profile">
+              <span><i class="bi bi-person-badge me-2"></i>1. Hồ sơ &amp; Kỹ năng</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+            <a class="guide-nav-link" href="#step-find-project" data-section="step-find-project">
+              <span><i class="bi bi-compass me-2"></i>2. Khám phá &amp; Xin vào</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+            <a class="guide-nav-link" href="#step-create-project" data-section="step-create-project">
+              <span><i class="bi bi-plus-circle me-2"></i>3. Tạo dự án &amp; Tuyển quân</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+            <a class="guide-nav-link" href="#step-ai-matching" data-section="step-ai-matching">
+              <span><i class="bi bi-robot me-2"></i>4. AI ghép đội</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+            <a class="guide-nav-link" href="#step-workspace" data-section="step-workspace">
+              <span><i class="bi bi-kanban me-2"></i>5. Workspace &amp; Kanban</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+            <a class="guide-nav-link" href="#step-portfolio" data-section="step-portfolio">
+              <span><i class="bi bi-briefcase me-2"></i>6. Xây dựng Portfolio</span>
+              <span class="active-indicator"><i class="bi bi-check-lg"></i></span>
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Steps Content -->
+      <div class="col-lg-9">
+        <!-- Mobile Sticky Section Tracker -->
+        <div class="d-lg-none mb-3 sticky-top" style="top: 72px; z-index: 1020;">
+          <div class="bg-white border rounded-3 p-2 shadow-sm d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2 overflow-hidden">
+              <span class="badge bg-primary text-white rounded-pill px-2 py-1 small">Đang xem</span>
+              <span id="mobile-current-title" class="small fw-semibold text-truncate text-dark">1. Hồ sơ &amp; Kỹ năng</span>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-primary dropdown-toggle py-1 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Mục lục
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm border py-1" style="min-width: 230px;">
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#step-profile">1. Hồ sơ &amp; Kỹ năng</a></li>
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#step-find-project">2. Khám phá &amp; Xin vào</a></li>
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#step-create-project">3. Tạo dự án &amp; Tuyển quân</a></li>
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#step-ai-matching">4. AI ghép đội</a></li>
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#step-workspace">5. Workspace &amp; Kanban</a></li>
+                <li><a class="dropdown-item mobile-toc-link small py-2" href="#step-portfolio">6. Xây dựng Portfolio</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive SVG Scroll Progress Wrapper -->
+        <div class="guide-steps-wrapper position-relative">
+          
+          <!-- SVG Scroll Progress Spine (Vertical Line & Milestones) -->
+          <div class="svg-scroll-container d-none d-md-block" aria-hidden="true">
+            <svg id="guideSvgTimeline" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="guideSvgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#4F46E5" />
+                  <stop offset="50%" stop-color="#2563EB" />
+                  <stop offset="100%" stop-color="#06B6D4" />
+                </linearGradient>
+                <filter id="svgGlow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#4F46E5" flood-opacity="0.6"/>
+                </filter>
+              </defs>
+              <!-- Inactive track line -->
+              <line id="svgLineDeactivated" x1="24" y1="38" x2="24" y2="1600" stroke="#E2E8F0" stroke-width="4" stroke-linecap="round"></line>
+              <!-- Active dynamic progress track -->
+              <line id="svgLineActivated" x1="24" y1="38" x2="24" y2="38" stroke="url(#guideSvgGradient)" stroke-width="4" stroke-linecap="round"></line>
+
+              <!-- 6 Milestone Circles (Dynamic offsets calculated via JS) -->
+              <g class="svg-step-node" data-step="0">
+                <circle id="svgCircle1" cx="24" cy="38" r="18" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="3"></circle>
+                <text id="svgText1" x="24" y="42" text-anchor="middle" font-size="12" font-weight="bold" fill="#64748B">1</text>
+              </g>
+              <g class="svg-step-node" data-step="1">
+                <circle id="svgCircle2" cx="24" cy="220" r="18" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="3"></circle>
+                <text id="svgText2" x="24" y="224" text-anchor="middle" font-size="12" font-weight="bold" fill="#64748B">2</text>
+              </g>
+              <g class="svg-step-node" data-step="2">
+                <circle id="svgCircle3" cx="24" cy="450" r="18" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="3"></circle>
+                <text id="svgText3" x="24" y="454" text-anchor="middle" font-size="12" font-weight="bold" fill="#64748B">3</text>
+              </g>
+              <g class="svg-step-node" data-step="3">
+                <circle id="svgCircle4" cx="24" cy="680" r="18" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="3"></circle>
+                <text id="svgText4" x="24" y="684" text-anchor="middle" font-size="12" font-weight="bold" fill="#64748B">4</text>
+              </g>
+              <g class="svg-step-node" data-step="4">
+                <circle id="svgCircle5" cx="24" cy="910" r="18" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="3"></circle>
+                <text id="svgText5" x="24" y="914" text-anchor="middle" font-size="12" font-weight="bold" fill="#64748B">5</text>
+              </g>
+              <g class="svg-step-node" data-step="5">
+                <circle id="svgCircle6" cx="24" cy="1150" r="18" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="3"></circle>
+                <text id="svgText6" x="24" y="1154" text-anchor="middle" font-size="12" font-weight="bold" fill="#64748B">6</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Cards Column (with left padding for the SVG line on desktop) -->
+          <div class="guide-cards-column ps-md-5 d-flex flex-column gap-4">
+
+          <!-- STEP 1 -->
+          <section id="step-profile" class="guide-step-card p-4 p-md-5">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <span class="step-number-badge bg-primary text-white shadow-sm">1</span>
+              <div>
+                <h3 class="fw-bold text-dark mb-0 fs-4">Tạo Tài Khoản &amp; Thiết Lập Kỹ Năng</h3>
+                <small class="text-muted">Bước đầu tiên để hệ thống nhận diện thế mạnh của bạn</small>
+              </div>
+            </div>
+            <p class="text-secondary">
+              Sau khi đăng ký thành công, hãy truy cập vào trang <strong>Hồ sơ cá nhân (Profile)</strong> để cập nhật đầy đủ thông tin:
+            </p>
+            <div class="row g-3 my-2">
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 h-100 border">
+                  <h6 class="fw-bold text-primary mb-1"><i class="bi bi-check-circle-fill me-1"></i> Tag Kỹ Năng (Skills)</h6>
+                  <p class="small text-muted mb-0">Thêm các công nghệ bạn thành thạo (ví dụ: React, Node.js, Python, Figma, Marketing...). Điểm ghép đội AI sẽ dựa chính vào danh sách này.</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 h-100 border">
+                  <h6 class="fw-bold text-primary mb-1"><i class="bi bi-check-circle-fill me-1"></i> Liên kết Mạng Xã Hội</h6>
+                  <p class="small text-muted mb-0">Gắn link GitHub cá nhân và LinkedIn để các chủ dự án khác dễ dàng tham khảo năng lực thực tế của bạn.</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <a href="profile.html" class="btn btn-outline-primary btn-sm rounded-3">
+                <i class="bi bi-pencil-square me-1"></i> Cập nhật hồ sơ ngay
+              </a>
+            </div>
+          </section>
+
+          <!-- STEP 2 -->
+          <section id="step-find-project" class="guide-step-card p-4 p-md-5">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <span class="step-number-badge bg-success text-white shadow-sm">2</span>
+              <div>
+                <h3 class="fw-bold text-dark mb-0 fs-4">Khám Phá &amp; Gia Nhập Dự Án</h3>
+                <small class="text-muted">Tìm kiếm ý tưởng hấp dẫn và tham gia cùng đồng đội</small>
+              </div>
+            </div>
+            <p class="text-secondary">
+              Vào trang <strong>Dự án</strong> để duyệt qua hàng trăm dự án sinh viên đang hoạt động:
+            </p>
+            <ul class="text-secondary ps-3 mb-3">
+              <li class="mb-2"><strong>Bộ lọc thông minh:</strong> Lọc dự án theo lĩnh vực (CNTT, AI, Thiết kế, Kinh tế), công nghệ sử dụng, hoặc độ khó (Cơ bản, Trung bình, Nâng cao).</li>
+              <li class="mb-2"><strong>Xem chi tiết dự án:</strong> Đọc kỹ mục tiêu, cấu trúc nhóm, các vị trí còn trống và liên kết mã nguồn GitHub mở trước khi nộp đơn.</li>
+              <li><strong>Gửi yêu cầu tham gia:</strong> Nhấn nút <em>"Tham gia dự án"</em>, chọn vai trò bạn muốn đảm nhiệm (Frontend, Backend, Design...) và gửi lời nhắn ngắn gọn giới thiệu kinh nghiệm bản thân.</li>
+            </ul>
+            <div class="mt-3">
+              <a href="projects.html" class="btn btn-primary btn-sm rounded-3 px-3">
+                <i class="bi bi-search me-1"></i> Xem danh sách dự án
+              </a>
+            </div>
+          </section>
+
+          <!-- STEP 3 -->
+          <section id="step-create-project" class="guide-step-card p-4 p-md-5">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <span class="step-number-badge bg-warning text-dark shadow-sm">3</span>
+              <div>
+                <h3 class="fw-bold text-dark mb-0 fs-4">Tạo Dự Án Mới &amp; Tuyển Thành Viên</h3>
+                <small class="text-muted">Biến ý tưởng đồ án, NCKH hoặc startup của bạn thành hiện thực</small>
+              </div>
+            </div>
+            <p class="text-secondary">
+              Bạn đang ấp ủ một đề tài tốt nghiệp hay dự án startup thú vị? Hãy trở thành Chủ dự án (Project Owner):
+            </p>
+            <ol class="text-secondary ps-3 mb-3">
+              <li class="mb-2">Vào mục <strong>Tạo dự án mới</strong> trên thanh menu.</li>
+              <li class="mb-2">Điền tên dự án, tóm tắt ý tưởng, mục tiêu sản phẩm và công nghệ dự kiến sử dụng.</li>
+              <li class="mb-2"><strong>Phân chia vị trí tuyển quân:</strong> Thiết lập rõ các vai trò còn thiếu trong nhóm cùng kỹ năng yêu cầu (ví dụ: cần 1 bạn UI/UX thành thạo Figma, 1 bạn Backend dùng Express &amp; Postgres).</li>
+              <li>Nhấn <strong>Đăng dự án</strong>. Bài viết sẽ xuất hiện trên trang chủ và cộng đồng sinh viên toàn trường có thể gửi yêu cầu tham gia ngay.</li>
+            </ol>
+            <div class="mt-3">
+              <a href="create-project.html" class="btn btn-warning btn-sm rounded-3 px-3 fw-bold">
+                <i class="bi bi-plus-circle-fill me-1"></i> Tạo dự án mới ngay
+              </a>
+            </div>
+          </section>
+
+          <!-- STEP 4 -->
+          <section id="step-ai-matching" class="guide-step-card p-4 p-md-5">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <span class="step-number-badge bg-info text-white shadow-sm">4</span>
+              <div>
+                <h3 class="fw-bold text-dark mb-0 fs-4">Tính Năng AI Ghép Đội (Matching)</h3>
+                <small class="text-muted">Thuật toán phân tích tương thích kỹ năng tự động</small>
+              </div>
+            </div>
+            <p class="text-secondary">
+              Thay vì đăng bài tìm người truyền thống, hãy sử dụng công cụ <strong>AI Ghép đội</strong> tại trang <em>matching.html</em>:
+            </p>
+            <div class="p-3 bg-light rounded-3 border mb-3">
+              <p class="small text-muted mb-0">
+                <i class="bi bi-cpu text-primary me-2 fs-5"></i>
+                Hệ thống tự động so khớp kỹ năng kỹ thuật, sở thích và mức độ kinh nghiệm giữa bạn và các thành viên khác trong trường. Điểm số tương thích <strong>(Match Score %)</strong> giúp bạn tìm ra mảnh ghép hoàn hảo nhất cho đội ngũ của mình.
+              </p>
+            </div>
+            <a href="matching.html" class="btn btn-outline-info btn-sm rounded-3">
+              <i class="bi bi-people-fill me-1"></i> Thử tính năng Ghép đội
+            </a>
+          </section>
+
+          <!-- STEP 5 -->
+          <section id="step-workspace" class="guide-step-card p-4 p-md-5">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <span class="step-number-badge bg-danger text-white shadow-sm">5</span>
+              <div>
+                <h3 class="fw-bold text-dark mb-0 fs-4">Quản Lý Nhóm Trên Workspace &amp; Kanban</h3>
+                <small class="text-muted">Theo dõi tiến độ trực quan, không lo trễ hạn (deadline)</small>
+              </div>
+            </div>
+            <p class="text-secondary">
+              Khi nhóm đã thành lập đủ thành viên, hãy cùng nhau chuyển sang không gian làm việc chuyên nghiệp:
+            </p>
+            <div class="row g-3 my-2">
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border h-100">
+                  <h6 class="fw-bold text-dark"><i class="bi bi-kanban-fill text-primary me-1"></i> Bảng Kanban 4 Cột</h6>
+                  <p class="small text-muted mb-0">Phân loại đầu việc theo 4 trạng thái: <em>Cần làm (Todo)</em>, <em>Đang làm (In Progress)</em>, <em>Đang duyệt (Review)</em> và <em>Hoàn thành (Done)</em>. Kéo thả hoặc click chuyển trạng thái mượt mà.</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border h-100">
+                  <h6 class="fw-bold text-dark"><i class="bi bi-chat-dots-fill text-success me-1"></i> Chat Trao Đổi Realtime</h6>
+                  <p class="small text-muted mb-0">Trao đổi tin nhắn trực tiếp với đồng đội trong dự án qua Supabase Realtime, cập nhật tệp tin và báo cáo khó khăn nhanh chóng.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- STEP 6 -->
+          <section id="step-portfolio" class="guide-step-card p-4 p-md-5">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <span class="step-number-badge bg-secondary text-white shadow-sm">6</span>
+              <div>
+                <h3 class="fw-bold text-dark mb-0 fs-4">Xây Dựng &amp; Trưng Bày Portfolio</h3>
+                <small class="text-muted">Hồ sơ năng lực thực chiến gây ấn tượng với nhà tuyển dụng</small>
+              </div>
+            </div>
+            <p class="text-secondary">
+              Mỗi khi dự án hoàn thành, toàn bộ các thành tích, công nghệ áp dụng và vai trò bạn đã đảm nhiệm sẽ tự động được tổng hợp trên trang <strong>Portfolio sinh viên</strong>. Bạn có thể chia sẻ đường link công khai này tới nhà tuyển dụng khi ứng tuyển thực tập.
+            </p>
+            <div class="mt-3">
+              <a href="portfolio.html" class="btn btn-outline-secondary btn-sm rounded-3">
+                <i class="bi bi-award me-1"></i> Xem trang Portfolio mẫu
+              </a>
+            </div>
+          </section>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer placeholder injected by app.js -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/animations.js"></script>
+
+  <!-- Active Step Scrollspy Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const desktopLinks = document.querySelectorAll('.guide-nav-link');
+      const mobileLinks = document.querySelectorAll('.mobile-toc-link');
+      const desktopBadge = document.getElementById('desktop-current-section');
+      const mobileBadge = document.getElementById('mobile-current-title');
+
+      const sectionMeta = [
+        { id: 'step-profile', short: 'Bước 1', title: '1. Hồ sơ & Kỹ năng' },
+        { id: 'step-find-project', short: 'Bước 2', title: '2. Khám phá & Xin vào' },
+        { id: 'step-create-project', short: 'Bước 3', title: '3. Tạo dự án & Tuyển quân' },
+        { id: 'step-ai-matching', short: 'Bước 4', title: '4. AI ghép đội' },
+        { id: 'step-workspace', short: 'Bước 5', title: '5. Workspace & Kanban' },
+        { id: 'step-portfolio', short: 'Bước 6', title: '6. Xây dựng Portfolio' }
+      ];
+
+      const sections = sectionMeta.map(m => document.getElementById(m.id)).filter(Boolean);
+
+      function setActiveSection(activeId) {
+        const meta = sectionMeta.find(m => m.id === activeId) || sectionMeta[0];
+
+        desktopLinks.forEach(link => {
+          const target = link.getAttribute('data-section') || link.getAttribute('href').replace('#', '');
+          if (target === activeId) {
+            link.classList.add('active');
+            link.setAttribute('aria-current', 'true');
+          } else {
+            link.classList.remove('active');
+            link.removeAttribute('aria-current');
+          }
+        });
+
+        mobileLinks.forEach(link => {
+          const href = link.getAttribute('href').replace('#', '');
+          if (href === activeId) {
+            link.classList.add('active', 'text-primary', 'fw-bold');
+          } else {
+            link.classList.remove('active', 'text-primary', 'fw-bold');
+          }
+        });
+
+        if (desktopBadge) {
+          desktopBadge.textContent = meta.short;
+        }
+        if (mobileBadge) {
+          mobileBadge.textContent = meta.title;
+        }
+      }
+
+      function onScroll() {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight;
+
+        if (scrollY + windowHeight >= docHeight - 80) {
+          setActiveSection(sectionMeta[sectionMeta.length - 1].id);
+          return;
+        }
+
+        let currentId = sectionMeta[0].id;
+        for (let i = 0; i < sections.length; i++) {
+          const sec = sections[i];
+          const rect = sec.getBoundingClientRect();
+          if (rect.top <= 140) {
+            currentId = sec.id;
+          }
+        }
+        setActiveSection(currentId);
+      }
+
+      let isTicking = false;
+      window.addEventListener('scroll', () => {
+        if (!isTicking) {
+          window.requestAnimationFrame(() => {
+            onScroll();
+            isTicking = false;
+          });
+          isTicking = true;
+        }
+      }, { passive: true });
+
+      // Click smooth scrolling
+      [...desktopLinks, ...mobileLinks].forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            e.preventDefault();
+            const targetEl = document.querySelector(href);
+            if (targetEl) {
+              targetEl.scrollIntoView({ behavior: 'smooth' });
+              history.replaceState(null, null, href);
+              setActiveSection(href.replace('#', ''));
+            }
+          }
+        });
+      });
+
+      onScroll();
+
+      // ─── 1. ONBOARDING WELCOME BANNER (Shown only for new registrants) ───
+      const urlParams = new URLSearchParams(window.location.search);
+      const isOnboarding = urlParams.get('onboarding') === 'true' || localStorage.getItem('just_registered') === 'true';
+
+      if (isOnboarding) {
+        const banner = document.getElementById('onboarding-banner');
+        if (banner) {
+          banner.classList.remove('d-none');
+          // Xóa cờ và tham số URL để F5 không hiện lại gây phiền toái
+          if (window.history && window.history.replaceState) {
+            history.replaceState(null, '', 'guide.html');
+          }
+          localStorage.removeItem('just_registered');
+        }
+      }
+
+      const dismissBtn = document.getElementById('btn-dismiss-onboarding');
+      if (dismissBtn) {
+        dismissBtn.addEventListener('click', () => {
+          const banner = document.getElementById('onboarding-banner');
+          if (banner) banner.remove();
+        });
+      }
+
+      const startBtn = document.getElementById('btn-start-onboarding');
+      if (startBtn) {
+        startBtn.addEventListener('click', () => {
+          document.getElementById('step-profile')?.scrollIntoView({ behavior: 'smooth' });
+        });
+      }
+
+      // ─── 2. SVG SCROLL PROGRESS TIMELINE ───
+      function initSvgScroll() {
+        const svgTimeline = document.getElementById('guideSvgTimeline');
+        const lineDeactivated = document.getElementById('svgLineDeactivated');
+        const lineActivated = document.getElementById('svgLineActivated');
+        const wrapper = document.querySelector('.guide-steps-wrapper');
+        const cards = document.querySelectorAll('.guide-step-card');
+        const nodes = document.querySelectorAll('.svg-step-node');
+
+        if (!svgTimeline || !lineActivated || !wrapper || cards.length === 0) return;
+
+        let nodePositions = [];
+
+        function recalculatePositions() {
+          const wrapperRect = wrapper.getBoundingClientRect();
+          const wrapperTop = wrapperRect.top + window.scrollY;
+
+          nodePositions = [];
+          cards.forEach((card, index) => {
+            const cardRect = card.getBoundingClientRect();
+            const cardTop = cardRect.top + window.scrollY;
+            // Canh tâm node hình tròn thẳng hàng với tâm badge bước (~38px từ mép trên card)
+            const y = (cardTop - wrapperTop) + 38;
+            nodePositions.push(y);
+
+            const node = nodes[index];
+            if (node) {
+              const circle = node.querySelector('circle');
+              const text = node.querySelector('text');
+              if (circle) circle.setAttribute('cy', y);
+              if (text) text.setAttribute('y', y + 4);
+            }
+          });
+
+          if (nodePositions.length > 0) {
+            const startY = nodePositions[0];
+            const endY = nodePositions[nodePositions.length - 1];
+
+            if (lineDeactivated) {
+              lineDeactivated.setAttribute('y1', startY);
+              lineDeactivated.setAttribute('y2', endY);
+            }
+            if (lineActivated) {
+              lineActivated.setAttribute('y1', startY);
+            }
+          }
+        }
+
+        recalculatePositions();
+        window.addEventListener('resize', recalculatePositions);
+
+        let svgTicking = false;
+
+        function updateSvgProgress() {
+          if (nodePositions.length === 0) return;
+
+          const screenHeight = window.innerHeight;
+          const triggerPoint = (screenHeight / 2) + 50;
+          const wrapperRect = wrapper.getBoundingClientRect();
+
+          const currentRelativeY = triggerPoint - wrapperRect.top;
+          const startY = nodePositions[0];
+          const endY = nodePositions[nodePositions.length - 1];
+
+          // Giới hạn y2 trong khoảng startY đến endY
+          const newY2 = Math.max(startY, Math.min(currentRelativeY, endY));
+          lineActivated.setAttribute('y2', newY2);
+
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          const inactiveFill = isDark ? '#1E293B' : '#FFFFFF';
+          const inactiveStroke = isDark ? '#475569' : '#CBD5E1';
+          const inactiveText = isDark ? '#94A3B8' : '#64748B';
+
+          nodes.forEach((node, index) => {
+            const nodeY = nodePositions[index];
+            const circle = node.querySelector('circle');
+            const text = node.querySelector('text');
+            const card = cards[index];
+
+            const isActive = currentRelativeY >= (nodeY - 20);
+
+            if (isActive) {
+              if (circle) {
+                circle.setAttribute('fill', 'url(#guideSvgGradient)');
+                circle.setAttribute('stroke', '#4F46E5');
+                circle.setAttribute('filter', 'url(#svgGlow)');
+              }
+              if (text) {
+                text.setAttribute('fill', '#FFFFFF');
+              }
+              if (card) {
+                card.classList.add('active-step-glow');
+              }
+            } else {
+              if (circle) {
+                circle.setAttribute('fill', inactiveFill);
+                circle.setAttribute('stroke', inactiveStroke);
+                circle.removeAttribute('filter');
+              }
+              if (text) {
+                text.setAttribute('fill', inactiveText);
+              }
+              if (card) {
+                card.classList.remove('active-step-glow');
+              }
+            }
+          });
+
+          svgTicking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+          if (!svgTicking) {
+            window.requestAnimationFrame(updateSvgProgress);
+            svgTicking = true;
+          }
+        }, { passive: true });
+
+        // Khởi chạy cập nhật trạng thái ban đầu
+        updateSvgProgress();
+      }
+
+      initSvgScroll();
+    });
+  </script>
+</body>
+</html>

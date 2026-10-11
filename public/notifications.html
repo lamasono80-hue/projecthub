@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trung tâm thông báo - ProjectHub</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .notif-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+        }
+        .notif-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .nav-pills .nav-link {
+            border-radius: 8px;
+            color: #4b5563;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+        }
+        .nav-pills .nav-link.active {
+            background-color: var(--primary, #4F46E5);
+            color: #fff;
+        }
+    </style>
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="min-vh-100 d-flex flex-column">
+    <div id="navbar-placeholder"></div>
+    <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
+
+    <div class="container py-4 flex-grow-1" style="max-width: 860px;">
+        <!-- Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-2 border-bottom">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family: 'Manrope', sans-serif;">Trung tâm thông báo</h2>
+                <p class="text-muted mb-0 small">Theo dõi cập nhật dự án, nhiệm vụ và các tương tác của bạn</p>
+            </div>
+            <button class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2" id="btn-mark-all-read" style="display: none;">
+                <i class="bi bi-check2-all fs-6"></i>
+                <span>Đánh dấu tất cả đã đọc</span>
+            </button>
+        </div>
+
+        <!-- Filter Tabs -->
+        <ul class="nav nav-pills gap-2 mb-4 bg-white p-2 rounded-3 shadow-sm border">
+            <li class="nav-item">
+                <button class="nav-link active d-flex align-items-center gap-2" data-notif-filter="all">
+                    <span>Tất cả</span>
+                    <span class="badge bg-secondary rounded-pill" id="badge-all-count" style="display: none;">0</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link d-flex align-items-center gap-2" data-notif-filter="unread">
+                    <span>Chưa đọc</span>
+                    <span class="badge bg-danger rounded-pill" id="badge-unread-count" style="display: none;">0</span>
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link d-flex align-items-center gap-2" data-notif-filter="read">
+                    <span>Đã đọc</span>
+                    <span class="badge bg-light text-dark rounded-pill border" id="badge-read-count" style="display: none;">0</span>
+                </button>
+            </li>
+        </ul>
+
+        <!-- Notifications Container -->
+        <div id="loading-state" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <p class="text-muted mt-2 small">Đang tải thông báo...</p>
+        </div>
+
+        <div id="notifications-list">
+            <!-- Rendered by notifications-page.js -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="text-center py-5 d-none bg-white rounded-3 shadow-sm border p-4">
+            <div class="mb-3 text-muted">
+                <i class="bi bi-bell-slash display-4"></i>
+            </div>
+            <h5 class="fw-bold mb-1">Không có thông báo nào</h5>
+            <p class="text-muted small mb-0">Hộp thư thông báo của bạn đang trống.</p>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/notifications-page.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "anno_welcome_admin",
+    "title": "Chào mừng đến với Cổng Quản Trị ProjectHub!",
+    "message": "Hệ thống Admin Portal đã được khởi tạo và sẵn sàng vận hành. Quản trị viên có thể quản lý người dùng, duyệt dự án và phát sóng thông báo toàn sàn.",
+    "type": "success",
+    "action_url": "/admin.html#overview",
+    "createdAt": "2026-09-27T09:30:00.000Z",
+    "createdBy": "lamasono80@gmail.com"
+  }
+]

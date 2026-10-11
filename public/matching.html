@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Ghép Đội &amp; Tìm Thành Viên - ProjectHub</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    /* AI Matching Design System Enhancements */
+    .filter-panel {
+      border-radius: var(--radius-lg, 16px);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    /* Mode Switcher Tabs */
+    .matching-mode-tabs {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4px;
+      display: inline-flex;
+    }
+    .matching-mode-tabs .nav-link {
+      color: var(--text-secondary);
+      border-radius: 50rem;
+      padding: 0.45rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .matching-mode-tabs .nav-link:hover {
+      color: var(--primary);
+      background-color: var(--surface-2);
+    }
+    .matching-mode-tabs .nav-link.active {
+      background-color: var(--primary) !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+    }
+    /* Custom Styled Select Dropdown (Fix native select overflow & sharp edges) */
+    .custom-select-wrapper {
+      position: relative;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .custom-select-trigger {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.65rem 1rem;
+      font-size: 0.925rem;
+      font-weight: 500;
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, color 0.3s ease;
+      text-align: left;
+    }
+    .custom-select-trigger:hover {
+      border-color: var(--primary);
+    }
+    .custom-select-wrapper.open .custom-select-trigger,
+    .custom-select-trigger:focus {
+      border-color: var(--primary, #4F46E5);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+    .custom-select-trigger .bi-chevron-down {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .custom-select-wrapper.open .custom-select-trigger .bi-chevron-down {
+      transform: rotate(180deg);
+    }
+    .custom-select-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      z-index: 1050;
+      padding: 0.35rem;
+      max-height: 240px;
+      overflow-y: auto;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+    }
+    .custom-select-wrapper.open .custom-select-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .custom-select-option {
+      padding: 0.6rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+    }
+    .custom-select-option:hover {
+      background-color: var(--surface-2);
+      color: var(--primary, #4F46E5);
+    }
+    .custom-select-option.active {
+      background-color: rgba(79, 70, 229, 0.12);
+      color: var(--primary, #4F46E5);
+      font-weight: 600;
+    }
+    /* Compact Skills Filter Box */
+    .skills-filter-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 110px;
+      overflow-y: auto;
+      padding: 2px;
+    }
+    .skills-filter-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    .skills-filter-container::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+    .skill-filter-pill {
+      font-size: 0.78rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      font-weight: 500;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .skill-filter-pill.active {
+      background-color: var(--primary, #4F46E5) !important;
+      border-color: var(--primary, #4F46E5) !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+    }
+    .skill-filter-pill.custom-skill-pill {
+      border-style: dashed;
+    }
+    .skill-filter-pill .btn-remove-skill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      font-size: 11px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+    .skill-filter-pill .btn-remove-skill:hover {
+      background: rgba(255, 255, 255, 0.45);
+      transform: scale(1.15);
+    }
+    .skill-filter-pill:not(.active) .btn-remove-skill {
+      background: rgba(0, 0, 0, 0.08);
+      color: var(--text-secondary);
+    }
+    .skill-filter-pill:not(.active) .btn-remove-skill:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #EF4444;
+    }
+    /* Cards */
+    .match-candidate-card {
+      border-radius: var(--radius-lg, 16px);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .match-candidate-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+    }
+    .project-match-card {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, background-color 0.3s ease;
+    }
+    .project-match-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+      border-color: rgba(79, 70, 229, 0.35);
+    }
+    .empty-state-box {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+      padding: 3rem 1.5rem;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    /* Utility line clamp */
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    /* Dark Mode Tokens & Contrast Fixes */
+    [data-theme="dark"] .filter-panel,
+    [data-theme="dark"] .project-match-card,
+    [data-theme="dark"] .match-candidate-card,
+    [data-theme="dark"] .empty-state-box,
+    [data-theme="dark"] .custom-select-trigger,
+    [data-theme="dark"] .custom-select-dropdown,
+    [data-theme="dark"] .matching-mode-tabs {
+      background-color: var(--surface) !important;
+      border-color: var(--border) !important;
+      color: var(--text) !important;
+    }
+    [data-theme="dark"] .custom-select-option:hover {
+      background-color: var(--surface-2) !important;
+      color: var(--primary) !important;
+    }
+    [data-theme="dark"] .custom-select-option.active {
+      background-color: rgba(99, 102, 241, 0.2) !important;
+      color: #818cf8 !important;
+    }
+    [data-theme="dark"] .matching-mode-tabs .nav-link {
+      color: var(--text-secondary) !important;
+    }
+    [data-theme="dark"] .matching-mode-tabs .nav-link:hover {
+      color: #818cf8 !important;
+      background-color: var(--surface-2) !important;
+    }
+    [data-theme="dark"] .matching-mode-tabs .nav-link.active {
+      background-color: var(--primary) !important;
+      color: #ffffff !important;
+    }
+    [data-theme="dark"] .badge.bg-light {
+      background-color: var(--surface-2) !important;
+      color: var(--text-secondary) !important;
+      border-color: var(--border) !important;
+    }
+    [data-theme="dark"] .match-candidate-card .bg-light {
+      background-color: var(--surface-2) !important;
+      color: var(--text-secondary) !important;
+      border-color: var(--border) !important;
+    }
+    /* Modal Dark Mode */
+    [data-theme="dark"] #inviteCandidateModal .modal-content {
+      background-color: var(--surface) !important;
+      border-color: var(--border) !important;
+      color: var(--text) !important;
+    }
+    [data-theme="dark"] #inviteCandidateModal .modal-header,
+    [data-theme="dark"] #inviteCandidateModal .modal-footer {
+      border-color: var(--border) !important;
+    }
+    [data-theme="dark"] #inviteCandidateModal .bg-light {
+      background-color: var(--surface-2) !important;
+      border-color: var(--border) !important;
+      color: var(--text) !important;
+    }
+    [data-theme="dark"] #inviteCandidateModal .form-control,
+    [data-theme="dark"] #inviteCandidateModal .form-select {
+      background-color: var(--surface-2) !important;
+      border-color: var(--border) !important;
+      color: var(--text) !important;
+    }
+    [data-theme="dark"] #inviteCandidateModal .input-group-text {
+      background-color: var(--surface-2) !important;
+      border-color: var(--border) !important;
+      color: var(--text-secondary) !important;
+    }
+  </style>
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="min-vh-100 d-flex flex-column">
+  <!-- Skip to main content -->
+  <a href="#main-content" class="visually-hidden-focusable position-fixed top-0 start-0 z-3 btn btn-primary m-2" style="z-index: 9999;">
+    Bỏ qua đến nội dung chính
+  </a>
+
+  <!-- Navbar Placeholder -->
+  <div id="navbar-placeholder"></div>
+  <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Main Content -->
+  <main id="main-content" class="container py-3 py-md-4 flex-grow-1">
+    <!-- Page header with Mode Tabs -->
+    <div class="page-header mb-3 mb-md-4">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;">
+            <i class="bi bi-stars fs-4"></i>
+          </div>
+          <div>
+            <h2 class="fw-bold mb-0 text-dark" style="font-family: 'Manrope', sans-serif; font-size: 1.65rem;">AI Ghép Đội Thông Minh</h2>
+            <p class="text-secondary small mb-0">Tự động phân tích kỹ năng, công nghệ và kinh nghiệm để kết nối bạn với những ứng viên &amp; dự án phù hợp nhất</p>
+          </div>
+        </div>
+
+        <!-- Mode Switcher Tabs -->
+        <ul class="nav nav-pills matching-mode-tabs rounded-pill shadow-sm" id="matchingTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-candidates-btn" data-bs-toggle="pill" data-bs-target="#tab-candidates-pane" type="button" role="tab" aria-controls="tab-candidates-pane" aria-selected="true">
+              <i class="bi bi-people-fill me-1"></i> Tìm ứng viên
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-projects-btn" data-bs-toggle="pill" data-bs-target="#tab-projects-pane" type="button" role="tab" aria-controls="tab-projects-pane" aria-selected="false">
+              <i class="bi bi-compass-fill me-1"></i> Dự án gợi ý
+              <span class="badge bg-primary text-white rounded-pill ms-1 px-2 d-none" id="recommended-count-badge" style="font-size: 0.72rem;">0</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Tab Content Area -->
+    <div class="tab-content" id="matchingTabsContent">
+      <!-- TAB 1: Tìm ứng viên cho dự án -->
+      <div class="tab-pane fade show active" id="tab-candidates-pane" role="tabpanel" aria-labelledby="tab-candidates-btn" tabindex="0">
+        <div class="row g-4">
+          <!-- LEFT: Compact Filter Panel (Fits viewport completely) -->
+          <div class="col-lg-4">
+            <div class="filter-panel p-3 p-md-4">
+              <!-- Project selector -->
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-folder-check text-primary fs-5"></i>
+                  <h6 class="fw-bold mb-0 text-dark" style="font-family: 'Manrope', sans-serif;">Dự án của bạn</h6>
+                </div>
+                <a href="create-project.html" class="small text-primary text-decoration-none fw-medium" title="Tạo dự án mới">
+                  <i class="bi bi-plus-circle me-1"></i>Tạo mới
+                </a>
+              </div>
+              
+              <div class="custom-select-wrapper position-relative mb-3" id="project-select-wrapper">
+                <button type="button" 
+                        id="project-select-btn" 
+                        class="custom-select-trigger d-flex align-items-center justify-content-between w-100" 
+                        aria-haspopup="listbox" 
+                        aria-expanded="false"
+                        aria-label="Chọn dự án để tìm ứng viên">
+                  <span class="selected-text text-truncate">-- Đang nạp danh sách dự án --</span>
+                  <i class="bi bi-chevron-down ms-2"></i>
+                </button>
+                <div class="custom-select-dropdown" role="listbox" id="project-select-dropdown" aria-label="Danh sách dự án của bạn">
+                  <!-- Rendered by JS -->
+                </div>
+                <select id="project-selector" class="d-none" aria-hidden="true" tabindex="-1">
+                  <option value="">-- Đang nạp danh sách dự án --</option>
+                </select>
+              </div>
+              
+              <!-- Skills filter -->
+              <div class="pt-3 border-top mb-2">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-funnel text-primary"></i>
+                    <span class="fw-bold small text-dark">Kỹ năng bổ trợ ưu tiên</span>
+                  </div>
+                  <button type="button" id="btn-clear-skills" class="btn btn-link btn-sm text-muted p-0 text-decoration-none small d-none" style="font-size: 0.75rem;">
+                    Xóa lọc
+                  </button>
+                </div>
+                <p class="text-muted small mb-2" style="font-size: 0.78rem;">Chọn kỹ năng bạn muốn tìm thêm ở ứng viên mới:</p>
+                <div id="skill-filter-container" class="skills-filter-container mb-2">
+                  <!-- Rendered by js -->
+                </div>
+
+                <!-- Ô tự nhập thêm kỹ năng ngoài ví dụ -->
+                <div class="custom-skill-input-wrap mt-2 mb-3">
+                  <div class="input-group input-group-sm">
+                    <input type="text" id="custom-skill-input" class="form-control rounded-start-pill ps-3" placeholder="Thêm kỹ năng khác (VD: Flutter, C#...)" style="font-size: 0.78rem; height: 32px;">
+                    <button type="button" id="btn-add-custom-skill" class="btn btn-primary rounded-end-pill px-2.5 d-inline-flex align-items-center gap-1" style="font-size: 0.78rem;">
+                      <i class="bi bi-plus-lg"></i> <span>Thêm</span>
+                    </button>
+                  </div>
+                  <div class="text-muted small mt-1 ps-1 d-flex align-items-center justify-content-between" style="font-size: 0.72rem;">
+                    <span><i class="bi bi-info-circle me-1"></i>Chưa có kỹ năng cần tìm? Gõ và bấm Thêm / Enter.</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Action Button -->
+              <button id="btn-find-match" class="btn btn-primary w-100 py-2.5 d-inline-flex align-items-center justify-content-center gap-2 shadow-sm rounded-3 fw-semibold">
+                <i class="bi bi-magic"></i> <span>Tìm thành viên phù hợp</span>
+              </button>
+
+              <!-- Quick Switch Link to Tab 2 -->
+              <div class="mt-3 pt-3 border-top text-center">
+                <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0" id="link-to-projects-tab">
+                  <i class="bi bi-compass text-primary me-1"></i>Bạn muốn tìm dự án để tham gia? <span class="text-primary fw-medium" id="link-to-projects-text">Khám phá dự án gợi ý →</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Match results -->
+          <div class="col-lg-8">
+            <div id="match-results" aria-live="polite">
+              <div class="empty-state-box text-center">
+                <div class="mb-3 text-muted">
+                  <i class="bi bi-search display-4 text-secondary" aria-hidden="true"></i>
+                </div>
+                <h5 class="fw-bold mb-1 text-dark">Chưa chọn dự án tìm kiếm</h5>
+                <p class="text-muted small mb-3">Vui lòng chọn một dự án ở cột bên trái và nhấn tìm kiếm để hệ thống AI phân tích và đề xuất ứng viên tốt nhất.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Dự án gợi ý cho bạn -->
+      <div class="tab-pane fade" id="tab-projects-pane" role="tabpanel" aria-labelledby="tab-projects-btn" tabindex="0">
+        <!-- Tab 2 Filter Bar -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 p-3 rounded-4 filter-panel">
+          <div>
+            <h5 class="fw-bold mb-1 text-dark" style="font-family: 'Manrope', sans-serif; font-size: 1.15rem;">
+              <i class="bi bi-stars text-primary me-1"></i> Dự án phù hợp với năng lực của bạn
+            </h5>
+            <p class="text-muted small mb-0">Hệ thống AI đối chiếu kỹ năng và sở thích chuyên môn để gợi ý những nhóm dự án tiềm năng nhất</p>
+          </div>
+          <div class="d-flex flex-wrap align-items-center gap-2" id="project-category-filters">
+            <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 py-1 cat-filter-btn active" data-cat="all">Tất cả</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 cat-filter-btn" data-cat="web">Web</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 cat-filter-btn" data-cat="mobile">Mobile</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 cat-filter-btn" data-cat="ai">AI / ML</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 cat-filter-btn" data-cat="other">Khác</button>
+          </div>
+        </div>
+
+        <!-- Recommended Projects Grid (Full responsive view) -->
+        <div id="recommended-projects" class="row g-3">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal: Mời ứng viên vào dự án -->
+  <div class="modal fade" id="inviteCandidateModal" tabindex="-1" aria-labelledby="inviteCandidateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4">
+        <div class="modal-header border-bottom pb-3">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+              <i class="bi bi-person-plus-fill fs-5"></i>
+            </div>
+            <div>
+              <h5 class="modal-title fw-bold text-dark mb-0" id="inviteCandidateModalLabel">Mời thành viên vào dự án</h5>
+              <small class="text-muted">Gửi lời mời trực tiếp đến ứng viên tiềm năng</small>
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+
+        <form id="form-invite-candidate">
+          <div class="modal-body p-3 p-md-4">
+            <!-- Candidate Info Summary Box -->
+            <div class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-light border mb-3">
+              <div class="d-flex align-items-center gap-3">
+                <img id="invite-candidate-avatar" src="" alt="Avatar" class="rounded-circle border border-2 border-white shadow-xs" style="width: 48px; height: 48px; object-fit: cover;">
+                <div style="max-width: 220px;">
+                  <h6 class="fw-bold text-dark mb-0 text-truncate" id="invite-candidate-name">Tên ứng viên</h6>
+                  <small class="text-muted d-block text-truncate" id="invite-candidate-sub">@username</small>
+                </div>
+              </div>
+              <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill px-2.5 py-1.5 fw-semibold" id="invite-candidate-score">
+                --% Phù hợp
+              </span>
+            </div>
+
+            <!-- Target Project Info -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold small text-secondary mb-1">Dự án mời tham gia</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-folder-check text-primary"></i></span>
+                <input type="text" id="invite-project-title" class="form-control bg-light border-start-0 fw-medium" readonly>
+              </div>
+            </div>
+
+            <!-- Target Role Selection -->
+            <div class="mb-3">
+              <label for="invite-role-select" class="form-label fw-semibold small text-secondary mb-1">
+                Vị trí đảm nhận trong dự án <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" id="invite-role-select" required>
+                <!-- Populated dynamically based on project roles -->
+              </select>
+            </div>
+
+            <!-- Invitation Message -->
+            <div class="mb-2">
+              <label for="invite-message-input" class="form-label fw-semibold small text-secondary mb-1">
+                Lời nhắn gửi ứng viên
+              </label>
+              <textarea id="invite-message-input" class="form-control" rows="3" placeholder="Nhập lời chào hoặc giới thiệu ngắn gọn về dự án..."></textarea>
+              <div class="form-text small text-muted">
+                <i class="bi bi-info-circle me-1"></i>Ứng viên sẽ nhận được thông báo kèm liên kết xem chi tiết dự án.
+              </div>
+            </div>
+
+            <!-- Hidden inputs -->
+            <input type="hidden" id="invite-candidate-id">
+            <input type="hidden" id="invite-project-id">
+          </div>
+
+          <div class="modal-footer border-top pt-3">
+            <button type="button" class="btn btn-outline-secondary rounded-3 px-3 py-2 fw-medium" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" id="btn-submit-invite" class="btn btn-primary rounded-3 px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2">
+              <i class="bi bi-send-fill"></i>
+              <span>Gửi lời mời ngay</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer placeholder (Placed properly before script tags) -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/projects.js"></script>
+  <script src="js/matching.js"></script>
+  <script src="js/animations.js"></script>
+</body>
+</html>

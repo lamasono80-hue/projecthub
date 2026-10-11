@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Câu Hỏi Thường Gặp (FAQ) - ProjectHub</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .faq-hero {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      border: 1px solid rgba(79, 70, 229, 0.12);
+    }
+    .faq-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .accordion-button:not(.collapsed) {
+      background-color: rgba(79, 70, 229, 0.06);
+      color: var(--primary, #4F46E5);
+      font-weight: 600;
+    }
+    .accordion-button:focus {
+      box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.15);
+      border-color: rgba(79, 70, 229, 0.25);
+    }
+    .category-filter-btn.active {
+      background-color: var(--primary, #4F46E5);
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+  <!-- Navbar placeholder injected by app.js -->
+  <div id="navbar-placeholder"></div>
+
+  <main class="container py-4 flex-grow-1">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">Trang chủ</a></li>
+        <li class="breadcrumb-item text-muted">Hỗ trợ</li>
+        <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">FAQ</li>
+      </ol>
+    </nav>
+
+    <!-- Hero Header -->
+    <div class="faq-hero text-center mb-5">
+      <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill px-3 py-2 mb-3 fw-semibold">
+        <i class="bi bi-question-circle-fill me-1 text-warning"></i> Trung tâm giải đáp thắc mắc
+      </span>
+      <h1 class="fw-bold text-dark mb-3" style="font-family: 'Manrope', sans-serif;">Câu Hỏi Thường Gặp (FAQ)</h1>
+      <p class="text-muted mx-auto mb-4" style="max-width: 650px;">
+        Tìm kiếm câu trả lời nhanh cho các câu hỏi phổ biến về ghép đội, quản lý nhóm và điều kiện tham gia nền tảng.
+      </p>
+
+      <!-- FAQ Live Search Bar -->
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+          <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden bg-white border">
+            <span class="input-group-text bg-white border-0 ps-3 text-muted">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="text" id="faq-search-input" class="form-control border-0 px-2" placeholder="Nhập từ khóa cần tìm kiếm (ví dụ: tham gia, github, điểm số...)" aria-label="Tìm kiếm câu hỏi">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="d-flex flex-wrap justify-content-center gap-2 mb-4" id="faq-filter-group">
+      <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 category-filter-btn active" data-category="all">Tất cả</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 category-filter-btn" data-category="general">Chung về nền tảng</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 category-filter-btn" data-category="join">Gia nhập dự án</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 category-filter-btn" data-category="create">Tạo &amp; Tuyển quân</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 category-filter-btn" data-category="ai">AI Ghép đội &amp; GitHub</button>
+    </div>
+
+    <!-- Accordion FAQ Items -->
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="accordion accordion-flush d-flex flex-column gap-3" id="faqAccordion">
+
+          <!-- FAQ 1 -->
+          <div class="accordion-item faq-item border rounded-3 overflow-hidden shadow-sm" data-category="general">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-3 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq-1">
+                1. ProjectHub là gì và đối tượng nào có thể tham gia?
+              </button>
+            </h2>
+            <div id="faq-1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-secondary small lh-base">
+                ProjectHub là nền tảng kết nối sinh viên liên ngành (CNTT, Thiết kế đồ họa, Kinh tế, AI, Marketing...) để cùng cộng tác làm việc nhóm trên các dự án học tập, đồ án tốt nghiệp, đề tài nghiên cứu khoa học và các dự án khởi nghiệp sáng tạo. Nền tảng mở cửa hoàn toàn <strong>miễn phí 100%</strong> cho toàn bộ sinh viên.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 2 -->
+          <div class="accordion-item faq-item border rounded-3 overflow-hidden shadow-sm" data-category="join">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-3 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq-2">
+                2. Làm thế nào để gửi yêu cầu gia nhập (Join Request) một dự án?
+              </button>
+            </h2>
+            <div id="faq-2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-secondary small lh-base">
+                Bạn đăng nhập vào hệ thống, vào trang <strong>Dự án</strong> và nhấn xem chi tiết dự án bạn muốn tham gia. Nếu dự án đang ở trạng thái <em>Đang tuyển</em>, hãy bấm nút <strong>Tham gia dự án</strong>, chọn vị trí (Frontend, Backend, UI/UX...) và viết một lời nhắn ngắn gọn giới thiệu kỹ năng. Chủ dự án sẽ nhận được thông báo ngay lập tức để xét duyệt.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 3 -->
+          <div class="accordion-item faq-item border rounded-3 overflow-hidden shadow-sm" data-category="create">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-3 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq-3">
+                3. Một sinh viên có thể tạo tối đa bao nhiêu dự án?
+              </button>
+            </h2>
+            <div id="faq-3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-secondary small lh-base">
+                ProjectHub không giới hạn số lượng dự án bạn tạo. Tuy nhiên, để đảm bảo chất lượng và khả năng hoàn thiện của từng sản phẩm, hệ thống khuyến khích mỗi sinh viên chỉ nên chủ trì từ 1 đến 2 dự án cùng một lúc.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 4 -->
+          <div class="accordion-item faq-item border rounded-3 overflow-hidden shadow-sm" data-category="ai">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-3 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq-4">
+                4. Thuật toán AI Ghép đội (Matching Engine) hoạt động như thế nào?
+              </button>
+            </h2>
+            <div id="faq-4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-secondary small lh-base">
+                Thuật toán của ProjectHub tự động chuẩn hóa và phân tích độ tương đồng giữa các kỹ năng kỹ thuật (50%), công nghệ yêu cầu (20%), chuyên ngành/sở thích (15%) và cấp độ kinh nghiệm (15%). Điểm số phù hợp <strong>(Match Score)</strong> từ 0% đến 100% giúp các nhóm dễ dàng lựa chọn đúng người đúng việc.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 5 -->
+          <div class="accordion-item faq-item border rounded-3 overflow-hidden shadow-sm" data-category="ai">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-3 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq-5">
+                5. Liên kết kho mã nguồn GitHub có an toàn và bảo mật không?
+              </button>
+            </h2>
+            <div id="faq-5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-secondary small lh-base">
+                Tuyệt đối an toàn. ProjectHub chỉ truy xuất các thông số công khai của Public Repository (như số sao ⭐, ngôn ngữ lập trình chính, danh sách commit gần nhất) để minh bạch hóa tiến độ dự án. Hệ thống tuyệt đối không can thiệp hay đọc trộm mã nguồn riêng tư của sinh viên.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 6 -->
+          <div class="accordion-item faq-item border rounded-3 overflow-hidden shadow-sm" data-category="general">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-3 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq-6">
+                6. Bảng Kanban trong Workspace có thể xuất dữ liệu báo cáo không?
+              </button>
+            </h2>
+            <div id="faq-6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-secondary small lh-base">
+                Bảng Kanban trên ProjectHub lưu trữ trực tiếp trên database Supabase và tự động thống kê vào biểu đồ Dashboard cá nhân. Toàn bộ tiến độ và đóng góp của từng thành viên đều được ghi nhận minh bạch vào báo cáo tổng kết của dự án.
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Empty Search Notice -->
+        <div id="faq-empty-search" class="text-center py-5 d-none">
+          <i class="bi bi-search text-muted display-4"></i>
+          <h5 class="fw-bold mt-3 text-dark">Không tìm thấy câu hỏi phù hợp</h5>
+          <p class="text-muted small">Hãy thử tìm kiếm với các từ khóa khác hoặc liên hệ trực tiếp với chúng tôi.</p>
+        </div>
+
+        <!-- Contact Banner -->
+        <div class="card border-0 bg-primary text-white rounded-4 p-4 mt-5 shadow">
+          <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-center text-md-start">
+            <div>
+              <h5 class="fw-bold mb-1">Chưa tìm thấy câu trả lời bạn cần?</h5>
+              <p class="mb-0 text-white-50 small">Đội ngũ hỗ trợ ProjectHub luôn sẵn sàng trợ giúp bạn 24/7.</p>
+            </div>
+            <a href="contact.html" class="btn btn-light text-primary fw-bold px-4 py-2 rounded-3 text-nowrap">
+              <i class="bi bi-headset me-1"></i> Gửi yêu cầu hỗ trợ
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer placeholder injected by app.js -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/animations.js"></script>
+  <script>
+    // FAQ Category Filter & Live Search logic
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('faq-search-input');
+      const filterBtns = document.querySelectorAll('.category-filter-btn');
+      const faqItems = document.querySelectorAll('.faq-item');
+      const emptyNotice = document.getElementById('faq-empty-search');
+
+      let currentCategory = 'all';
+
+      function filterFAQs() {
+        const query = (searchInput?.value || '').toLowerCase().trim();
+        let visibleCount = 0;
+
+        faqItems.forEach(item => {
+          const cat = item.dataset.category || '';
+          const text = item.textContent.toLowerCase();
+
+          const matchesCat = currentCategory === 'all' || cat === currentCategory;
+          const matchesQuery = !query || text.includes(query);
+
+          if (matchesCat && matchesQuery) {
+            item.classList.remove('d-none');
+            visibleCount++;
+          } else {
+            item.classList.add('d-none');
+          }
+        });
+
+        if (emptyNotice) {
+          emptyNotice.classList.toggle('d-none', visibleCount > 0);
+        }
+      }
+
+      searchInput?.addEventListener('input', filterFAQs);
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentCategory = btn.dataset.category || 'all';
+          filterFAQs();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
