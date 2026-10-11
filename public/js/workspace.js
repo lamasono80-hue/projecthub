@@ -12,6 +12,7 @@ let _currentUser = null;
 let _currentProfile = null;
 let _isOwner = false;
 let _isMember = false;
+let _isAdmin = false;
 let _projectTeamMembers = [];
 let _allTasks = [];
 let _currentEditTaskId = null;
@@ -112,12 +113,20 @@ async function initWorkspacePage() {
 
         const activeMembers = members || [];
 
-        // 5. Kiểm tra quyền truy cập: PHẢI LÀ OWNER HOẶC MEMBER
+        // 5. Kiểm tra quyền truy cập: PHẢI LÀ OWNER, MEMBER HOẶC ADMIN
         _isOwner = _currentUser.id === project.owner_id;
         _isMember = activeMembers.some(m => m.user_id === _currentUser.id);
+        _isAdmin = _currentUser && (
+            (_currentUser.email && _currentUser.email.toLowerCase().trim() === 'lamasono80@gmail.com') ||
+            _currentUser.role === 'admin' ||
+            _currentUser.is_admin === true ||
+            (_currentUser.app_metadata && _currentUser.app_metadata.role === 'admin') ||
+            (_currentUser.user_metadata && _currentUser.user_metadata.role === 'admin') ||
+            (_currentProfile && (_currentProfile.role === 'admin' || _currentProfile.is_admin === true))
+        );
 
-        if (!_isOwner && !_isMember) {
-            showAccessDenied(`Bạn không phải là thành viên của dự án "${project.title}". Chỉ Chủ dự án và các Thành viên chính thức mới có quyền vào Không gian làm việc này.`, userProjects);
+        if (!_isOwner && !_isMember && !_isAdmin) {
+            showAccessDenied(`Bạn không phải là thành viên của dự án "${project.title}". Chỉ Chủ dự án, Thành viên chính thức hoặc Quản trị viên (Admin) mới có quyền vào Không gian làm việc này.`, userProjects);
             return;
         }
 
@@ -706,9 +715,9 @@ function openEditTaskModal(taskId) {
     if (statInput)  statInput.value = task.status || 'todo';
     if (deadInput)  deadInput.value = task.deadline || '';
 
-    // Cho phép xóa nếu là Owner hoặc người tạo task
+    // Cho phép xóa nếu là Owner, Admin hoặc người tạo task
     if (btnDel) {
-        const canDelete = _isOwner || (_currentUser && task.creator_id === _currentUser.id);
+        const canDelete = _isOwner || _isAdmin || (_currentUser && task.creator_id === _currentUser.id);
         btnDel.style.display = canDelete ? 'inline-flex' : 'none';
     }
 

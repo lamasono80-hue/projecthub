@@ -647,7 +647,19 @@ function renderPagination(container, currentPage, total, pageSize, onPageChange)
 
 // ─── PROJECT DETAIL PAGE ───────────────────────────────────────────────────────
 
-// ─── PROJECT DETAIL PAGE ───────────────────────────────────────────────────────
+/**
+ * Kiểm tra xem người dùng có phải Quản trị viên (Admin) không
+ */
+function checkIsAdmin(user, profile) {
+    if (!user) return false;
+    const email = (user.email || '').toLowerCase().trim();
+    if (email === 'lamasono80@gmail.com') return true;
+    if (user.role === 'admin' || user.is_admin === true) return true;
+    if (user.app_metadata && (user.app_metadata.role === 'admin' || user.app_metadata.is_admin === true)) return true;
+    if (user.user_metadata && (user.user_metadata.role === 'admin' || user.user_metadata.is_admin === true)) return true;
+    if (profile && (profile.role === 'admin' || profile.is_admin === true)) return true;
+    return false;
+}
 
 async function initProjectDetailPage() {
     const container = document.querySelector('.container');
@@ -714,7 +726,7 @@ async function initProjectDetailPage() {
             .eq('status', 'active')
             .order('joined_at', { ascending: true });
 
-        // 4. Lấy current user session
+        // 4. Lấy current user session & profile
         let currentUser = null;
         let currentProfile = null;
         if (typeof getCurrentUser === 'function') {
@@ -726,10 +738,12 @@ async function initProjectDetailPage() {
 
         const isOwner = currentUser && currentUser.id === project.owner_id;
         const isMember = currentUser && Array.isArray(members) && members.some(m => m.user_id === currentUser.id);
+        const isAdmin = checkIsAdmin(currentUser, currentProfile);
+        const hasAccess = isOwner || isMember || isAdmin;
 
-        // 5. Nếu là Owner: tải danh sách pending join requests
+        // 5. Nếu là Owner hoặc Admin: tải danh sách pending join requests
         let pendingRequests = [];
-        if (isOwner) {
+        if (isOwner || isAdmin) {
             const { data: reqs } = await supabase
                 .from('project_join_requests')
                 .select(`
@@ -742,9 +756,9 @@ async function initProjectDetailPage() {
             pendingRequests = reqs || [];
         }
 
-        // 6. Nếu là User thường: kiểm tra request gần nhất của user cho project này
+        // 6. Nếu là User chưa là thành viên: kiểm tra request gần nhất của user cho project này
         let myLatestRequest = null;
-        if (currentUser && !isOwner && !isMember) {
+        if (currentUser && !isOwner && !isMember && !isAdmin) {
             const { data: userReqs } = await supabase
                 .from('project_join_requests')
                 .select('id, status, role_name, message, created_at')
@@ -757,18 +771,31 @@ async function initProjectDetailPage() {
             }
         }
 
-        // 7. Render giao diện chi tiết dự án
+        // 7. KIỂM TRA QUYỀN TRUY CẬP:
+        // Yêu cầu: Chỉ khi nào tham gia mới coi và ấn được, còn lại không tham gia hoặc không phải admin thì không coi được
+        if (!hasAccess) {
+            renderRestrictedDetailPage(project, roles || [], members || [], {
+                currentUser,
+                currentProfile,
+                myLatestRequest,
+                isProjectFull: (members ? members.length : 0) + 1 >= (project.max_members || 5)
+            });
+            return;
+        }
+
+        // 8. Nếu CÓ QUYỀN: Render giao diện chi tiết dự án đầy đủ
         populateDetailPage(project, roles || [], members || [], {
             currentUser,
             currentProfile,
             isOwner,
             isMember,
+            isAdmin,
             myLatestRequest,
             pendingRequests
         });
 
-        // 8. Kích hoạt widgets AI Matching
-        setupDetailMatchingWidget(project, { isOwner, isMember, currentUser, currentProfile });
+        // 9. Kích hoạt widgets AI Matching
+        setupDetailMatchingWidget(project, { isOwner, isMember, isAdmin, currentUser, currentProfile });
 
     } catch (err) {
         console.error('Detail page error:', err);
@@ -777,7 +804,7 @@ async function initProjectDetailPage() {
 }
 
 function populateDetailPage(project, roles, members, ctx) {
-    const { currentUser, isOwner, isMember, myLatestRequest, pendingRequests } = ctx;
+    const { currentUser, isOwner, isMember, isAdmin, myLatestRequest, pendingRequests } = ctx;
 
     const status     = STATUS_MAP[project.status] || STATUS_MAP.recruiting;
     const difficulty = DIFFICULTY_MAP[project.difficulty] || DIFFICULTY_MAP.medium;
@@ -862,7 +889,7 @@ function populateDetailPage(project, roles, members, ctx) {
     // Tasks / Workspace box on Project Detail
     const projectTasksEl = document.getElementById('project-tasks');
     if (projectTasksEl) {
-        if (isOwner || isMember) {
+        if (isOwner || isMember || isAdmin) {
             projectTasksEl.innerHTML = `
                 <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded border">
                     <div>
@@ -882,21 +909,21 @@ function populateDetailPage(project, roles, members, ctx) {
     }
 
     // ── TEAM MEMBERS LIST ──
-    renderTeamMembersList(project, members, { currentUser, isOwner });
+    renderTeamMembersList(project, members, { currentUser, isOwner, isAdmin });
 
     // ── ACTION BUTTONS ──
-    renderActionButtons(project, { currentUser, isOwner, isMember, isProjectFull, myLatestRequest });
+    renderActionButtons(project, { currentUser, isOwner, isMember, isAdmin, isProjectFull, myLatestRequest });
 
     // ── OPEN ROLES & JOIN MODAL SETUP ──
     setupOpenPositions(roles, isProjectFull, project);
 
     // ── OWNER JOIN REQUESTS MANAGEMENT ──
-    if (isOwner) {
+    if (isOwner || isAdmin) {
         renderOwnerRequestsList(pendingRequests, project);
     }
 
     // ── GITHUB REPOSITORY CARD (Phase 7) ──
-    renderProjectGitHubCard(project.github_url, isOwner, project.id);
+    renderProjectGitHubCard(project.github_url, isOwner || isAdmin, project.id);
 
     // ── AI ANALYSIS & RELATED PROJECTS ──
     renderAIAnalysis(project);
@@ -904,6 +931,315 @@ function populateDetailPage(project, roles, members, ctx) {
 
     // ── COMMUNITY REVIEWS & 5-STAR RATING (Section 7) ──
     setupProjectReviews(project, ctx);
+}
+
+/**
+ * Render giao diện Giới hạn Quyền Xem Dự án (Restricted Locked Gateway)
+ * Yêu cầu: Chỉ khi nào tham gia mới coi và ấn được, còn lại không tham gia hoặc không phải admin thì không coi được.
+ */
+function renderRestrictedDetailPage(project, roles, members, ctx) {
+    const { currentUser, currentProfile, myLatestRequest, isProjectFull } = ctx;
+
+    const status     = STATUS_MAP[project.status] || STATUS_MAP.recruiting;
+    const difficulty = DIFFICULTY_MAP[project.difficulty] || DIFFICULTY_MAP.medium;
+    const category   = CATEGORY_MAP[project.category] || project.category || 'Khác';
+    const owner      = project.profiles || {};
+    const ownerName  = owner.display_name || 'Chủ dự án';
+
+    document.title = `${project.title} (Riêng tư) - ProjectHub`;
+
+    // 1. Banner image
+    const bannerEl = document.getElementById('project-banner-img');
+    if (bannerEl) {
+        bannerEl.src = project.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(project.title)}&background=4F46E5&color=fff&size=1200&format=svg`;
+        bannerEl.alt = project.title;
+    }
+
+    // 2. Breadcrumb & Title & Short description
+    const breadcrumb = document.getElementById('breadcrumb-title');
+    if (breadcrumb) breadcrumb.textContent = project.title;
+    const titleEl = document.getElementById('project-title');
+    if (titleEl) titleEl.textContent = project.title;
+    const descEl = document.getElementById('project-description');
+    if (descEl) descEl.textContent = project.description || 'Dự án này được thiết lập chế độ riêng tư.';
+
+    // 3. Badges
+    const badgesEl = document.getElementById('project-badges');
+    if (badgesEl) {
+        badgesEl.innerHTML = `
+            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger me-1">
+                <i class="bi bi-shield-lock-fill me-1"></i>Nội dung bảo vệ
+            </span>
+            <span class="badge bg-secondary me-1"><i class="bi bi-lock me-1"></i>Chỉ thành viên mới được xem</span>
+            <span class="badge bg-info text-dark me-1">${sanitizeHTML(category)}</span>
+            <span class="badge bg-${difficulty.color} me-1">${difficulty.label}</span>
+        `;
+    }
+
+    // 4. Technologies
+    const techEl = document.getElementById('project-technologies');
+    if (techEl) {
+        techEl.innerHTML = (project.technologies || []).map(t =>
+            `<span class="badge-tech">${sanitizeHTML(t)}</span>`
+        ).join('') || '<span class="text-muted small">Chưa có công nghệ cụ thể</span>';
+    }
+
+    // 5. Owner info
+    const ownerEl = document.getElementById('project-owner');
+    if (ownerEl) {
+        const avatarSrc = owner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=4F46E5&color=fff&size=128`;
+        ownerEl.innerHTML = `
+            <img src="${avatarSrc}" class="rounded-circle me-3" style="width:50px;height:50px;object-fit:cover" alt="${sanitizeHTML(ownerName)}">
+            <div>
+                <div class="fw-bold">${sanitizeHTML(ownerName)}</div>
+                <div class="text-muted small">Chủ dự án${owner.username ? ' · @' + sanitizeHTML(owner.username) : ''}</div>
+            </div>
+        `;
+    }
+
+    // 6. Action buttons in Header
+    const actionButtons = document.getElementById('action-buttons');
+    if (actionButtons) {
+        if (!currentUser) {
+            actionButtons.innerHTML = `
+                <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+                <button class="btn btn-primary" onclick="promptLoginToJoin()">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập để tham gia
+                </button>
+            `;
+        } else if (myLatestRequest && myLatestRequest.status === 'pending') {
+            actionButtons.innerHTML = `
+                <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+                <span class="badge bg-warning text-dark d-flex align-items-center p-2 px-3 fs-6">
+                    <i class="bi bi-clock-history me-2"></i>Đã gửi yêu cầu tham gia
+                </span>
+                <button class="btn btn-outline-danger" onclick="cancelJoinRequest('${myLatestRequest.id}')">
+                    <i class="bi bi-x-circle me-1"></i>Hủy yêu cầu
+                </button>
+            `;
+        } else if (isProjectFull) {
+            actionButtons.innerHTML = `
+                <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+                <button class="btn btn-secondary" disabled>
+                    <i class="bi bi-slash-circle me-1"></i>Đã đủ thành viên
+                </button>
+            `;
+        } else {
+            actionButtons.innerHTML = `
+                <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+                <button class="btn btn-primary" id="btn-join-project" data-bs-toggle="modal" data-bs-target="#join-modal">
+                    <i class="bi bi-person-plus me-1"></i>Tham gia dự án
+                </button>
+            `;
+            const joinBtn = document.getElementById('btn-join-project');
+            if (joinBtn) {
+                joinBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (typeof openProjectHubModal === 'function') {
+                        openProjectHubModal('#join-modal');
+                    }
+                });
+            }
+        }
+
+        // Share button handler
+        actionButtons.querySelectorAll('.btn-share-project').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const url = window.location.href;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url).then(() => {
+                        if (typeof showToast === 'function') showToast('Đã sao chép liên kết dự án!', 'success');
+                        else alert('Đã sao chép liên kết dự án!');
+                    }).catch(() => prompt('Sao chép liên kết dự án:', url));
+                } else {
+                    prompt('Sao chép liên kết dự án:', url);
+                }
+            });
+        });
+    }
+
+    // 7. Setup modal ứng tuyển
+    setupOpenPositions(roles || [], isProjectFull, project);
+
+    // 8. Thay thế lưới nội dung (.row.g-4) bằng Card Bảo Vệ Quyền Riêng Tư (Restricted Locked Gateway)
+    const contentRow = document.querySelector('.container .row.g-4') || document.querySelector('#main-content .row.g-4');
+    if (!contentRow) return;
+
+    const openRoles = Array.isArray(roles) ? roles.filter(r => !r.is_filled) : [];
+
+    let statusBoxHtml = '';
+    let actionButtonsCta = '';
+
+    if (!currentUser) {
+        statusBoxHtml = `
+            <div class="alert alert-info border-info d-inline-block text-start mb-4 p-3 px-4 rounded-3 shadow-sm" style="max-width: 620px;">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-info-circle-fill fs-5 text-info"></i>
+                    <strong>Bạn chưa đăng nhập vào ProjectHub</strong>
+                </div>
+                <div class="small text-secondary">
+                    Vui lòng đăng nhập để gửi yêu cầu tham gia dự án. Sau khi được Chủ dự án chấp thuận, bạn sẽ có quyền xem toàn bộ nội dung, nhiệm vụ và làm việc cùng nhóm.
+                </div>
+            </div>
+        `;
+        actionButtonsCta = `
+            <a href="login.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập để tham gia
+            </a>
+            <a href="projects.html" class="btn btn-outline-secondary px-4 py-2">
+                <i class="bi bi-arrow-left me-1"></i> Khám phá dự án khác
+            </a>
+        `;
+    } else if (myLatestRequest && myLatestRequest.status === 'pending') {
+        statusBoxHtml = `
+            <div class="alert alert-warning border-warning d-inline-block text-start mb-4 p-3 px-4 rounded-3 shadow-sm" style="max-width: 620px;">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-hourglass-split fs-5 text-warning"></i>
+                    <strong>Yêu cầu tham gia của bạn đang chờ phê duyệt</strong>
+                </div>
+                <div class="small text-secondary">
+                    Vị trí ứng tuyển: <strong class="text-dark">${sanitizeHTML(myLatestRequest.role_name || 'Thành viên dự án')}</strong>.<br>
+                    Chủ dự án đang xem xét yêu cầu của bạn. Bạn sẽ nhận được thông báo ngay khi được phê duyệt và cấp quyền vào dự án.
+                </div>
+            </div>
+        `;
+        actionButtonsCta = `
+            <button class="btn btn-outline-danger px-4 py-2 fw-semibold" onclick="cancelJoinRequest('${myLatestRequest.id}')">
+                <i class="bi bi-x-circle me-1"></i> Hủy yêu cầu tham gia
+            </button>
+            <a href="projects.html" class="btn btn-outline-secondary px-4 py-2">
+                <i class="bi bi-arrow-left me-1"></i> Xem các dự án khác
+            </a>
+        `;
+    } else if (myLatestRequest && myLatestRequest.status === 'rejected') {
+        statusBoxHtml = `
+            <div class="alert alert-danger border-danger d-inline-block text-start mb-4 p-3 px-4 rounded-3 shadow-sm" style="max-width: 620px;">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-exclamation-octagon-fill fs-5 text-danger"></i>
+                    <strong>Yêu cầu tham gia trước đó chưa được duyệt</strong>
+                </div>
+                <div class="small text-secondary">
+                    Bạn có thể cập nhật thông tin và gửi lại yêu cầu tham gia mới với lời giới thiệu chi tiết hơn.
+                </div>
+            </div>
+        `;
+        actionButtonsCta = `
+            <button class="btn btn-primary px-4 py-2 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#join-modal">
+                <i class="bi bi-arrow-repeat me-1"></i> Gửi lại yêu cầu tham gia
+            </button>
+            <a href="projects.html" class="btn btn-outline-secondary px-4 py-2">
+                <i class="bi bi-arrow-left me-1"></i> Xem các dự án khác
+            </a>
+        `;
+    } else if (isProjectFull) {
+        statusBoxHtml = `
+            <div class="alert alert-secondary border-secondary d-inline-block text-start mb-4 p-3 px-4 rounded-3 shadow-sm" style="max-width: 620px;">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-slash-circle fs-5 text-secondary"></i>
+                    <strong>Dự án hiện đã đủ thành viên</strong>
+                </div>
+                <div class="small text-muted">
+                    Dự án này đã tuyển đủ số lượng thành viên tối đa (${project.max_members || 5}/${project.max_members || 5}) và tạm dừng nhận thêm ứng viên mới.
+                </div>
+            </div>
+        `;
+        actionButtonsCta = `
+            <a href="projects.html" class="btn btn-primary px-4 py-2 fw-semibold">
+                <i class="bi bi-arrow-left me-1"></i> Tìm dự án đang tuyển khác
+            </a>
+        `;
+    } else {
+        actionButtonsCta = `
+            <button class="btn btn-primary px-4 py-2 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#join-modal">
+                <i class="bi bi-person-plus-fill me-1"></i> Ứng tuyển / Gửi yêu cầu tham gia
+            </button>
+            <a href="projects.html" class="btn btn-outline-secondary px-4 py-2">
+                <i class="bi bi-arrow-left me-1"></i> Xem các dự án khác
+            </a>
+        `;
+    }
+
+    let rolesPreviewHtml = '';
+    if (openRoles.length > 0 && !isProjectFull) {
+        rolesPreviewHtml = `
+            <div class="mt-4 pt-3 border-top text-start" style="max-width: 760px; margin: 0 auto;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0 text-dark" style="font-family: 'Manrope', sans-serif;">
+                        <i class="bi bi-briefcase-fill text-primary me-2"></i>Các vị trí dự án đang tuyển dụng (${openRoles.length})
+                    </h5>
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Đang tuyển</span>
+                </div>
+                <div class="row g-3">
+                    ${openRoles.map(r => `
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 border bg-white h-100 d-flex flex-column justify-content-between shadow-xs">
+                                <div>
+                                    <div class="fw-bold text-dark fs-6 mb-1">${sanitizeHTML(r.role_name)}</div>
+                                    ${r.description ? `<p class="text-secondary small mb-2">${sanitizeHTML(r.description)}</p>` : ''}
+                                    ${r.skills_needed && r.skills_needed.length > 0 ? `
+                                        <div class="mb-3 d-flex flex-wrap gap-1">
+                                            ${r.skills_needed.map(s => `<span class="badge bg-light text-dark border" style="font-size: 0.72rem;">${sanitizeHTML(s)}</span>`).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary w-100 btn-apply-role mt-2" data-role-name="${sanitizeHTML(r.role_name)}">
+                                    <i class="bi bi-send me-1"></i> Ứng tuyển vị trí này
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    contentRow.innerHTML = `
+        <div class="col-12">
+            <div class="card card-custom border-0 shadow-sm overflow-hidden" style="border-radius: 20px; background: linear-gradient(180deg, var(--surface, #ffffff) 0%, var(--surface-2, #f8fafc) 100%);">
+                <div class="card-body p-4 p-md-5 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow-sm" style="width: 84px; height: 84px; background: rgba(79, 70, 229, 0.1); color: var(--primary, #4F46E5);">
+                        <i class="bi bi-shield-lock-fill" style="font-size: 2.75rem;"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark mb-2" style="font-family: 'Manrope', sans-serif;">Nội dung dự án được bảo vệ</h2>
+                    <p class="text-secondary mx-auto mb-4" style="max-width: 620px; font-size: 1.05rem; line-height: 1.6;">
+                        Chỉ <strong>Chủ dự án</strong>, <strong>Thành viên đã tham gia</strong> hoặc <strong>Quản trị viên (Admin)</strong> mới có quyền xem chi tiết nhiệm vụ, tiến độ, tài liệu nội bộ và tương tác với dự án này.
+                    </p>
+
+                    ${statusBoxHtml}
+
+                    <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                        ${actionButtonsCta}
+                    </div>
+
+                    ${rolesPreviewHtml}
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Gắn sự kiện cho các nút ứng tuyển từng vị trí
+    contentRow.querySelectorAll('.btn-apply-role').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!currentUser) {
+                promptLoginToJoin();
+                return;
+            }
+            const rName = btn.getAttribute('data-role-name');
+            const joinRoleSelect = document.getElementById('join-role');
+            if (joinRoleSelect && rName) {
+                joinRoleSelect.value = rName;
+            }
+            if (typeof openProjectHubModal === 'function') {
+                openProjectHubModal('#join-modal');
+            } else if (typeof bootstrap !== 'undefined') {
+                const modalEl = document.getElementById('join-modal');
+                if (modalEl) new bootstrap.Modal(modalEl).show();
+            }
+        });
+    });
 }
 
 /**
@@ -1324,7 +1660,7 @@ function createReviewCardElement(rev, sanitize) {
 /**
  * Render danh sách thành viên nhóm (Owner + Members)
  */
-function renderTeamMembersList(project, members, { currentUser, isOwner }) {
+function renderTeamMembersList(project, members, { currentUser, isOwner, isAdmin }) {
     const container = document.getElementById('team-members-list');
     const badgeCount = document.getElementById('team-members-count');
     if (!container) return;
@@ -1372,7 +1708,7 @@ function renderTeamMembersList(project, members, { currentUser, isOwner }) {
                         <a href="profile.html?user=${m.user_id}" class="btn btn-sm btn-light border p-1 px-2" title="Xem hồ sơ">
                             <i class="bi bi-person"></i>
                         </a>
-                        ${isOwner ? `
+                        ${(isOwner || isAdmin) ? `
                         <button class="btn btn-sm btn-outline-danger p-1 px-2" title="Xóa khỏi team" onclick="removeTeamMember('${project.id}', '${m.user_id}', '${mName}')">
                             <i class="bi bi-trash"></i>
                         </button>` : ''}
@@ -1392,7 +1728,7 @@ function renderTeamMembersList(project, members, { currentUser, isOwner }) {
 /**
  * Render nút thao tác động trên Project Detail
  */
-function renderActionButtons(project, { currentUser, isOwner, isMember, isProjectFull, myLatestRequest }) {
+function renderActionButtons(project, { currentUser, isOwner, isMember, isAdmin, isProjectFull, myLatestRequest }) {
     const actionButtons = document.getElementById('action-buttons');
     if (!actionButtons) return;
 
@@ -1421,6 +1757,38 @@ function renderActionButtons(project, { currentUser, isOwner, isMember, isProjec
                 showConfirmModal(
                     'Xóa dự án',
                     `Bạn có chắc muốn xóa dự án "${project.title}"? Hành động này không thể hoàn tác.`,
+                    () => deleteProjectAndRedirect(project.id)
+                );
+            } else if (confirm(`Xóa dự án "${project.title}"? Không thể hoàn tác!`)) {
+                deleteProjectAndRedirect(project.id);
+            }
+        });
+    } else if (isAdmin) {
+        // 1.5. Trường hợp là ADMIN (Quản trị viên)
+        actionButtons.innerHTML = `
+            <a href="workspace.html?id=${project.id}" class="btn btn-success">
+                <i class="bi bi-kanban me-1"></i>Workspace (Admin)
+            </a>
+            <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+            <span class="badge bg-danger text-white d-flex align-items-center p-2 px-3 fs-6">
+                <i class="bi bi-shield-check me-1"></i>Quản trị viên
+            </span>
+            <a href="edit-project.html?id=${project.id}" class="btn btn-outline-warning">
+                <i class="bi bi-pencil-square me-1"></i>Sửa (Admin)
+            </a>
+            <button class="btn btn-outline-danger" id="btn-delete-project">
+                <i class="bi bi-trash me-1"></i>Xóa
+            </button>
+            <a href="#owner-requests-card" class="btn btn-primary" onclick="document.getElementById('owner-requests-card')?.scrollIntoView({behavior:'smooth'})">
+                <i class="bi bi-people me-1"></i>Quản lý thành viên
+            </a>
+        `;
+
+        document.getElementById('btn-delete-project')?.addEventListener('click', () => {
+            if (typeof showConfirmModal === 'function') {
+                showConfirmModal(
+                    'Xóa dự án (Admin)',
+                    `Bạn có chắc muốn xóa dự án "${project.title}" với tư cách Quản trị viên? Hành động này không thể hoàn tác.`,
                     () => deleteProjectAndRedirect(project.id)
                 );
             } else if (confirm(`Xóa dự án "${project.title}"? Không thể hoàn tác!`)) {
@@ -2423,8 +2791,10 @@ async function initEditProjectPage() {
             return;
         }
 
-        // Ownership check
-        if (project.owner_id !== currentUser.id) {
+        // Ownership & Admin check
+        const currentProfile = typeof getCurrentProfile === 'function' ? await getCurrentProfile() : null;
+        const isAdmin = checkIsAdmin(currentUser, currentProfile);
+        if (!isAdmin && project.owner_id !== currentUser.id) {
             if (container) container.innerHTML = '<div class="alert alert-danger mt-5 text-center">Bạn không có quyền chỉnh sửa dự án này.</div>';
             return;
         }
@@ -2938,10 +3308,10 @@ async function loadDashboardRecommendedProjects(profile) {
  
 function bootProjectsApp() {
     const page = window.location.pathname.split('/').pop() || 'index.html';
-    if (page === 'projects.html' || document.getElementById('projects-grid')) initProjectsPage();
-    if (page === 'project-detail.html' || document.getElementById('project-detail-container')) initProjectDetailPage();
-    if (page === 'create-project.html' || document.getElementById('create-project-form')) initCreateProjectPage();
-    if (page === 'edit-project.html' || document.getElementById('edit-project-form')) initEditProjectPage();
+    if (page === 'projects.html' || page === 'projects' || document.getElementById('projects-grid')) initProjectsPage();
+    if (page === 'project-detail.html' || page === 'project-detail' || document.getElementById('project-detail-container') || document.querySelector('[data-page="project-detail"]')) initProjectDetailPage();
+    if (page === 'create-project.html' || page === 'create-project' || document.getElementById('create-project-form')) initCreateProjectPage();
+    if (page === 'edit-project.html' || page === 'edit-project' || document.getElementById('edit-project-form')) initEditProjectPage();
 }
 
 if (document.readyState === 'loading') {
@@ -2961,4 +3331,6 @@ window.removeTeamMember = removeTeamMember;
 window.leaveTeamMember = leaveTeamMember;
 window.promptLoginToJoin = promptLoginToJoin;
 window.sanitizeHTML = sanitizeHTML;
+window.checkIsAdmin = checkIsAdmin;
+window.renderRestrictedDetailPage = renderRestrictedDetailPage;
 
