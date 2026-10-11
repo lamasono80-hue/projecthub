@@ -114,7 +114,16 @@
     <div id="navbar-placeholder"></div>
     <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;" aria-live="polite" aria-atomic="true"></div>
 
-    <main id="main-content" class="container py-4 flex-grow-1" data-page="project-detail">
+    <!-- Auth Gate Loader -->
+    <div id="project-auth-loader" class="container py-5 my-5 text-center">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Đang tải...</span>
+        </div>
+        <h5 class="fw-bold text-dark" style="font-family: 'Manrope', sans-serif;">Đang xác thực quyền truy cập dự án...</h5>
+        <p class="text-muted small">Chỉ người dùng đã đăng nhập mới có quyền xem thông tin dự án.</p>
+    </div>
+
+    <main id="main-content" class="container py-4 flex-grow-1" data-page="project-detail" style="display: none;">
         <!-- Breadcrumb -->
         <nav aria-label="Đường dẫn trang" class="mb-3">
             <ol class="breadcrumb mb-0">
@@ -377,40 +386,10 @@
                             </form>
                         </div>
 
-                        <!-- Community Reviews List -->
+                        <!-- Community Reviews List (Populated dynamically) -->
                         <div class="d-flex flex-column gap-3" id="community-reviews-list">
-                            <!-- Review 1 -->
-                            <div class="p-3 rounded-3 border bg-white review-card-item">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <img src="https://ui-avatars.com/api/?name=Tran+Minh&background=4F46E5&color=fff&size=64" width="36" height="36" class="rounded-circle" alt="Avatar">
-                                        <div>
-                                            <div class="fw-semibold text-dark small">Trần Nhật Minh</div>
-                                            <div class="text-muted" style="font-size: 0.75rem;">Frontend Developer • Đại học Bách Khoa</div>
-                                        </div>
-                                    </div>
-                                    <div class="text-warning small">
-                                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                                    </div>
-                                </div>
-                                <p class="text-secondary small mb-0">Ý tưởng dự án cực kỳ thiết thực cho sinh viên. Trưởng nhóm phân chia task trên Kanban rất rõ ràng, review code nhanh và giải quyết khúc mắc kịp thời!</p>
-                            </div>
-
-                            <!-- Review 2 -->
-                            <div class="p-3 rounded-3 border bg-white review-card-item">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <img src="https://ui-avatars.com/api/?name=Le+Thu&background=10B981&color=fff&size=64" width="36" height="36" class="rounded-circle" alt="Avatar">
-                                        <div>
-                                            <div class="fw-semibold text-dark small">Lê Thu Hà</div>
-                                            <div class="text-muted" style="font-size: 0.75rem;">UI/UX Designer • ĐH FPT</div>
-                                        </div>
-                                    </div>
-                                    <div class="text-warning small">
-                                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-                                    </div>
-                                </div>
-                                <p class="text-secondary small mb-0">Tech stack hiện đại, tài liệu kiến trúc dự án chỉn chu. Mình học hỏi được rất nhiều về quy trình làm việc nhóm thực chiến khi tham gia dự án này.</p>
+                            <div class="text-center py-3 text-muted small">
+                                <i class="bi bi-chat-left-dots me-1"></i> Chưa có đánh giá nào cho dự án này.
                             </div>
                         </div>
                     </div>

@@ -57,7 +57,8 @@ async function initDashboardUser() {
     const authUser = typeof getCurrentUser === 'function' ? await getCurrentUser() : null;
 
     if (!profile && !authUser) {
-      console.warn('[Dashboard] Chưa có session đăng nhập hợp lệ.');
+      console.warn('[Dashboard] Chưa có session đăng nhập hợp lệ. Chuyển hướng login.');
+      window.location.href = 'login.html?redirect=dashboard.html';
       return;
     }
 

@@ -191,10 +191,28 @@ function getDB() {
 // ─── PROJECT LIST PAGE ─────────────────────────────────────────────────────────
 
 async function initProjectsPage() {
+    const authLoader  = document.getElementById('projects-auth-loader');
+    const mainContent = document.getElementById('main-content');
     const grid        = document.getElementById('projects-grid');
     const emptyState  = document.getElementById('empty-state');
     const resultsInfo = document.getElementById('results-info');
     const pagination  = document.getElementById('pagination');
+
+    // Strict Auth Guard: Bắt buộc đăng nhập mới được xem danh sách dự án
+    let currentUser = null;
+    try {
+        if (typeof getCurrentUser === 'function') {
+            currentUser = await getCurrentUser();
+        }
+    } catch (_) {}
+
+    if (!currentUser) {
+        window.location.href = 'login.html?redirect=projects.html';
+        return;
+    }
+
+    if (authLoader) authLoader.style.display = 'none';
+    if (mainContent) mainContent.style.display = 'block';
 
     if (!grid) return;
 
@@ -662,9 +680,29 @@ function checkIsAdmin(user, profile) {
 }
 
 async function initProjectDetailPage() {
-    const container = document.querySelector('.container');
+    const authLoader = document.getElementById('project-auth-loader');
+    const mainContent = document.getElementById('main-content');
+    const container = document.querySelector('.container') || mainContent;
     const urlParams = new URLSearchParams(window.location.search);
     let projectId = urlParams.get('id');
+
+    // 1. Strict Auth Guard: Bắt buộc đăng nhập mới được xem chi tiết dự án
+    let currentUser = null;
+    let currentProfile = null;
+    try {
+        if (typeof getCurrentUser === 'function') {
+            currentUser = await getCurrentUser();
+        }
+        if (currentUser && typeof getCurrentProfile === 'function') {
+            currentProfile = await getCurrentProfile();
+        }
+    } catch (_) {}
+
+    if (!currentUser) {
+        const targetUrl = (window.location.pathname.split('/').pop() || 'project-detail.html') + window.location.search;
+        window.location.href = `login.html?redirect=${encodeURIComponent(targetUrl)}`;
+        return;
+    }
 
     // Nếu không có id trên URL, tự động fallback về dự án mới nhất để tránh báo lỗi khi truy cập trực tiếp
     if (!projectId) {
@@ -683,6 +721,8 @@ async function initProjectDetailPage() {
     }
 
     if (!projectId) {
+        if (authLoader) authLoader.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'block';
         if (container) container.innerHTML = '<div class="alert alert-danger mt-5 text-center">Thiếu ID dự án.</div>';
         return;
     }
@@ -704,6 +744,8 @@ async function initProjectDetailPage() {
             .single();
 
         if (projErr || !project) {
+            if (authLoader) authLoader.style.display = 'none';
+            if (mainContent) mainContent.style.display = 'block';
             if (container) container.innerHTML = '<div class="alert alert-danger mt-5 text-center">Không tìm thấy dự án hoặc bạn không có quyền xem.</div>';
             return;
         }
@@ -726,20 +768,14 @@ async function initProjectDetailPage() {
             .eq('status', 'active')
             .order('joined_at', { ascending: true });
 
-        // 4. Lấy current user session & profile
-        let currentUser = null;
-        let currentProfile = null;
-        if (typeof getCurrentUser === 'function') {
-            currentUser = await getCurrentUser();
-        }
-        if (currentUser && typeof getCurrentProfile === 'function') {
-            currentProfile = await getCurrentProfile();
-        }
-
         const isOwner = currentUser && currentUser.id === project.owner_id;
         const isMember = currentUser && Array.isArray(members) && members.some(m => m.user_id === currentUser.id);
         const isAdmin = checkIsAdmin(currentUser, currentProfile);
         const hasAccess = isOwner || isMember || isAdmin;
+
+        // Hide auth loader and reveal main content
+        if (authLoader) authLoader.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'block';
 
         // 5. Nếu là Owner hoặc Admin: tải danh sách pending join requests
         let pendingRequests = [];
@@ -799,6 +835,8 @@ async function initProjectDetailPage() {
 
     } catch (err) {
         console.error('Detail page error:', err);
+        if (authLoader) authLoader.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'block';
         if (container) container.innerHTML = `<div class="alert alert-danger mt-5 text-center">Lỗi: ${sanitizeHTML(err.message)}</div>`;
     }
 }

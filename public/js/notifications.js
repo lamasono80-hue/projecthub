@@ -445,11 +445,14 @@
      */
     let _isInitializingNotifications = false;
     async function initNotificationSystem() {
-        if (_isInitializingNotifications) return;
-        _isInitializingNotifications = true;
         try {
             const currentUser = typeof window.getCurrentUser === 'function' ? await window.getCurrentUser() : null;
-            if (!currentUser) return;
+            if (!currentUser) {
+                if (window.location.pathname.includes('notifications.html') || window.location.pathname.endsWith('/notifications')) {
+                    window.location.href = 'login.html?redirect=notifications.html';
+                }
+                return;
+            }
 
             // 1. Tải unread count & hiển thị badge
             const count = await getUnreadNotificationCount();

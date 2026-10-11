@@ -13,7 +13,7 @@ const STORAGE_KEYS = {
     SETTINGS: 'ph_settings'
 };
 
-const PROTECTED_PAGES = ['dashboard.html', 'workspace.html', 'create-project.html', 'edit-project.html', 'profile.html', 'portfolio.html'];
+const PROTECTED_PAGES = ['dashboard.html', 'workspace.html', 'create-project.html', 'edit-project.html', 'profile.html', 'portfolio.html', 'projects.html', 'project-detail.html', 'notifications.html'];
 
 // ============================================================
 // ============================================================
@@ -164,6 +164,7 @@ async function initApp() {
 async function checkAuthGuard() {
     const pathname = window.location.pathname;
     const currentPage = pathname === '/' || pathname === '' ? 'index.html' : pathname.split('/').pop() || 'index.html';
+    const targetUrl = currentPage + (window.location.search || '');
     
     const isProtected = PROTECTED_PAGES.some(p => currentPage.includes(p));
     if (!isProtected) return true;
@@ -179,7 +180,7 @@ async function checkAuthGuard() {
     if (typeof getCurrentSession === 'function') {
         const session = await getCurrentSession();
         if (!session) {
-            window.location.href = `login.html?redirect=${encodeURIComponent(currentPage)}`;
+            window.location.href = `login.html?redirect=${encodeURIComponent(targetUrl)}`;
             return false;
         }
         return true;

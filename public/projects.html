@@ -205,10 +205,20 @@
         Bỏ qua đến nội dung chính
     </a>
 
+    <!-- Unified Navbar -->
     <div id="navbar-placeholder"></div>
     <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" aria-live="polite" aria-atomic="true"></div>
 
-    <main id="main-content" class="container-xl py-4">
+    <!-- Auth Gate Loader -->
+    <div id="projects-auth-loader" class="container py-5 my-5 text-center">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Đang tải...</span>
+        </div>
+        <h5 class="fw-bold text-dark" style="font-family: 'Manrope', sans-serif;">Đang xác thực quyền truy cập...</h5>
+        <p class="text-muted small">Vui lòng đăng nhập để khám phá các dự án trên ProjectHub.</p>
+    </div>
+
+    <main id="main-content" class="container-xl py-4" style="display: none;">
         <!-- Page Header -->
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>

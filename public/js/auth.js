@@ -312,7 +312,7 @@ async function logout() {
 async function requireAuth() {
   const session = await getCurrentSession();
   if (!session) {
-    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const currentPath = (window.location.pathname.split('/').pop() || 'index.html') + window.location.search;
     window.location.href = `login.html?redirect=${encodeURIComponent(currentPath)}`;
     return false;
   }
