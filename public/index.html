@@ -1377,18 +1377,22 @@
             counters.forEach(counter => { observer.observe(counter); });
         }
 
-        function animateCounter(el, target, duration = 1600) {
-            let start = 0;
-            const increment = target / (duration / 16);
-            const timer = setInterval(() => {
-                start += increment;
-                if (start >= target) {
-                    el.innerText = target.toLocaleString('vi-VN');
-                    clearInterval(timer);
+        function animateCounter(el, target, duration = 1400) {
+            const startTime = performance.now();
+            function update(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // easeOutQuad easing
+                const factor = 1 - (1 - progress) * (1 - progress);
+                const current = Math.floor(factor * target);
+                el.innerText = current.toLocaleString('vi-VN');
+                if (progress < 1) {
+                    requestAnimationFrame(update);
                 } else {
-                    el.innerText = Math.floor(start).toLocaleString('vi-VN');
+                    el.innerText = target.toLocaleString('vi-VN');
                 }
-            }, 16);
+            }
+            requestAnimationFrame(update);
         }
 
         function setupHeroTypewriter() {

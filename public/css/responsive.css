@@ -56,12 +56,17 @@ img, video, canvas, svg {
     justify-content: center;
   }
   .navbar-collapse {
-    background: #ffffff;
+    background: var(--surface, #ffffff);
     border-radius: var(--radius-md, 14px);
     box-shadow: var(--shadow-lg, 0 10px 25px rgba(0,0,0,0.1));
     padding: 1rem;
     margin-top: 0.75rem;
     border: 1px solid var(--border, #E2E8F0);
+  }
+  [data-theme="dark"] .navbar-collapse {
+    background: var(--surface, #1E293B) !important;
+    border-color: var(--border, #334155) !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important;
   }
   .navbar-nav .nav-link {
     padding: 0.75rem 0.5rem;
@@ -71,6 +76,10 @@ img, video, canvas, svg {
     min-height: 44px;
     display: flex;
     align-items: center;
+  }
+  [data-theme="dark"] .navbar-nav .nav-link {
+    color: var(--text, #F8FAFC) !important;
+    border-bottom-color: var(--border, #334155) !important;
   }
   /* Guest action buttons: 2 equal touch buttons side by side */
   .navbar-auth-buttons {
@@ -107,53 +116,81 @@ img, video, canvas, svg {
 
   /* --- Section 1: Hero Section --- */
   .hero-section {
-    padding: 36px 0 28px !important;
+    padding: 32px 0 24px !important;
     min-height: auto !important;
   }
   .hero-eyebrow {
-    font-size: 11.5px !important;
-    padding: 4px 10px !important;
+    font-size: 12px !important;
+    padding: 5px 12px !important;
     max-width: 100%;
     flex-wrap: wrap;
     justify-content: center;
   }
   .hero-title {
-    font-size: clamp(1.85rem, 7.5vw, 2.45rem) !important;
-    line-height: 1.22 !important;
+    font-size: clamp(1.75rem, 6.8vw, 2.25rem) !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.015em !important;
     margin-bottom: 0.75rem !important;
   }
   .hero-section .lead {
     font-size: 0.95rem !important;
-    line-height: 1.55 !important;
+    line-height: 1.6 !important;
     margin-bottom: 1.15rem !important;
   }
   .hero-cta-btn, .hero-section .btn {
     width: 100% !important;
     min-height: 48px !important;
+    font-size: 0.98rem !important;
+    border-radius: 12px !important;
     justify-content: center;
   }
   .hero-quick-stats {
-    margin-top: 1rem !important;
+    margin-top: 1.25rem !important;
     padding-top: 1rem !important;
   }
   .hero-stat-pill {
-    padding: 6px 6px !important;
+    padding: 8px 10px !important;
     min-width: 0 !important;
-    gap: 4px !important;
+    gap: 6px !important;
+    border-radius: 12px !important;
   }
   .hero-stat-pill i {
-    font-size: 1.1rem !important;
+    font-size: 1.25rem !important;
   }
   .hero-stat-pill .fs-6 {
-    font-size: 0.85rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
   }
   .hero-stat-pill small {
-    font-size: 9px !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+  }
+
+  /* Neon Search Form on Mobile */
+  .hero-neon-search-form {
+    margin-bottom: 1.25rem !important;
+  }
+  .neon-search-inner {
+    padding: 6px 10px !important;
+    gap: 6px !important;
+    border-radius: 12px !important;
+  }
+  .neon-search-input {
+    font-size: 0.88rem !important;
+  }
+  .neon-search-input::placeholder {
+    font-size: 0.84rem !important;
+  }
+  .neon-search-btn {
+    padding: 6px 12px !important;
+    font-size: 0.82rem !important;
+    flex-shrink: 0;
   }
 
   /* --- Hero Kanban Mockup on Mobile --- */
   .mockup-card {
-    padding: 14px 10px !important;
+    padding: 16px 12px !important;
+    border-radius: 16px !important;
     transform: none !important;
     margin-top: 1.25rem !important;
   }
@@ -162,122 +199,181 @@ img, video, canvas, svg {
     overflow-x: auto !important;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    gap: 10px;
-    padding-bottom: 8px;
+    gap: 12px !important;
+    padding-bottom: 10px !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
   }
   .mockup-column-item {
-    flex: 0 0 78% !important;
-    min-width: 200px !important;
-    max-width: 260px !important;
+    flex: 0 0 84% !important;
+    min-width: 230px !important;
+    max-width: 285px !important;
     scroll-snap-align: center;
     padding: 0 !important;
   }
   .mockup-col {
     min-height: 220px !important;
-    padding: 8px !important;
+    padding: 10px !important;
+    border-radius: 12px !important;
   }
   .mockup-task {
-    padding: 8px !important;
-    margin-bottom: 6px !important;
+    padding: 10px 9px !important;
+    margin-bottom: 8px !important;
+    border-radius: 10px !important;
   }
   .mockup-floating-badge {
     position: relative !important;
     bottom: auto !important;
     left: auto !important;
     right: auto !important;
-    margin-top: 12px;
+    margin-top: 14px;
     width: 100% !important;
-    font-size: 11px !important;
+    font-size: 11.5px !important;
     animation: none !important;
   }
 
   /* --- Section 2: University Chips --- */
   .uni-chip {
-    font-size: 11.5px !important;
-    padding: 4px 10px !important;
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+    border-radius: 50px !important;
   }
 
   /* --- Section 3: Features --- */
   .feature-card {
-    padding: 18px 14px !important;
+    padding: 20px 16px !important;
+    border-radius: 16px !important;
+  }
+  .feature-card h3 {
+    font-size: 1.15rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  .feature-card p {
+    font-size: 0.92rem !important;
+    line-height: 1.55 !important;
   }
   .icon-box {
-    width: 42px !important;
-    height: 42px !important;
-    font-size: 18px !important;
-    margin-bottom: 12px !important;
+    width: 46px !important;
+    height: 46px !important;
+    font-size: 20px !important;
+    border-radius: 12px !important;
+    margin-bottom: 14px !important;
   }
 
   /* --- Section 4: Featured Projects --- */
+  .project-card {
+    border-radius: 16px !important;
+  }
   .project-card .card-img-top {
-    height: 160px !important;
+    height: 175px !important;
   }
   .project-card .card-body {
-    padding: 1rem !important;
+    padding: 1.1rem !important;
+  }
+  .project-card .card-title {
+    font-size: 1.1rem !important;
+  }
+  .project-card .card-text {
+    font-size: 0.88rem !important;
+    line-height: 1.5 !important;
   }
 
   /* --- Section 5: Choice CTA --- */
   .choice-card {
-    padding: 24px 16px !important;
+    padding: 26px 18px !important;
+    border-radius: 18px !important;
+    text-align: center;
   }
   .choice-card .display-4 {
-    font-size: 2.25rem !important;
+    font-size: 2.2rem !important;
+  }
+  .choice-card h3 {
+    font-size: 1.3rem !important;
+  }
+  .choice-card p {
+    font-size: 0.94rem !important;
+    line-height: 1.55 !important;
   }
   .choice-card .btn {
-    min-height: 46px;
+    min-height: 48px !important;
+    font-size: 1rem !important;
+    border-radius: 12px !important;
   }
 
   /* --- Section 6: How It Works --- */
   .step-number {
-    font-size: 40px !important;
-    top: -8px !important;
-    left: 8px !important;
+    font-size: 38px !important;
+    top: -6px !important;
+    left: 12px !important;
   }
   .step-content {
-    padding: 14px 10px !important;
+    padding: 20px 16px !important;
+    border-radius: 16px !important;
+  }
+  .step-content h3 {
+    font-size: 1.15rem !important;
+  }
+  .step-content p {
+    font-size: 0.92rem !important;
+    line-height: 1.55 !important;
   }
 
   /* --- Section 7: Community Stats --- */
   .stat-card {
-    padding: 16px 8px !important;
+    padding: 18px 12px !important;
+    border-radius: 14px !important;
   }
   .stat-icon-wrapper {
-    width: 40px !important;
-    height: 40px !important;
-    margin-bottom: 8px !important;
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 20px !important;
+    border-radius: 12px !important;
+    margin-bottom: 10px !important;
   }
   .stat-card .display-5 {
-    font-size: clamp(1.35rem, 5vw, 1.75rem) !important;
+    font-size: clamp(1.4rem, 5.5vw, 1.85rem) !important;
+    font-weight: 800 !important;
   }
   .stat-card .small {
-    font-size: 11px !important;
-    line-height: 1.35 !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
   }
 
   /* --- Section 8: Testimonials --- */
   .testimonial-card, #testimonials .card {
     padding: 18px 14px !important;
   }
+  .testimonial-marquee-card {
+    width: 290px !important;
+    padding: 1.15rem !important;
+    border-radius: 14px !important;
+  }
 
   /* --- Section 9: Final CTA Banner --- */
   .final-cta {
-    padding: 36px 16px !important;
-    margin: 24px 0 !important;
-    border-radius: var(--radius-lg, 16px) !important;
+    padding: 36px 18px !important;
+    margin: 20px 0 !important;
+    border-radius: 20px !important;
+    text-align: center;
   }
   .final-cta .display-5 {
-    font-size: clamp(1.5rem, 6vw, 2rem) !important;
-    margin-bottom: 0.75rem !important;
+    font-size: clamp(1.5rem, 6.5vw, 2.1rem) !important;
+    line-height: 1.25 !important;
+    margin-bottom: 0.85rem !important;
   }
   .final-cta .lead {
     font-size: 0.95rem !important;
-    margin-bottom: 1.25rem !important;
+    line-height: 1.6 !important;
+    margin-bottom: 1.4rem !important;
   }
   .final-cta .btn {
     width: 100% !important;
-    min-height: 48px !important;
+    min-height: 50px !important;
+    font-size: 1.05rem !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   /* --- Projects Page: Filter controls row --- */
