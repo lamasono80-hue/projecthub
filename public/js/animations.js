@@ -57,9 +57,18 @@
     _revealObserver = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          entry.target.setAttribute('data-animated', 'true');
-          obs.unobserve(entry.target);
+          const target = entry.target;
+          target.classList.add('is-visible');
+          target.setAttribute('data-animated', 'true');
+
+          // Free GPU layer memory after transition completes
+          const onTransitionEnd = () => {
+            target.style.willChange = 'auto';
+            target.removeEventListener('transitionend', onTransitionEnd);
+          };
+          target.addEventListener('transitionend', onTransitionEnd, { once: true });
+
+          obs.unobserve(target);
         }
       });
     }, { rootMargin: '0px 0px -40px 0px', threshold: 0.08 });
@@ -80,6 +89,8 @@
       el.setAttribute('data-reveal', attr);
     }
 
+    // Hardware accelerate element right before scrolling into view
+    el.style.willChange = 'transform, opacity';
     getRevealObserver().observe(el);
   }
 
@@ -245,7 +256,7 @@
     }, 220);
   };
 
-  /* ─── 7. COUNT-UP FOR STAT COUNTERS ─────────────────────────── */
+  /* ─── 7. COUNT-UP FOR STAT COUNTERS (60FPS rAF) ─────────────── */
   function initCounters() {
     const counters = document.querySelectorAll('.stat-counter[data-target]');
     if (!counters.length) return;
@@ -263,18 +274,24 @@
         if (!entry.isIntersecting) return;
         const el     = entry.target;
         const target = parseInt(el.getAttribute('data-target'), 10) || 0;
-        let start    = 0;
-        const duration = 1600;
-        const step   = target / (duration / 16);
-        const timer  = setInterval(() => {
-          start += step;
-          if (start >= target) {
-            el.innerText = target.toLocaleString('vi-VN');
-            clearInterval(timer);
+        const startTime = performance.now();
+        const duration = 1200;
+
+        function updateCounter(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease-out cubic: 1 - Math.pow(1 - progress, 3)
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          const current = Math.floor(easeOut * target);
+          el.innerText = current.toLocaleString('vi-VN');
+          if (progress < 1) {
+            requestAnimationFrame(updateCounter);
           } else {
-            el.innerText = Math.floor(start).toLocaleString('vi-VN');
+            el.innerText = target.toLocaleString('vi-VN');
           }
-        }, 16);
+        }
+
+        requestAnimationFrame(updateCounter);
         obs.unobserve(el);
       });
     }, { threshold: 0.3 });

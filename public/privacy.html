@@ -378,32 +378,28 @@
         }
       }
 
-      function onScroll() {
-        const scrollY = window.scrollY;
-        const windowHeight = window.innerHeight;
-        const docHeight = document.documentElement.scrollHeight;
-
-        if (scrollY + windowHeight >= docHeight - 80) {
-          setActiveSection(sectionMeta[sectionMeta.length - 1].id);
-          return;
-        }
-
-        let currentId = sectionMeta[0].id;
-        for (let i = 0; i < sections.length; i++) {
-          const sec = sections[i];
-          const rect = sec.getBoundingClientRect();
-          if (rect.top <= 140) {
-            currentId = sec.id;
+      // 60fps Scroll Spy via IntersectionObserver
+      const spyObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
           }
-        }
-        setActiveSection(currentId);
-      }
+        });
+      }, {
+        root: null,
+        rootMargin: '-80px 0px -65% 0px',
+        threshold: 0
+      });
+
+      sections.forEach(sec => spyObserver.observe(sec));
 
       let isTicking = false;
       window.addEventListener('scroll', () => {
         if (!isTicking) {
           window.requestAnimationFrame(() => {
-            onScroll();
+            if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 60) {
+              setActiveSection(sectionMeta[sectionMeta.length - 1].id);
+            }
             isTicking = false;
           });
           isTicking = true;
@@ -426,7 +422,9 @@
         });
       });
 
-      onScroll();
+      if (sections.length > 0) {
+        setActiveSection(sections[0].id);
+      }
     });
   </script>
 </body>
