@@ -32,7 +32,33 @@ async function getCurrentSession() {
   try {
     const client = await getClient();
     if (!client) return null;
-    const { data: { session }, error } = await client.auth.getSession();
+
+    // Kiểm tra xem URL có chứa OAuth token/code đang chờ xử lý hay không
+    const hasOAuthHash = typeof window !== 'undefined' && window.location.hash && (window.location.hash.includes('access_token=') || window.location.hash.includes('refresh_token='));
+    const hasOAuthCode = typeof window !== 'undefined' && window.location.search && window.location.search.includes('code=');
+
+    let { data: { session }, error } = await client.auth.getSession();
+
+    // Nếu session chưa kịp nạp vào localStorage nhưng URL đang có OAuth tokens -> đợi tối đa 2.5s
+    if (!session && (hasOAuthHash || hasOAuthCode)) {
+      session = await new Promise((resolve) => {
+        const timer = setTimeout(() => resolve(null), 2500);
+        try {
+          const { data: authSub } = client.auth.onAuthStateChange((event, newSession) => {
+            if (newSession) {
+              clearTimeout(timer);
+              if (authSub && authSub.subscription && typeof authSub.subscription.unsubscribe === 'function') {
+                authSub.subscription.unsubscribe();
+              }
+              resolve(newSession);
+            }
+          });
+        } catch (_) {
+          // Fallback nếu onAuthStateChange gặp lỗi
+        }
+      });
+    }
+
     if (error) {
       console.warn('[Auth] Lỗi lấy session:', error.message);
       return null;
@@ -187,6 +213,10 @@ async function loginWithGoogle() {
         }
       }
     }
+
+    // Lưu trang đích dự kiến để chuyển hướng sau khi hoàn tất OAuth
+    localStorage.setItem('ph_oauth_redirect', cleanTarget);
+
     const redirectTo = `${window.location.origin}/${cleanTarget}`;
 
     const { data, error } = await client.auth.signInWithOAuth({
@@ -195,7 +225,7 @@ async function loginWithGoogle() {
         redirectTo: redirectTo,
         queryParams: {
           access_type: 'offline',
-          prompt: 'consent',
+          prompt: 'select_account',
         },
       },
     });
@@ -211,6 +241,88 @@ async function loginWithGoogle() {
     console.error('[Auth] Exception loginWithGoogle:', err);
     showToastMsg('Không thể mở đăng nhập Google.', 'error');
     return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Xử lý kết quả OAuth callback (lỗi hoặc thành công) từ Google/Supabase
+ */
+async function handleOAuthCallback() {
+  if (typeof window === 'undefined') return;
+
+  const hash = window.location.hash || '';
+  const search = window.location.search || '';
+
+  // 1. Bắt lỗi trả về từ OAuth (VD: xung đột email đã tồn tại, hủy cấp quyền, redirect mismatch)
+  let errorParam = '';
+  let errorDesc = '';
+
+  if (hash.includes('error=')) {
+    const hashParams = new URLSearchParams(hash.replace(/^#/, ''));
+    errorParam = hashParams.get('error') || '';
+    errorDesc = hashParams.get('error_description') || hashParams.get('error_code') || '';
+  } else if (search.includes('error=')) {
+    const searchParams = new URLSearchParams(search);
+    errorParam = searchParams.get('error') || '';
+    errorDesc = searchParams.get('error_description') || searchParams.get('error_code') || '';
+  }
+
+  if (errorParam || errorDesc) {
+    console.warn('[Auth] OAuth error callback:', errorParam, errorDesc);
+    let friendlyMsg = 'Đăng nhập Google không thành công.';
+
+    const lower = (errorDesc || errorParam).toLowerCase();
+    if (lower.includes('user already registered') || lower.includes('already exists') || lower.includes('email_exists')) {
+      friendlyMsg = 'Email Google này đã được đăng ký bằng Mật khẩu trước đó. Vui lòng nhập mật khẩu bên dưới để đăng nhập hoặc liên kết tài khoản.';
+    } else if (lower.includes('access_denied') || lower.includes('consent_required')) {
+      friendlyMsg = 'Bạn đã hủy yêu cầu đăng nhập bằng tài khoản Google.';
+    } else if (lower.includes('redirect_uri_mismatch') || lower.includes('redirect_uri')) {
+      friendlyMsg = 'Lỗi cấu hình Redirect URI: Vui lòng thêm URL trang web vào mục Redirect URLs trong Supabase Dashboard.';
+    } else if (lower.includes('database error')) {
+      friendlyMsg = 'Hệ thống đang đồng bộ hồ sơ. Vui lòng bấm Đăng nhập bằng Google lại một lần nữa.';
+    }
+
+    const form = document.getElementById('loginForm') || document.getElementById('registerForm');
+    if (form) {
+      const existingAlert = form.querySelector('.auth-alert');
+      if (existingAlert) existingAlert.remove();
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger alert-dismissible fade show mb-4 auth-alert';
+      alertDiv.innerHTML = `
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Lỗi đăng nhập Google:</strong> ${friendlyMsg}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+      form.insertBefore(alertDiv, form.firstChild);
+    } else {
+      showToastMsg(friendlyMsg, 'error');
+    }
+
+    // Làm sạch hash trên thanh địa chỉ
+    if (window.history && window.history.replaceState) {
+      const cleanPath = window.location.pathname + (window.location.search.replace(/[?&]error[^&]*/g, '') || '');
+      window.history.replaceState(null, '', cleanPath);
+    }
+    return;
+  }
+
+  // 2. Xử lý trường hợp OAuth thành công khi đang ở login.html hoặc register.html
+  const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('register');
+  const hasTokens = hash.includes('access_token=') || search.includes('code=');
+
+  if (isAuthPage && hasTokens) {
+    try {
+      const session = await getCurrentSession();
+      if (session) {
+        const target = localStorage.getItem('ph_oauth_redirect') || 'dashboard.html';
+        localStorage.removeItem('ph_oauth_redirect');
+        showToastMsg('Đăng nhập Google thành công! Đang chuyển hướng...', 'success');
+        setTimeout(() => {
+          window.location.href = target;
+        }, 500);
+      }
+    } catch (e) {
+      console.warn('[Auth] OAuth token check exception:', e);
+    }
   }
 }
 
@@ -380,7 +492,12 @@ function initLoginForm() {
   const form = document.getElementById('loginForm');
   if (!form) return;
 
-  // Kiểm tra nếu đã login thì chuyển về dashboard
+  // 1. Kiểm tra và xử lý callback OAuth từ Google/Supabase
+  if (typeof handleOAuthCallback === 'function') {
+    handleOAuthCallback();
+  }
+
+  // 2. Kiểm tra nếu đã login thì chuyển về dashboard
   redirectIfAuthenticated();
 
   const togglePassword = document.getElementById('togglePassword');
@@ -499,7 +616,21 @@ function initRegisterForm() {
   const form = document.getElementById('registerForm');
   if (!form) return;
 
-  // Kiểm tra nếu đã login thì chuyển về dashboard
+  // 1. Kiểm tra và xử lý callback OAuth từ Google/Supabase
+  if (typeof handleOAuthCallback === 'function') {
+    handleOAuthCallback();
+  }
+
+  // 2. Nút Đăng ký nhanh với Google
+  const btnGoogleRegister = document.getElementById('btnGoogleRegister');
+  if (btnGoogleRegister) {
+    btnGoogleRegister.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await loginWithGoogle();
+    });
+  }
+
+  // 3. Kiểm tra nếu đã login thì chuyển về dashboard
   redirectIfAuthenticated();
 
   const steps = [
@@ -990,3 +1121,19 @@ window.initLoginForm = initLoginForm;
 window.initRegisterForm = initRegisterForm;
 window.loginWithGoogle = loginWithGoogle;
 window.evaluatePasswordStrength = evaluatePasswordStrength;
+window.handleOAuthCallback = handleOAuthCallback;
+
+// Tự động xử lý OAuth tokens hoặc lỗi trả về nếu có trong URL
+if (typeof window !== 'undefined') {
+  const hash = window.location.hash || '';
+  const search = window.location.search || '';
+  if (hash.includes('error=') || search.includes('error=') || hash.includes('access_token=') || search.includes('code=')) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        handleOAuthCallback();
+      });
+    } else {
+      handleOAuthCallback();
+    }
+  }
+}

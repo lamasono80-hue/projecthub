@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    <!-- Trang chủ (Landing Page) -->
+    <url>
+        <loc>https://projecthub-app-e7x1.onrender.com/</loc>
+        <lastmod>2026-10-12</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <!-- Khám phá dự án -->
+    <url>
+        <loc>https://projecthub-app-e7x1.onrender.com/projects.html</loc>
+        <lastmod>2026-10-12</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <!-- Ghép nhóm thông minh AI -->
+    <url>
+        <loc>https://projecthub-app-e7x1.onrender.com/matching.html</loc>
+        <lastmod>2026-10-12</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <!-- Hướng dẫn sử dụng & Cẩm nang onboarding -->
+    <url>
+        <loc>https://projecthub-app-e7x1.onrender.com/guide.html</loc>
+        <lastmod>2026-10-12</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <!-- Câu hỏi thường gặp (FAQ) -->
+    <url>
+        <loc>https://projecthub-app-e7x1.onrender.com/faq.html</loc>
+        <lastmod>2026-10-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <!-- Liên hệ & Hỗ trợ -->
+    <url>
+        <loc>https://projecthub-app-e7x1.onrender.com/contact.html</loc>
+        <lastmod>2026-10-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <!-- Đăng ký tài khoản -->
+    <url>
+        <loc>https://projecthub-app-e7x1.onrender.com/register.html</loc>
+        <lastmod>2026-10-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <!-- Đăng nhập -->
+    <url>
+        <loc>https://projecthub-app-e7x1.onrender.com/login.html</loc>
+        <lastmod>2026-10-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <!-- Chính sách bảo mật -->
+    <url>
+        <loc>https://projecthub-app-e7x1.onrender.com/privacy.html</loc>
+        <lastmod>2026-10-12</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+    <!-- Điều khoản dịch vụ -->
+    <url>
+        <loc>https://projecthub-app-e7x1.onrender.com/terms.html</loc>
+        <lastmod>2026-10-12</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
+    </url>
+</urlset>

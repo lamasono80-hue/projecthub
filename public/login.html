@@ -3,7 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - ProjectHub</title>
+    <title>Đăng nhập tài khoản - ProjectHub</title>
+    <meta name="description" content="Đăng nhập tài khoản ProjectHub để tiếp tục kết nối đồng đội, quản lý dự án Agile Kanban và phát triển sự nghiệp lập trình viên.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://projecthub-app-e7x1.onrender.com/login.html">
+
+    <!-- Google Analytics 4 (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PROJECTHUB"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-PROJECTHUB', { page_path: window.location.pathname });
+    </script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -137,6 +149,9 @@
     <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            if(typeof handleOAuthCallback === 'function') {
+                handleOAuthCallback();
+            }
             if(typeof initLoginForm === 'function') {
                 initLoginForm();
             }

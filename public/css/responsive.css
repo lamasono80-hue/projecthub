@@ -8,14 +8,23 @@
    - Desktop / Large Display: >= 1200px (1440px baseline)
 ============================================================ */
 
-/* --- GLOBAL RESPONSIVE GUARDS --- */
+/* --- GLOBAL RESPONSIVE GUARDS & PERFORMANCE --- */
 html, body {
   max-width: 100vw;
   overflow-x: clip;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+/* Ngăn chặn text/tiêu đề tràn viền trên màn hình di động */
+h1, h2, h3, h4, h5, h6, p, span, a, label, li {
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 img, video, canvas, svg {
@@ -23,10 +32,31 @@ img, video, canvas, svg {
   height: auto;
 }
 
-/* Touch targets: ensure minimum 44px tap area on touch screens */
-@media (pointer: coarse) {
-  .btn, .nav-link, .dropdown-item, .form-control, .form-select, .footer-social-link {
+/* Touch targets: chuẩn WCAG 2.1 AA tối thiểu 44px trên thiết bị cảm ứng và di động */
+@media (max-width: 767.98px), (pointer: coarse) {
+  .btn,
+  .nav-link,
+  .dropdown-item,
+  .form-control,
+  .form-select,
+  .floating-input,
+  .dark-input,
+  .footer-social-link,
+  .theme-switch,
+  .pagination .page-link {
     min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  /* Ngăn chặn iOS Safari tự động phóng to màn hình khi chạm vào ô input (yêu cầu font >= 16px) */
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea,
+  .form-control,
+  .form-select,
+  .floating-input,
+  .dark-input {
+    font-size: 16px !important;
   }
 }
 

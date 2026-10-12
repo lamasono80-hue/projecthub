@@ -1,0 +1,50 @@
+# ============================================================
+# robots.txt — ProjectHub Crawler Directives
+# Domain: https://projecthub-app-e7x1.onrender.com
+# ============================================================
+
+User-agent: *
+
+# Cho phép cào các trang công khai chính
+Allow: /
+Allow: /index.html
+Allow: /projects
+Allow: /projects.html
+Allow: /project-detail
+Allow: /project-detail.html
+Allow: /matching
+Allow: /matching.html
+Allow: /guide
+Allow: /guide.html
+Allow: /faq
+Allow: /faq.html
+Allow: /contact
+Allow: /contact.html
+Allow: /privacy
+Allow: /privacy.html
+Allow: /terms
+Allow: /terms.html
+Allow: /login
+Allow: /login.html
+Allow: /register
+Allow: /register.html
+
+# Chặn bot thu thập dữ liệu các trang yêu cầu xác thực hoặc bảo mật nội bộ
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /dashboard
+Disallow: /dashboard.html
+Disallow: /workspace
+Disallow: /workspace.html
+Disallow: /profile
+Disallow: /profile.html
+Disallow: /create-project
+Disallow: /create-project.html
+Disallow: /edit-project
+Disallow: /edit-project.html
+Disallow: /notifications
+Disallow: /notifications.html
+Disallow: /api/
+
+# Vị trí sơ đồ trang web (Sitemap)
+Sitemap: https://projecthub-app-e7x1.onrender.com/sitemap.xml

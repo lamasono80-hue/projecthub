@@ -39,6 +39,8 @@ app.use(helmet({
         "'unsafe-inline'",                      // Bootstrap inline scripts
         "https://cdn.jsdelivr.net",
         "https://fonts.googleapis.com",
+        "https://www.googletagmanager.com",
+        "https://www.google-analytics.com",
       ],
       styleSrc: [
         "'self'",
@@ -61,11 +63,16 @@ app.use(helmet({
         "https://images.unsplash.com",
         "https://ui-avatars.com",
         "https://avatars.githubusercontent.com",
+        "https://www.google-analytics.com",
+        "https://www.googletagmanager.com",
       ],
       connectSrc: [
         "'self'",
         "https://*.supabase.co",
         "wss://*.supabase.co",                  // Supabase Realtime
+        "https://www.google-analytics.com",
+        "https://analytics.google.com",
+        "https://*.google-analytics.com",
       ],
     },
   },
@@ -172,6 +179,17 @@ app.get('/api/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development',
     timestamp: new Date().toISOString(),
   });
+});
+
+// SEO Crawlers & Sitemaps
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.sendFile(path.join(PUBLIC_DIR, 'robots.txt'));
+});
+
+app.get('/sitemap.xml', (req, res) => {
+  res.type('application/xml');
+  res.sendFile(path.join(PUBLIC_DIR, 'sitemap.xml'));
 });
 
 app.use('/api/ai',       require('./routes/ai'));
