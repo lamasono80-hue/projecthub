@@ -22,6 +22,9 @@ const compression = require('compression');
 
 const app = express();
 
+// Enable trust proxy for Vercel, Render and reverse proxies
+app.set('trust proxy', 1);
+
 // Enable gzip/deflate compression for all HTTP responses >= 1KB
 app.use(compression({ threshold: 1024 }));
 
