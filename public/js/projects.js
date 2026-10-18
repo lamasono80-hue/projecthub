@@ -686,7 +686,7 @@ async function initProjectDetailPage() {
     const urlParams = new URLSearchParams(window.location.search);
     let projectId = urlParams.get('id');
 
-    // 1. Strict Auth Guard: Bắt buộc đăng nhập mới được xem chi tiết dự án
+    // 1. Lấy thông tin user hiện tại nếu có (cho phép khách/người ngoài xem thông tin tổng quan của dự án)
     let currentUser = null;
     let currentProfile = null;
     try {
@@ -697,12 +697,6 @@ async function initProjectDetailPage() {
             currentProfile = await getCurrentProfile();
         }
     } catch (_) {}
-
-    if (!currentUser) {
-        const targetUrl = (window.location.pathname.split('/').pop() || 'project-detail.html') + window.location.search;
-        window.location.href = `login.html?redirect=${encodeURIComponent(targetUrl)}`;
-        return;
-    }
 
     // Nếu không có id trên URL, tự động fallback về dự án mới nhất để tránh báo lỗi khi truy cập trực tiếp
     if (!projectId) {
@@ -757,7 +751,7 @@ async function initProjectDetailPage() {
             .eq('project_id', projectId)
             .order('created_at', { ascending: true });
 
-        // 3. Tải danh sách thành viên hiện tại (project_members)
+        // 3. Tải danh sách thành viên hiện tại (project_members với status active hoặc approved)
         const { data: members } = await supabase
             .from('project_members')
             .select(`
@@ -765,13 +759,17 @@ async function initProjectDetailPage() {
                 profiles:user_id ( id, display_name, avatar_url, username, skills, experience )
             `)
             .eq('project_id', projectId)
-            .eq('status', 'active')
+            .in('status', ['active', 'approved'])
             .order('joined_at', { ascending: true });
 
-        const isOwner = currentUser && currentUser.id === project.owner_id;
-        const isMember = currentUser && Array.isArray(members) && members.some(m => m.user_id === currentUser.id);
+        // 4. Quyền truy cập nội bộ (Chủ dự án, Thành viên đã duyệt hoặc Admin)
+        const isOwner = Boolean(currentUser && currentUser.id === project.owner_id);
+        const isApprovedMember = Boolean(currentUser && Array.isArray(members) && members.some(m => 
+            m.user_id === currentUser.id && (m.status === 'active' || m.status === 'approved')
+        ));
         const isAdmin = checkIsAdmin(currentUser, currentProfile);
-        const hasAccess = isOwner || isMember || isAdmin;
+        const isMember = isApprovedMember;
+        const canAccessInternal = isOwner || isApprovedMember || isAdmin;
 
         // Hide auth loader and reveal main content
         if (authLoader) authLoader.style.display = 'none';
@@ -807,31 +805,21 @@ async function initProjectDetailPage() {
             }
         }
 
-        // 7. KIỂM TRA QUYỀN TRUY CẬP:
-        // Yêu cầu: Chỉ khi nào tham gia mới coi và ấn được, còn lại không tham gia hoặc không phải admin thì không coi được
-        if (!hasAccess) {
-            renderRestrictedDetailPage(project, roles || [], members || [], {
-                currentUser,
-                currentProfile,
-                myLatestRequest,
-                isProjectFull: (members ? members.length : 0) + 1 >= (project.max_members || 5)
-            });
-            return;
-        }
-
-        // 8. Nếu CÓ QUYỀN: Render giao diện chi tiết dự án đầy đủ
+        // 7. Render giao diện chi tiết dự án đầy đủ (với bảo mật từng phần)
         populateDetailPage(project, roles || [], members || [], {
             currentUser,
             currentProfile,
             isOwner,
+            isApprovedMember,
             isMember,
             isAdmin,
+            canAccessInternal,
             myLatestRequest,
             pendingRequests
         });
 
-        // 9. Kích hoạt widgets AI Matching
-        setupDetailMatchingWidget(project, { isOwner, isMember, isAdmin, currentUser, currentProfile });
+        // 8. Kích hoạt widgets AI Matching
+        setupDetailMatchingWidget(project, { isOwner, isApprovedMember, isMember, isAdmin, currentUser, currentProfile });
 
     } catch (err) {
         console.error('Detail page error:', err);
@@ -842,7 +830,7 @@ async function initProjectDetailPage() {
 }
 
 function populateDetailPage(project, roles, members, ctx) {
-    const { currentUser, isOwner, isMember, isAdmin, myLatestRequest, pendingRequests } = ctx;
+    const { currentUser, isOwner, isApprovedMember, isMember, isAdmin, canAccessInternal, myLatestRequest, pendingRequests } = ctx;
 
     const status     = STATUS_MAP[project.status] || STATUS_MAP.recruiting;
     const difficulty = DIFFICULTY_MAP[project.difficulty] || DIFFICULTY_MAP.medium;
@@ -910,9 +898,36 @@ function populateDetailPage(project, roles, members, ctx) {
     const totalMembersCount = (members ? members.length : 0) + 1;
     const isProjectFull = totalMembersCount >= maxMembers;
 
-    // Stats
+    // Stats: Hạn chót & Cảnh báo quá hạn
     const statDeadline = document.getElementById('stat-deadline');
-    if (statDeadline) statDeadline.textContent = project.deadline ? new Date(project.deadline).toLocaleDateString('vi-VN') : 'Không có';
+    if (statDeadline) {
+        if (project.deadline) {
+            const deadlineDate = new Date(project.deadline);
+            if (!isNaN(deadlineDate.getTime())) {
+                const dateStr = deadlineDate.toLocaleDateString('vi-VN');
+                const endOfDay = new Date(deadlineDate);
+                endOfDay.setHours(23, 59, 59, 999);
+                const isOverdue = endOfDay.getTime() < Date.now();
+
+                if (isOverdue) {
+                    statDeadline.innerHTML = `
+                        <div class="d-inline-flex flex-wrap align-items-center justify-content-end gap-1 text-end">
+                            <span class="text-danger fw-semibold">${dateStr}</span>
+                            <span class="badge bg-danger text-white px-2 py-1" style="font-size: 0.72rem; vertical-align: middle;">
+                                <i class="bi bi-exclamation-circle me-1"></i>Đã kết thúc / Quá hạn
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    statDeadline.innerHTML = `<span class="fw-semibold text-dark">${dateStr}</span>`;
+                }
+            } else {
+                statDeadline.textContent = project.deadline;
+            }
+        } else {
+            statDeadline.textContent = 'Không có';
+        }
+    }
     const statMembers = document.getElementById('stat-members');
     if (statMembers) statMembers.textContent = `${totalMembersCount} / ${maxMembers}`;
     const statStatus = document.getElementById('stat-status');
@@ -927,7 +942,7 @@ function populateDetailPage(project, roles, members, ctx) {
     // Tasks / Workspace box on Project Detail
     const projectTasksEl = document.getElementById('project-tasks');
     if (projectTasksEl) {
-        if (isOwner || isMember || isAdmin) {
+        if (canAccessInternal) {
             projectTasksEl.innerHTML = `
                 <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded border">
                     <div>
@@ -960,8 +975,8 @@ function populateDetailPage(project, roles, members, ctx) {
         renderOwnerRequestsList(pendingRequests, project);
     }
 
-    // ── GITHUB REPOSITORY CARD (Phase 7) ──
-    renderProjectGitHubCard(project.github_url, isOwner || isAdmin, project.id);
+    // ── GITHUB REPOSITORY CARD (Bảo mật: Chỉ hiện cho Chủ dự án & Thành viên đã duyệt) ──
+    renderProjectGitHubCard(project.github_url, canAccessInternal, isOwner || isAdmin, project.id);
 
     // ── AI ANALYSIS & RELATED PROJECTS ──
     renderAIAnalysis(project);
@@ -1282,8 +1297,9 @@ function renderRestrictedDetailPage(project, roles, members, ctx) {
 
 /**
  * Render GitHub Repository Card trên trang chi tiết dự án
+ * Bảo mật: Chỉ hiện thông tin & link cho Chủ dự án & Thành viên đã duyệt
  */
-async function renderProjectGitHubCard(githubUrl, isOwner, projectId) {
+async function renderProjectGitHubCard(githubUrl, canAccess, isOwner, projectId) {
     const cardEl = document.getElementById('project-github-card');
     const unlinkedEl = document.getElementById('project-github-unlinked');
     const bodyEl = document.getElementById('project-github-body');
@@ -1308,6 +1324,28 @@ async function renderProjectGitHubCard(githubUrl, isOwner, projectId) {
 
     unlinkedEl.style.display = 'none';
     cardEl.style.display = 'block';
+
+    // KHÓA BẢO MẬT: Nếu là khách hoặc người chưa được duyệt vào dự án:
+    // TUYỆT ĐỐI KHÔNG gắn đường link GitHub thật vào HTML (href) để tránh bị soi code (Inspect Element).
+    if (!canAccess) {
+        if (refreshBtn) refreshBtn.style.display = 'none';
+        bodyEl.innerHTML = `
+            <div class="py-3 px-2 text-center">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2 bg-light text-secondary border" style="width: 44px; height: 44px;">
+                    <i class="bi bi-shield-lock-fill text-muted fs-5"></i>
+                </div>
+                <p class="text-secondary small mb-3 px-2" style="line-height: 1.5;">
+                    🔒 Chỉ chủ dự án và thành viên đã được phê duyệt mới có quyền xem và truy cập Kho mã nguồn GitHub.
+                </p>
+                <button class="btn btn-sm btn-secondary w-100 fw-medium" disabled style="opacity: 0.65; cursor: not-allowed;" title="Bạn cần tham gia dự án để truy cập mã nguồn">
+                    <i class="bi bi-github me-1"></i>Xem trên GitHub
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    if (refreshBtn) refreshBtn.style.display = 'inline-block';
 
     async function fetchAndDisplay(refresh = false) {
         bodyEl.innerHTML = `
@@ -1776,8 +1814,8 @@ function renderActionButtons(project, { currentUser, isOwner, isMember, isAdmin,
             <a href="workspace.html?id=${project.id}" class="btn btn-success">
                 <i class="bi bi-kanban me-1"></i>Workspace
             </a>
-            <button class="btn btn-outline-secondary btn-share-project">
-                <i class="bi bi-share me-1"></i>Chia sẻ
+            <button class="btn btn-outline-secondary btn-share-project" title="Sao chép link dự án để gửi cho bạn bè">
+                <i class="bi bi-link-45deg me-1"></i>🔗 Sao chép link dự án
             </button>
             <a href="edit-project.html?id=${project.id}" class="btn btn-outline-warning">
                 <i class="bi bi-pencil-square me-1"></i>Sửa dự án
@@ -1807,7 +1845,9 @@ function renderActionButtons(project, { currentUser, isOwner, isMember, isAdmin,
             <a href="workspace.html?id=${project.id}" class="btn btn-success">
                 <i class="bi bi-kanban me-1"></i>Workspace (Admin)
             </a>
-            <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+            <button class="btn btn-outline-secondary btn-share-project" title="Sao chép link dự án để gửi cho bạn bè">
+                <i class="bi bi-link-45deg me-1"></i>🔗 Sao chép link dự án
+            </button>
             <span class="badge bg-danger text-white d-flex align-items-center p-2 px-3 fs-6">
                 <i class="bi bi-shield-check me-1"></i>Quản trị viên
             </span>
@@ -1839,7 +1879,9 @@ function renderActionButtons(project, { currentUser, isOwner, isMember, isAdmin,
             <a href="workspace.html?id=${project.id}" class="btn btn-success">
                 <i class="bi bi-kanban me-1"></i>Vào Workspace
             </a>
-            <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+            <button class="btn btn-outline-secondary btn-share-project" title="Sao chép link dự án để gửi cho bạn bè">
+                <i class="bi bi-link-45deg me-1"></i>🔗 Sao chép link dự án
+            </button>
             <span class="badge bg-success d-flex align-items-center p-2 px-3 fs-6">
                 <i class="bi bi-check-circle-fill me-2"></i>Bạn là thành viên
             </span>
@@ -1850,7 +1892,9 @@ function renderActionButtons(project, { currentUser, isOwner, isMember, isAdmin,
     } else if (myLatestRequest && myLatestRequest.status === 'pending') {
         // 3. Trường hợp ĐÃ GỬI YÊU CẦU VÀ ĐANG CHỜ DUYỆT (PENDING)
         actionButtons.innerHTML = `
-            <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+            <button class="btn btn-outline-secondary btn-share-project" title="Sao chép link dự án để gửi cho bạn bè">
+                <i class="bi bi-link-45deg me-1"></i>🔗 Sao chép link dự án
+            </button>
             <span class="badge bg-warning text-dark d-flex align-items-center p-2 px-3 fs-6">
                 <i class="bi bi-clock-history me-2"></i>Đã gửi yêu cầu tham gia
             </span>
@@ -1861,7 +1905,9 @@ function renderActionButtons(project, { currentUser, isOwner, isMember, isAdmin,
     } else if (isProjectFull) {
         // 4. Dự án đã đủ thành viên
         actionButtons.innerHTML = `
-            <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+            <button class="btn btn-outline-secondary btn-share-project" title="Sao chép link dự án để gửi cho bạn bè">
+                <i class="bi bi-link-45deg me-1"></i>🔗 Sao chép link dự án
+            </button>
             <button class="btn btn-secondary" disabled>
                 <i class="bi bi-slash-circle me-1"></i>Đã đủ thành viên (${project.max_members || 5}/${project.max_members || 5})
             </button>
@@ -1869,7 +1915,9 @@ function renderActionButtons(project, { currentUser, isOwner, isMember, isAdmin,
     } else if (project.status !== 'recruiting') {
         // 5. Dự án không trong trạng thái tuyển dụng
         actionButtons.innerHTML = `
-            <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+            <button class="btn btn-outline-secondary btn-share-project" title="Sao chép link dự án để gửi cho bạn bè">
+                <i class="bi bi-link-45deg me-1"></i>🔗 Sao chép link dự án
+            </button>
             <button class="btn btn-secondary" disabled>
                 <i class="bi bi-lock me-1"></i>Dự án hiện không tuyển thành viên
             </button>
@@ -1877,7 +1925,9 @@ function renderActionButtons(project, { currentUser, isOwner, isMember, isAdmin,
     } else {
         // 6. Người dùng bình thường / Khách chưa gửi yêu cầu
         actionButtons.innerHTML = `
-            <button class="btn btn-outline-secondary btn-share-project"><i class="bi bi-share me-1"></i>Chia sẻ</button>
+            <button class="btn btn-outline-secondary btn-share-project" title="Sao chép link dự án để gửi cho bạn bè">
+                <i class="bi bi-link-45deg me-1"></i>🔗 Sao chép link dự án
+            </button>
             <button class="btn btn-primary" id="btn-join-project" ${currentUser ? 'data-bs-toggle="modal" data-bs-target="#join-modal"' : 'onclick="promptLoginToJoin()"'}>
                 <i class="bi bi-person-plus me-1"></i>Tham gia dự án
             </button>
@@ -1897,20 +1947,20 @@ function renderActionButtons(project, { currentUser, isOwner, isMember, isAdmin,
 
     // Xử lý sự kiện sao chép liên kết chia sẻ dự án
     actionButtons.querySelectorAll('.btn-share-project').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const url = window.location.href;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(url).then(() => {
-                    if (typeof showToast === 'function') {
-                        showToast('Đã sao chép liên kết dự án vào clipboard!', 'success');
-                    } else {
-                        alert('Đã sao chép liên kết dự án vào clipboard!');
-                    }
-                }).catch(() => {
-                    prompt('Sao chép liên kết dự án:', url);
-                });
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof window.copyProjectShareLink === 'function') {
+                window.copyProjectShareLink();
             } else {
-                prompt('Sao chép liên kết dự án:', url);
+                const url = window.location.href;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url).then(() => {
+                        if (typeof showToast === 'function') showToast('Đã sao chép liên kết dự án!', 'success');
+                        else alert('Đã sao chép liên kết dự án!');
+                    }).catch(() => prompt('Sao chép liên kết dự án:', url));
+                } else {
+                    prompt('Sao chép liên kết dự án:', url);
+                }
             }
         });
     });
@@ -2336,15 +2386,26 @@ async function leaveTeamMember(projectId) {
 
 /**
  * Thiết lập widget AI Matching trên Project Detail
+ * 1. Chủ dự án / Thành viên nhóm / Admin: ẨN HOÀN TOÀN khung "Mức độ phù hợp của bạn"
+ * 2. Người ngoài / Khách / Ứng viên: HIỂN THỊ khung "Mức độ phù hợp của bạn". Nếu kỹ năng khớp & đánh giá bị rỗng -> hiển thị badge "Chưa có kỹ năng trùng khớp" và gợi ý cập nhật hồ sơ cá nhân
  */
-async function setupDetailMatchingWidget(project, { isOwner, isMember, currentUser, currentProfile }) {
-    // 1. OWNER VIEW: Gợi ý các ứng viên tiềm năng
-    if (isOwner) {
-        const candidatesCard = document.getElementById('owner-candidates-card');
-        const candidatesList = document.getElementById('owner-candidates-list');
+async function setupDetailMatchingWidget(project, { isOwner, isApprovedMember, isMember, isAdmin, currentUser, currentProfile }) {
+    const userMatchCard = document.getElementById('user-match-card');
+    const candidatesCard = document.getElementById('owner-candidates-card');
+    const candidatesList = document.getElementById('owner-candidates-list');
+
+    const isInternal = Boolean(isOwner || isApprovedMember || isMember || isAdmin);
+
+    // 1. OWNER / ADMIN VIEW: Gợi ý các ứng viên tiềm năng & Ẩn hoàn toàn khung Mức độ phù hợp
+    if (isOwner || isAdmin) {
+        if (userMatchCard) {
+            userMatchCard.classList.add('d-none');
+            userMatchCard.style.display = 'none';
+        }
 
         if (candidatesCard && candidatesList && typeof window.findMatchingCandidates === 'function') {
             candidatesCard.classList.remove('d-none');
+            candidatesCard.style.display = 'block';
             const topCandidates = await window.findMatchingCandidates(project);
 
             if (topCandidates && topCandidates.length > 0) {
@@ -2352,7 +2413,7 @@ async function setupDetailMatchingWidget(project, { isOwner, isMember, currentUs
                     const cName = sanitizeHTML(c.display_name || 'Ứng viên');
                     const cAvatar = c.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(cName)}&background=4F46E5&color=fff&size=64`;
                     const scoreColor = c.matchScore >= 80 ? 'success' : (c.matchScore >= 60 ? 'primary' : 'warning');
-                    const matchedSkills = (c.matchedSkills || []).slice(0, 3).map(s => `<span class="badge bg-success bg-opacity-10 text-success border me-1">${sanitizeHTML(s)}</span>`).join('');
+                    const matchedSkills = (c.matchedSkills || []).slice(0, 3).map(s => `<span class="badge bg-success bg-opacity-10 text-success border me-1 mb-1">${sanitizeHTML(s)}</span>`).join('');
 
                     return `
                         <div class="col-md-4">
@@ -2381,41 +2442,83 @@ async function setupDetailMatchingWidget(project, { isOwner, isMember, currentUs
         return;
     }
 
-    // 2. APPLICANT / VIEWER VIEW: Hiển thị mức độ phù hợp của bản thân với dự án
-    if (currentUser && !isOwner && typeof window.calculateMatchScore === 'function') {
-        const userMatchCard = document.getElementById('user-match-card');
+    // 2. MEMBER VIEW: Thành viên trong nhóm -> Ẩn hoàn toàn khung Mức độ phù hợp và ứng viên
+    if (isInternal) {
+        if (userMatchCard) {
+            userMatchCard.classList.add('d-none');
+            userMatchCard.style.display = 'none';
+        }
+        if (candidatesCard) {
+            candidatesCard.classList.add('d-none');
+            candidatesCard.style.display = 'none';
+        }
+        return;
+    }
+
+    // 3. APPLICANT / OUTSIDER VIEW: Hiển thị mức độ phù hợp của bản thân với dự án
+    if (candidatesCard) {
+        candidatesCard.classList.add('d-none');
+        candidatesCard.style.display = 'none';
+    }
+
+    if (userMatchCard) {
+        userMatchCard.classList.remove('d-none');
+        userMatchCard.style.display = 'block';
+
         const matchScoreEl  = document.getElementById('user-match-score');
         const matchBarEl    = document.getElementById('user-match-bar');
         const matchSkillsEl = document.getElementById('user-match-skills');
         const matchReasonEl = document.getElementById('user-match-reason');
 
-        if (userMatchCard) {
-            userMatchCard.classList.remove('d-none');
+        let matchedSkills = [];
+        let score = 0;
+        let reasons = [];
 
+        if (currentUser && typeof window.calculateMatchScore === 'function') {
             const profileToMatch = currentProfile || {
                 skills: currentUser.user_metadata?.skills || [],
                 interests: currentUser.user_metadata?.interests || [],
                 experience: 'intermediate'
             };
 
-            const result = window.calculateMatchScore(profileToMatch, project);
-            const scoreColor = result.score >= 80 ? 'success' : (result.score >= 60 ? 'primary' : 'warning');
+            const result = window.calculateMatchScore(profileToMatch, project) || {};
+            score = Number(result.score) || 0;
+            matchedSkills = Array.isArray(result.matchedSkills) ? result.matchedSkills : [];
+            reasons = Array.isArray(result.reasons) ? result.reasons : [];
+        }
 
-            if (matchScoreEl) {
-                matchScoreEl.textContent = `${result.score}% Phù hợp`;
-                matchScoreEl.className = `badge bg-${scoreColor} fs-6 px-3 py-2`;
+        const scoreColor = score >= 80 ? 'success' : (score >= 60 ? 'primary' : (score > 0 ? 'warning' : 'secondary'));
+
+        if (matchScoreEl) {
+            matchScoreEl.textContent = `${score}% Phù hợp`;
+            matchScoreEl.className = `badge bg-${scoreColor} fs-6 px-3 py-2`;
+        }
+        if (matchBarEl) {
+            matchBarEl.style.width = `${score}%`;
+            matchBarEl.className = `progress-bar bg-${scoreColor}`;
+        }
+        if (matchSkillsEl) {
+            if (matchedSkills.length > 0) {
+                matchSkillsEl.innerHTML = matchedSkills.map(s => 
+                    `<span class="badge bg-success bg-opacity-10 text-success border border-success me-1 mb-1">${sanitizeHTML(s)}</span>`
+                ).join('');
+            } else {
+                matchSkillsEl.innerHTML = `
+                    <span class="badge bg-secondary-subtle text-secondary border me-1 mb-1">
+                        <i class="bi bi-slash-circle me-1"></i>Chưa có kỹ năng trùng khớp
+                    </span>
+                `;
             }
-            if (matchBarEl) {
-                matchBarEl.style.width = `${result.score}%`;
-                matchBarEl.className = `progress-bar bg-${scoreColor}`;
-            }
-            if (matchSkillsEl) {
-                matchSkillsEl.innerHTML = (result.matchedSkills || []).map(s => 
-                    `<span class="badge bg-success bg-opacity-10 text-success border border-success me-1">${sanitizeHTML(s)}</span>`
-                ).join('') || '<span class="text-muted small">Chưa có kỹ năng khớp trực tiếp</span>';
-            }
-            if (matchReasonEl) {
-                matchReasonEl.textContent = (result.reasons && result.reasons[0]) ? result.reasons[0] : 'Phù hợp với các yêu cầu của dự án';
+        }
+        if (matchReasonEl) {
+            if (matchedSkills.length > 0 && reasons.length > 0) {
+                matchReasonEl.textContent = reasons[0];
+            } else {
+                matchReasonEl.innerHTML = `
+                    <span class="text-secondary">
+                        <i class="bi bi-lightbulb text-warning me-1"></i>Hãy cập nhật thêm kỹ năng trong <a href="profile.html" class="fw-semibold text-primary text-decoration-underline">Hồ sơ cá nhân</a>
+                    </span>
+                `;
             }
         }
     }
@@ -3370,6 +3473,29 @@ if (document.readyState === 'loading') {
     bootProjectsApp();
 }
 
+async function copyProjectShareLink() {
+    const url = window.location.href;
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(url);
+        } else {
+            const input = document.createElement('input');
+            input.value = url;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+        }
+        if (typeof showToast === 'function') {
+            showToast('Đã sao chép liên kết dự án vào clipboard! Hãy gửi cho bạn bè để cùng ứng tuyển.', 'success');
+        } else {
+            alert('Đã sao chép liên kết dự án vào clipboard!');
+        }
+    } catch (err) {
+        prompt('Sao chép liên kết dự án:', url);
+    }
+}
+
 // Export for dashboard.js and other pages to call
 window.loadDashboardMyProjects = loadDashboardMyProjects;
 window.loadDashboardJoinRequests = loadDashboardJoinRequests;
@@ -3383,4 +3509,7 @@ window.promptLoginToJoin = promptLoginToJoin;
 window.sanitizeHTML = sanitizeHTML;
 window.checkIsAdmin = checkIsAdmin;
 window.renderRestrictedDetailPage = renderRestrictedDetailPage;
+window.copyProjectShareLink = copyProjectShareLink;
+window.renderProjectGitHubCard = renderProjectGitHubCard;
+window.setupDetailMatchingWidget = setupDetailMatchingWidget;
 
