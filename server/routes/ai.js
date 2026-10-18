@@ -7,6 +7,7 @@
 const express = require('express');
 const router  = express.Router();
 const openaiService = require('../services/openaiService');
+const geminiService = require('../services/geminiService');
 const { requireAuth } = require('../middleware/auth');
 
 /**
@@ -14,9 +15,9 @@ const { requireAuth } = require('../middleware/auth');
  * Body: { message: string, projectContext?: object, conversationHistory?: array }
  * Auth: Bearer token (Supabase JWT)
  */
-router.post('/chat', requireAuth, async (req, res, next) => {
+router.post('/chat', async (req, res, next) => {
   try {
-    const { message, projectContext, conversationHistory } = req.body;
+    const { message, projectContext, conversationHistory, userProfile } = req.body;
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return res.status(400).json({ error: 'Tin nhắn không được để trống.' });
@@ -25,33 +26,37 @@ router.post('/chat', requireAuth, async (req, res, next) => {
       return res.status(400).json({ error: 'Tin nhắn không được vượt quá 2000 ký tự.' });
     }
 
-    if (!openaiService.isConfigured()) {
-      return res.status(503).json({
-        error: 'Tính năng AI Assistant tạm thời chưa khả dụng do chưa cấu hình OPENAI_API_KEY trong file .env trên server.'
+    if (geminiService.isConfigured()) {
+      const result = await geminiService.chat({
+        message: message.trim(),
+        projectContext,
+        conversationHistory: conversationHistory || [],
+        userProfile
       });
+      if (result.success) {
+        return res.json(result);
+      }
     }
 
-    const response = await openaiService.chat({
-      message: message.trim(),
-      projectContext,
-      conversationHistory: conversationHistory || [],
-      userId: req.user.id,
-    });
+    if (openaiService.isConfigured()) {
+      const response = await openaiService.chat({
+        message: message.trim(),
+        projectContext,
+        conversationHistory: conversationHistory || [],
+        userId: req.user?.id || 'anonymous',
+      });
+      return res.json({ success: true, reply: response, source: 'openai' });
+    }
 
-    res.json({ reply: response });
+    // Graceful fallback nếu chưa cấu hình API key
+    return res.json({
+      success: false,
+      fallback: true,
+      message: 'AI API chưa được cấu hình. Sử dụng Smart Fallback Engine.'
+    });
   } catch (err) {
-    if (err.code === 'OPENAI_NOT_CONFIGURED' || err.status === 503) {
-      return res.status(503).json({ error: err.message });
-    }
-    if (err.status === 401 || err.code === 'invalid_api_key') {
-      return res.status(502).json({ error: 'OPENAI_API_KEY không hợp lệ hoặc đã hết hạn.' });
-    }
-    if (err.status === 429) {
-      return res.status(429).json({ error: 'Đã vượt quá hạn mức gọi OpenAI API. Vui lòng thử lại sau.' });
-    }
-    return res.status(err.status || 500).json({
-      error: 'Lỗi khi giao tiếp với dịch vụ AI: ' + (err.message || 'Không xác định')
-    });
+    console.warn('[AI Route Chat Error]:', err.message);
+    return res.json({ success: false, fallback: true, error: err.message });
   }
 });
 

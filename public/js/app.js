@@ -122,6 +122,20 @@ async function initApp() {
         console.warn('Footer render error:', e);
     }
 
+    // 1b. Inject AI Assistant Chatbot Widget (Trợ lý ảo ProjectHub AI)
+    try {
+        if (window.ProjectHubAI) {
+            window.ProjectHubAI.init();
+        } else if (!document.getElementById('ph-ai-widget-script')) {
+            const aiScript = document.createElement('script');
+            aiScript.id = 'ph-ai-widget-script';
+            aiScript.src = 'js/ai-widget.js';
+            document.body.appendChild(aiScript);
+        }
+    } catch (e) {
+        console.warn('AI Widget init error:', e);
+    }
+
     // 2. Auth Guard
     const isAuthorized = await checkAuthGuard();
     if (!isAuthorized) return;

@@ -176,6 +176,30 @@ app.use(express.static(PUBLIC_DIR, {
 
 app.use('/api', apiLimiter);
 app.use('/api/ai/chat', aiLimiter);
+app.use('/api/chat', aiLimiter);
+
+// AI Chatbot Endpoint (Hỗ trợ Google Gemini API gemini-2.5-flash & Smart Fallback)
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { message, projectContext, conversationHistory, userProfile } = req.body;
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return res.status(400).json({ success: false, error: 'Tin nhắn không được để trống.' });
+    }
+
+    const geminiService = require('./services/geminiService');
+    const result = await geminiService.chat({
+      message: message.trim(),
+      projectContext,
+      conversationHistory: conversationHistory || [],
+      userProfile
+    });
+
+    return res.json(result);
+  } catch (err) {
+    console.warn('[API /api/chat error]:', err.message);
+    return res.json({ success: false, fallback: true, error: err.message });
+  }
+});
 
 // Public frontend config (CHỈ chứa public anon key và URL — TUYỆT ĐỐI KHÔNG chứa service role key)
 app.get('/api/config', (req, res) => {

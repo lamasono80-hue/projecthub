@@ -1346,6 +1346,7 @@ window.dragTaskStart = dragTaskStart;
 window.quickChangeStatus = quickChangeStatus;
 window.openAddTaskModal = openAddTaskModal;
 window.openEditTaskModal = openEditTaskModal;
+window.loadWorkspaceTasks = loadWorkspaceTasks;
 window.initWorkspacePage = initWorkspacePage;
 
 document.addEventListener('DOMContentLoaded', () => {
