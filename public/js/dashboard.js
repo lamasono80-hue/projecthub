@@ -62,6 +62,15 @@ async function initDashboardUser() {
       return;
     }
 
+    // Tự động đồng bộ và lưu profile vào DB nếu phát hiện chưa có bản ghi
+    if (authUser && (!profile || !profile.created_at)) {
+      if (typeof syncOAuthUserProfile === 'function') {
+        const client = typeof getClient === 'function' ? await getClient() : null;
+        const synced = await syncOAuthUserProfile(authUser, client);
+        if (synced) profile = synced;
+      }
+    }
+
     const displayName = profile?.display_name || profile?.full_name || authUser?.user_metadata?.full_name || authUser?.email?.split('@')[0] || 'Thành viên';
     const email = profile?.email || authUser?.email || '';
     const username = profile?.username || authUser?.user_metadata?.username || email.split('@')[0];

@@ -102,9 +102,8 @@ async function getCurrentProfile() {
       .eq('id', user.id)
       .maybeSingle();
 
-    if (error) {
-      console.error('[Auth] Lỗi tải profile:', error.message);
-      return null;
+    if (error && error.code !== 'PGRST116') {
+      console.warn('[Auth] Lỗi tải profile:', error.message);
     }
 
     if (data) {
@@ -114,7 +113,12 @@ async function getCurrentProfile() {
       return data;
     }
 
-    // Nếu profile chưa được tạo kịp bởi trigger, trả về thông tin tối thiểu từ metadata
+    // Nếu profile chưa được tạo trong DB, lập tức tự động đồng bộ / tạo mới
+    console.log('[Auth] Chưa có profile trong DB, tiến hành tự động đồng bộ (auto-sync)...');
+    const synced = await syncOAuthUserProfile(user, client);
+    if (synced) return synced;
+
+    // Trả về thông tin tối thiểu từ metadata nếu chưa thể kết nối DB
     return {
       id: user.id,
       email: user.email,
@@ -125,6 +129,7 @@ async function getCurrentProfile() {
       skills: [],
       interests: [],
       experience: 'beginner',
+      role: 'student',
     };
   } catch (err) {
     console.error('[Auth] getCurrentProfile error:', err);
@@ -179,6 +184,112 @@ async function login(email, password, remember = false) {
 }
 
 /**
+ * Tự động đồng bộ và tạo mới bản ghi trong public.profiles sau khi đăng nhập Google OAuth
+ * @param {Object} user - Supabase user object
+ * @param {Object} [client] - Supabase client instance (tùy chọn)
+ * @returns {Promise<Object|null>} Profile object trong bảng profiles
+ */
+async function syncOAuthUserProfile(user, client) {
+  try {
+    if (!user || !user.id) return null;
+
+    const sb = client || (await getClient());
+    if (!sb) return null;
+
+    // 1. Kiểm tra xem user.id đã có trong bảng profiles chưa
+    const { data: existing, error: checkError } = await sb
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.warn('[Auth] Lỗi kiểm tra profile:', checkError.message);
+    }
+
+    const meta = user.user_metadata || {};
+    const fullName = (meta.full_name || meta.name || meta.display_name || (user.email ? user.email.split('@')[0] : 'Thành viên')).trim();
+    const avatarUrl = meta.avatar_url || meta.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=6366f1&color=fff&bold=true`;
+
+    if (existing) {
+      // Đã có bản ghi trong profiles: cập nhật nếu thông tin Google mới hơn hoặc avatar bị trống
+      const updates = {};
+      if (!existing.avatar_url && avatarUrl) updates.avatar_url = avatarUrl;
+      if (!existing.display_name && fullName) updates.display_name = fullName;
+      
+      if (Object.keys(updates).length > 0) {
+        updates.updated_at = new Date().toISOString();
+        await sb.from('profiles').update(updates).eq('id', user.id);
+      }
+
+      existing.full_name = existing.display_name || existing.full_name || fullName;
+      existing.email = user.email || existing.email;
+      return existing;
+    }
+
+    // 2. Chưa có bản ghi trong profiles -> Lập tức dùng .upsert() tạo mới
+    console.log(`[Auth] Đang tự động tạo profile mới cho Google User: ${user.id} (${fullName})...`);
+
+    const emailPrefix = (user.email ? user.email.split('@')[0] : 'user')
+      .toLowerCase()
+      .replace(/[^a-z0-9_]/g, '')
+      .slice(0, 20) || 'user';
+    const shortId = (user.id || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 6) || Math.random().toString(36).slice(2, 8);
+    let username = `${emailPrefix}_${shortId}`.slice(0, 30);
+
+    const payload = {
+      id: user.id,
+      username: username,
+      display_name: fullName,
+      avatar_url: avatarUrl,
+      role: 'student',
+      experience: 'beginner',
+      skills: [],
+      interests: [],
+      updated_at: new Date().toISOString(),
+    };
+
+    // Tiến hành upsert với cơ chế tự phục hồi lỗi schema (Self-Healing)
+    let upsertRes = await sb.from('profiles').upsert(payload, { onConflict: 'id' }).select().maybeSingle();
+
+    // Fallback 1: Nếu database có check constraint role chỉ cho phép ('user', 'admin', 'moderator')
+    if (upsertRes.error && upsertRes.error.message && upsertRes.error.message.toLowerCase().includes('role')) {
+      console.warn('[Auth] Database có ràng buộc role, thử lại với role = user:', upsertRes.error.message);
+      payload.role = 'user';
+      upsertRes = await sb.from('profiles').upsert(payload, { onConflict: 'id' }).select().maybeSingle();
+      if (upsertRes.error) {
+        delete payload.role;
+        upsertRes = await sb.from('profiles').upsert(payload, { onConflict: 'id' }).select().maybeSingle();
+      }
+    }
+
+    // Fallback 2: Nếu username bị trùng lặp
+    if (upsertRes.error && upsertRes.error.message && upsertRes.error.message.includes('unique constraint') && upsertRes.error.message.includes('username')) {
+      payload.username = `${emailPrefix}_${Date.now().toString(36)}`.slice(0, 30);
+      upsertRes = await sb.from('profiles').upsert(payload, { onConflict: 'id' }).select().maybeSingle();
+    }
+
+    if (upsertRes.error) {
+      console.error('[Auth] Không thể upsert profile vào bảng profiles:', upsertRes.error.message);
+      return {
+        ...payload,
+        full_name: fullName,
+        email: user.email,
+      };
+    }
+
+    const created = upsertRes.data || payload;
+    created.full_name = created.display_name || fullName;
+    created.email = user.email;
+    console.log('[Auth] Đã tự động tạo và đồng bộ profile Google thành công:', created.id);
+    return created;
+  } catch (err) {
+    console.error('[Auth] Exception syncOAuthUserProfile:', err);
+    return null;
+  }
+}
+
+/**
  * Đăng nhập bằng Google OAuth qua Supabase
  */
 async function loginWithGoogle() {
@@ -217,7 +328,11 @@ async function loginWithGoogle() {
     // Lưu trang đích dự kiến để chuyển hướng sau khi hoàn tất OAuth
     localStorage.setItem('ph_oauth_redirect', cleanTarget);
 
-    const redirectTo = `${window.location.origin}/${cleanTarget}`;
+    // Dynamic redirectTo sử dụng window.location.origin — tự động nhận diện domain/port hiện tại, không gán cứng
+    const currentOrigin = (typeof window !== 'undefined' && window.location && window.location.origin)
+      ? window.location.origin.replace(/\/+$/, '')
+      : '';
+    const redirectTo = `${currentOrigin}/${cleanTarget.replace(/^\/+/, '')}`;
 
     const { data, error } = await client.auth.signInWithOAuth({
       provider: 'google',
@@ -305,20 +420,33 @@ async function handleOAuthCallback() {
     return;
   }
 
-  // 2. Xử lý trường hợp OAuth thành công khi đang ở login.html hoặc register.html
-  const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('register');
+  // 2. Xử lý trường hợp OAuth thành công (có access_token hoặc code)
   const hasTokens = hash.includes('access_token=') || search.includes('code=');
 
-  if (isAuthPage && hasTokens) {
+  if (hasTokens) {
     try {
+      const client = await getClient();
       const session = await getCurrentSession();
-      if (session) {
-        const target = localStorage.getItem('ph_oauth_redirect') || 'dashboard.html';
-        localStorage.removeItem('ph_oauth_redirect');
-        showToastMsg('Đăng nhập Google thành công! Đang chuyển hướng...', 'success');
-        setTimeout(() => {
-          window.location.href = target;
-        }, 500);
+      if (session && session.user) {
+        // TỰ ĐỘNG ĐỒNG BỘ BẢNG PROFILES NGAY LẬP TỨC
+        await syncOAuthUserProfile(session.user, client);
+
+        const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('register');
+        if (isAuthPage) {
+          const target = localStorage.getItem('ph_oauth_redirect') || 'dashboard.html';
+          localStorage.removeItem('ph_oauth_redirect');
+          showToastMsg('Đăng nhập Google thành công! Đang chuyển hướng...', 'success');
+          setTimeout(() => {
+            window.location.href = target;
+          }, 400);
+        } else {
+          // Người dùng đã ở trang đích (ví dụ: dashboard.html)
+          // Làm sạch URL hash và query string để URL đẹp mắt
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+          console.log('[Auth] Google OAuth callback xử lý và đồng bộ profile thành công.');
+        }
       }
     } catch (e) {
       console.warn('[Auth] OAuth token check exception:', e);
@@ -451,7 +579,15 @@ async function redirectIfAuthenticated() {
 function onAuthStateChange(callback) {
   getClient().then(client => {
     if (client) {
-      client.auth.onAuthStateChange((event, session) => {
+      client.auth.onAuthStateChange(async (event, session) => {
+        // Tự động kiểm tra và đồng bộ profile khi đăng nhập hoặc cập nhật
+        if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user) {
+          try {
+            await syncOAuthUserProfile(session.user, client);
+          } catch (e) {
+            console.warn('[Auth] onAuthStateChange auto-sync note:', e);
+          }
+        }
         if (typeof callback === 'function') callback(event, session);
       });
     }
@@ -1122,6 +1258,24 @@ window.initRegisterForm = initRegisterForm;
 window.loginWithGoogle = loginWithGoogle;
 window.evaluatePasswordStrength = evaluatePasswordStrength;
 window.handleOAuthCallback = handleOAuthCallback;
+window.syncOAuthUserProfile = syncOAuthUserProfile;
+
+// Global auth session watcher: tự động phục hồi profile nếu chưa có trong DB
+if (typeof window !== 'undefined') {
+  getClient().then(client => {
+    if (client && client.auth) {
+      try {
+        client.auth.onAuthStateChange(async (event, session) => {
+          if ((event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') && session?.user) {
+            await syncOAuthUserProfile(session.user, client);
+          }
+        });
+      } catch (e) {
+        console.warn('[Auth] Global auth watcher note:', e);
+      }
+    }
+  });
+}
 
 // Tự động xử lý OAuth tokens hoặc lỗi trả về nếu có trong URL
 if (typeof window !== 'undefined') {

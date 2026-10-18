@@ -39,6 +39,8 @@ app.use(helmet({
         "'unsafe-inline'",                      // Bootstrap inline scripts
         "https://cdn.jsdelivr.net",
         "https://fonts.googleapis.com",
+        "https://accounts.google.com",
+        "https://apis.google.com",
         "https://www.googletagmanager.com",
         "https://www.google-analytics.com",
       ],
@@ -73,9 +75,16 @@ app.use(helmet({
         "https://*.supabase.co",
         "wss://*.supabase.co",                  // Supabase Realtime
         "https://api.github.com",
+        "https://accounts.google.com",
+        "https://*.googleapis.com",
+        "https://oauth2.googleapis.com",
         "https://www.google-analytics.com",
         "https://analytics.google.com",
         "https://*.google-analytics.com",
+      ],
+      frameSrc: [
+        "'self'",
+        "https://accounts.google.com",
       ],
     },
   },
@@ -83,12 +92,20 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// CORS — cấu hình linh hoạt cho phép origin và preflight options, không bao giờ ném lỗi 'Not allowed by CORS'
-app.use(cors({
+// CORS — cấu hình toàn diện cho phép origin, preflight options và Google OAuth redirects
+const corsMiddleware = cors({
   origin: true,
   credentials: true,
-}));
-app.options('*', cors({ origin: true, credentials: true }));
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'apikey'],
+});
+app.use(corsMiddleware);
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return corsMiddleware(req, res, () => res.sendStatus(204));
+  }
+  next();
+});
 
 // ──────────────────────────────────────────────
 // 2. Rate Limiting
@@ -217,6 +234,9 @@ const CLEAN_URL_MAP = {
   '/contact':           'contact.html',
   '/privacy':           'privacy.html',
   '/terms':             'terms.html',
+  '/auth/callback':     'dashboard.html',
+  '/auth/v1/callback':  'dashboard.html',
+  '/callback':          'dashboard.html',
 };
 
 app.use((req, res, next) => {
@@ -265,10 +285,12 @@ app.use((err, req, res, next) => {
 // ──────────────────────────────────────────────
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`\n🚀 ProjectHub server running at http://localhost:${PORT}`);
-  console.log(`📁 Serving static files from: ${PUBLIC_DIR}`);
-  console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}\n`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n🚀 ProjectHub server running at http://localhost:${PORT}`);
+    console.log(`📁 Serving static files from: ${PUBLIC_DIR}`);
+    console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}\n`);
+  });
+}
 
 module.exports = app;
