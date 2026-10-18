@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bảng điều khiển - ProjectHub</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,31 +26,33 @@
             overflow-x: hidden;
             display: flex;
         }
-        .sidebar {
-            width: 260px !important;
-            min-width: 260px;
-            max-width: 260px;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            flex-shrink: 0;
-            background-color: var(--surface);
-            border-right: 1px solid var(--border);
-            z-index: 100;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-        .main-content {
-            margin-left: 0 !important;
-            width: calc(100% - 260px) !important;
-            max-width: calc(100% - 260px) !important;
-            flex-grow: 1;
-            min-width: 0;
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 1.5rem 2rem !important;
-            background-color: var(--background);
-            transition: background-color 0.3s ease;
+        @media (min-width: 992px) {
+            .sidebar {
+                width: 260px !important;
+                min-width: 260px;
+                max-width: 260px;
+                height: 100vh;
+                position: sticky;
+                top: 0;
+                flex-shrink: 0;
+                background-color: var(--surface);
+                border-right: 1px solid var(--border);
+                z-index: 100;
+                transition: background-color 0.3s ease, border-color 0.3s ease;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                width: calc(100% - 260px) !important;
+                max-width: calc(100% - 260px) !important;
+                flex-grow: 1;
+                min-width: 0;
+                height: 100vh;
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding: 1.5rem 2rem !important;
+                background-color: var(--background);
+                transition: background-color 0.3s ease;
+            }
         }
 
         /* Stat Cards: Chống vỡ chữ và tràn viền */
@@ -166,7 +168,7 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 margin-left: 0 !important;
-                padding: 1.25rem 1rem !important;
+                padding: 12px !important;
             }
         }
     </style>
@@ -335,7 +337,7 @@
             </div>
 
             <!-- Stats Row (6 Real Analytics Cards: 2 rows of 3 on laptop, 1 row on ultra-wide) -->
-            <div class="row g-3 mb-4">
+            <div class="row g-3 mb-4 stat-cards-row">
                 <!-- 1. Dự án sở hữu -->
                 <div class="col-6 col-md-4 col-xxl-2">
                     <div class="card stat-card border-0 h-100">

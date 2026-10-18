@@ -3186,7 +3186,7 @@ async function loadDashboardMyProjects(userId) {
                             <small class="text-muted fw-medium" style="min-width: 35px;">${p.progress || 0}%</small>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2 flex-shrink-0 mt-2 mt-md-0">
+                    <div class="d-flex align-items-center gap-2 flex-shrink-0 mt-2 mt-md-0 dashboard-project-actions">
                         <a href="workspace.html?id=${p.id}" class="btn btn-sm btn-outline-success text-nowrap"><i class="bi bi-kanban me-1"></i>Workspace</a>
                         <a href="project-detail.html?id=${p.id}" class="btn btn-sm btn-outline-primary text-nowrap">Xem</a>
                         <a href="edit-project.html?id=${p.id}" class="btn btn-sm btn-outline-secondary text-nowrap">Sửa</a>

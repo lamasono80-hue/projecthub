@@ -10,8 +10,9 @@
 
 /* --- GLOBAL RESPONSIVE GUARDS & PERFORMANCE --- */
 html, body {
-  max-width: 100vw;
-  overflow-x: clip;
+  width: 100%;
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
   text-rendering: optimizeSpeed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -455,15 +456,15 @@ img, video, canvas, svg {
     justify-content: center !important;
   }
 
-  /* --- App Sidebar on Mobile (Workspace & Dashboard) --- */
-  .app-container {
+  /* --- App Sidebar on Mobile (Workspace & Dashboard & Admin) --- */
+  .app-container, .admin-app {
     overflow-x: hidden;
     width: 100%;
   }
-  .sidebar {
+  .sidebar, .admin-sidebar {
     width: 280px !important;
     min-width: 280px !important;
-    max-width: 280px !important;
+    max-width: 85vw !important;
     position: fixed !important;
     top: 0 !important;
     bottom: 0 !important;
@@ -471,54 +472,123 @@ img, video, canvas, svg {
     height: 100vh !important;
     transform: translateX(-100%) !important;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    z-index: 1050 !important;
-    box-shadow: 0 0 25px rgba(0,0,0,0.15) !important;
+    z-index: 1060 !important;
+    box-shadow: 0 0 35px rgba(0,0,0,0.25) !important;
+    background: var(--surface) !important;
   }
-  .sidebar.open {
+  .sidebar.open, .admin-sidebar.open {
     transform: translateX(0) !important;
   }
-  .sidebar-backdrop {
+  .sidebar-backdrop, .admin-sidebar-backdrop {
     display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(15, 23, 42, 0.45);
-    backdrop-filter: blur(2px);
-    z-index: 1040;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(3px);
+    z-index: 1055;
     transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .sidebar-backdrop.show {
-    display: block;
+  .sidebar-backdrop.show, .admin-sidebar-backdrop.show {
+    display: block !important;
   }
-  .main-content {
+  .main-content, .admin-main {
     width: 100% !important;
     max-width: 100% !important;
     margin-left: 0 !important;
     min-width: 0 !important;
-    padding: 1rem !important;
+    padding: 12px !important;
     padding-bottom: 5rem !important;
+  }
+
+  /* --- Stat Cards Grid Stack (2 columns on mobile < 768px) --- */
+  .stat-cards-row,
+  .profile-stats-row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .stat-cards-row > [class*="col-"],
+  .profile-stats-row > [class*="col-"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    flex: none !important;
+  }
+  .stat-cards-row .stat-card .card-body {
+    padding: 0.75rem 0.65rem !important;
+    gap: 0.5rem !important;
+  }
+  .stat-cards-row .stat-icon-wrap {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  .stat-cards-row .stat-title {
+    font-size: 0.75rem !important;
+  }
+  .stat-cards-row .stat-value {
+    font-size: 1.35rem !important;
+  }
+  .profile-stats-row .card {
+    padding: 0.75rem 0.5rem !important;
+  }
+
+  /* --- Projects Stack & Action Buttons on Mobile --- */
+  #dashboard-projects-list > div {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  .dashboard-project-actions,
+  #dashboard-projects-list .flex-shrink-0,
+  .project-card-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+  .dashboard-project-actions .btn,
+  #dashboard-projects-list .flex-shrink-0 .btn,
+  .project-card-actions .btn {
+    flex: 1 1 calc(33.333% - 6px) !important;
+    min-width: 80px !important;
+    text-align: center !important;
+    justify-content: center !important;
+    padding: 6px 8px !important;
+    font-size: 0.8rem !important;
   }
 
   /* --- Workspace Kanban Board on Mobile --- */
   .kanban-board {
     display: flex !important;
     flex-direction: row !important;
-    gap: 1rem !important;
+    gap: 14px !important;
     overflow-x: auto !important;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 1rem !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 8px 4px 20px 4px !important;
+    width: 100% !important;
     min-height: auto !important;
   }
   .kanban-column,
   .kanban-col {
-    min-width: 260px !important;
-    width: 82vw !important;
+    flex: 0 0 85% !important;
+    min-width: 270px !important;
     max-width: 320px !important;
-    scroll-snap-align: start;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
     flex-shrink: 0 !important;
+  }
+  .kanban-task-card,
+  .kanban-task,
+  .task-card {
+    touch-action: pan-y !important;
   }
   .ws-tabs-header {
     overflow-x: auto !important;
@@ -622,10 +692,10 @@ img, video, canvas, svg {
   }
 
   /* App Sidebar on Tablet: Off-canvas for maximum workspace */
-  .sidebar {
+  .sidebar, .admin-sidebar {
     width: 280px !important;
     min-width: 280px !important;
-    max-width: 280px !important;
+    max-width: 85vw !important;
     position: fixed !important;
     top: 0 !important;
     bottom: 0 !important;
@@ -633,48 +703,130 @@ img, video, canvas, svg {
     height: 100vh !important;
     transform: translateX(-100%) !important;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    z-index: 1050 !important;
-    box-shadow: 0 0 25px rgba(0,0,0,0.15) !important;
+    z-index: 1060 !important;
+    box-shadow: 0 0 35px rgba(0,0,0,0.25) !important;
+    background: var(--surface) !important;
   }
-  .sidebar.open {
+  .sidebar.open, .admin-sidebar.open {
     transform: translateX(0) !important;
   }
-  .sidebar-backdrop {
+  .sidebar-backdrop, .admin-sidebar-backdrop {
     display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(15, 23, 42, 0.45);
-    backdrop-filter: blur(2px);
-    z-index: 1040;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(3px);
+    z-index: 1055;
     transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .sidebar-backdrop.show {
-    display: block;
+  .sidebar-backdrop.show, .admin-sidebar-backdrop.show {
+    display: block !important;
   }
-  .main-content {
+  .main-content, .admin-main {
     width: 100% !important;
     max-width: 100% !important;
     margin-left: 0 !important;
     min-width: 0 !important;
-    padding: 1.5rem !important;
+    padding: 1.25rem !important;
   }
 
-  /* Kanban board on tablet: smooth horizontal scroll with standard column width */
+  /* Kanban board on tablet: smooth snap scroll */
   .kanban-board {
     display: flex !important;
-    gap: 1.25rem !important;
+    flex-direction: row !important;
+    gap: 14px !important;
     overflow-x: auto !important;
-    padding-bottom: 1rem !important;
-    -webkit-overflow-scrolling: touch;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 8px 4px 20px 4px !important;
+    width: 100% !important;
   }
   .kanban-column,
   .kanban-col {
+    flex: 0 0 85% !important;
     min-width: 270px !important;
-    width: 270px !important;
+    max-width: 320px !important;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
     flex-shrink: 0 !important;
+  }
+  .kanban-task-card,
+  .kanban-task,
+  .task-card {
+    touch-action: pan-y !important;
+  }
+}
+
+/* ============================================================
+   MOBILE & PHABLET STACK (< 768px — Phone Landscape & Large Phones)
+   ============================================================ */
+@media (max-width: 767.98px) {
+  /* Stat Cards Grid Stack (2 columns on mobile < 768px) */
+  .stat-cards-row,
+  .profile-stats-row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .stat-cards-row > [class*="col-"],
+  .profile-stats-row > [class*="col-"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    flex: none !important;
+  }
+  .stat-cards-row .stat-card .card-body {
+    padding: 0.75rem 0.65rem !important;
+    gap: 0.5rem !important;
+  }
+  .stat-cards-row .stat-icon-wrap {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  .stat-cards-row .stat-title {
+    font-size: 0.75rem !important;
+  }
+  .stat-cards-row .stat-value {
+    font-size: 1.35rem !important;
+  }
+  .profile-stats-row .card {
+    padding: 0.75rem 0.5rem !important;
+  }
+
+  /* Projects Stack & Action Buttons on Mobile */
+  #dashboard-projects-list > div {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  .dashboard-project-actions,
+  #dashboard-projects-list .flex-shrink-0,
+  .project-card-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+  .dashboard-project-actions .btn,
+  #dashboard-projects-list .flex-shrink-0 .btn,
+  .project-card-actions .btn {
+    flex: 1 1 calc(33.333% - 6px) !important;
+    min-width: 80px !important;
+    text-align: center !important;
+    justify-content: center !important;
+    padding: 6px 8px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .main-content, .admin-main {
+    padding: 12px !important;
   }
 }
 

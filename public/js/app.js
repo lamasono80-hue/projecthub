@@ -1416,23 +1416,48 @@ function setupMobileNav() {
 }
 
 function initGlobalSidebarToggle() {
+    function closeAllSidebars() {
+        document.querySelectorAll('.sidebar, .admin-sidebar').forEach(s => s.classList.remove('open'));
+        document.querySelectorAll('#sidebar-backdrop, #admin-sidebar-backdrop, .sidebar-backdrop, .admin-sidebar-backdrop').forEach(b => b.classList.remove('show'));
+    }
+
     document.addEventListener('click', (e) => {
-        const toggleBtn = e.target.closest('#btn-toggle-sidebar');
+        const toggleBtn = e.target.closest('#btn-toggle-sidebar, .btn-toggle-sidebar, [data-action="toggle-sidebar"]');
         if (toggleBtn) {
             e.preventDefault();
-            const sidebar = document.querySelector('.sidebar');
-            const backdrop = document.getElementById('sidebar-backdrop');
+            const sidebar = document.querySelector('.sidebar') || document.querySelector('.admin-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop') || document.getElementById('admin-sidebar-backdrop') || document.querySelector('.sidebar-backdrop') || document.querySelector('.admin-sidebar-backdrop');
             if (sidebar) sidebar.classList.toggle('open');
             if (backdrop) backdrop.classList.toggle('show');
             return;
         }
 
-        const backdrop = e.target.closest('#sidebar-backdrop');
+        const closeBtn = e.target.closest('#btn-close-sidebar, .btn-close-sidebar, [data-action="close-sidebar"]');
+        if (closeBtn) {
+            e.preventDefault();
+            closeAllSidebars();
+            return;
+        }
+
+        const backdrop = e.target.closest('#sidebar-backdrop, #admin-sidebar-backdrop, .sidebar-backdrop, .admin-sidebar-backdrop');
         if (backdrop) {
             e.preventDefault();
-            const sidebar = document.querySelector('.sidebar');
-            if (sidebar) sidebar.classList.remove('open');
-            backdrop.classList.remove('show');
+            closeAllSidebars();
+            return;
+        }
+
+        // Auto close sidebar when clicking a nav item on mobile (< 992px)
+        if (window.innerWidth < 992) {
+            const navLink = e.target.closest('.sidebar .nav-link, .admin-sidebar .admin-nav-link');
+            if (navLink) {
+                closeAllSidebars();
+            }
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeAllSidebars();
         }
     });
 }
