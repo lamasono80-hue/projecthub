@@ -261,10 +261,9 @@ async function renderNavbar() {
                         <!-- Notifications injected here via initNotifications() -->
                     </ul>
                 </div>
-                
                 <div class="dropdown">
                     <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="${avatarSrc}" alt="${displayName}" width="32" height="32" class="rounded-circle me-2" style="object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=User&background=4F46E5&color=fff&size=128'">
+                        <img src="${avatarSrc}" alt="" width="32" height="32" class="rounded-circle me-2 navbar-avatar" style="width: 32px; height: 32px; object-fit: cover; aspect-ratio: 1/1;" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(rawName)}&background=6366f1&color=fff&bold=true';">
                         <span class="text-dark fw-medium user-name-label">${displayName}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm text-small" aria-labelledby="userDropdown">

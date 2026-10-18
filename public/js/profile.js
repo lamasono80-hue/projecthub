@@ -125,11 +125,18 @@ async function loadProfile(targetUserId) {
 function renderProfileView(profile, isOwn) {
   const displayName = profile.display_name || profile.full_name || 'Người dùng';
   const username = profile.username ? `@${profile.username}` : '';
-  const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=4F46E5&color=fff&size=128`;
+  const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff&bold=true`;
 
   // Avatar
   const avatarEl = document.getElementById('profile-avatar');
-  if (avatarEl) avatarEl.src = avatarUrl;
+  if (avatarEl) {
+    avatarEl.referrerPolicy = 'no-referrer';
+    avatarEl.src = avatarUrl;
+    avatarEl.onerror = function() {
+      this.onerror = null;
+      this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff&bold=true`;
+    };
+  }
 
   // Header texts
   const nameEl = document.getElementById('profile-name');
@@ -853,30 +860,101 @@ async function handleAvatarUpload(file, options = {}) {
       throw new Error('Bạn cần đăng nhập để thực hiện thao tác này.');
     }
 
-    // 4. Gửi request POST /api/upload/avatar
-    const formData = new FormData();
-    formData.append('avatar', file);
+    // 4. Gửi request POST /api/upload/avatar (có fallback Supabase Storage & Base64 nếu backend bị CORS/offline)
+    let uploadedUrl = null;
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
 
-    const res = await fetch('/api/upload/avatar', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-      },
-      body: formData,
-    });
+      const res = await fetch('/api/upload/avatar', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: formData,
+      });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || 'Lỗi khi tải ảnh lên máy chủ.');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.url) {
+          uploadedUrl = data.url;
+        }
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        console.warn('[Profile] /api/upload/avatar trả về lỗi:', errData.error);
+      }
+    } catch (apiErr) {
+      console.warn('[Profile] /api/upload/avatar gặp lỗi kết nối/CORS, tự động chuyển sang fallback:', apiErr);
     }
 
-    const uploadedUrl = data.url;
-
-    // 5. Cập nhật vào Supabase public.profiles & Auth metadata
     const client = await (typeof getClient === 'function' ? getClient() : window.getSupabase?.());
     const currentUser = await (typeof getCurrentUser === 'function' ? getCurrentUser() : null);
 
+    // Fallback 1: Tải trực tiếp lên Supabase Storage (bucket avatars)
+    if (!uploadedUrl && client && currentUser) {
+      try {
+        const ext = file.name.split('.').pop() || 'png';
+        const fileName = `avatar-${currentUser.id}-${Date.now()}.${ext}`;
+        const { data: storageData, error: storageErr } = await client.storage
+          .from('avatars')
+          .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+        if (!storageErr && storageData) {
+          const { data: pubData } = client.storage.from('avatars').getPublicUrl(fileName);
+          if (pubData && pubData.publicUrl) {
+            uploadedUrl = pubData.publicUrl;
+          }
+        }
+      } catch (stEx) {
+        console.warn('[Profile] Fallback Supabase Storage cảnh báo:', stEx);
+      }
+    }
+
+    // Fallback 2: Chuyển đổi sang chuỗi Base64 tối ưu hóa và lưu trực tiếp vào Supabase profiles
+    if (!uploadedUrl) {
+      try {
+        uploadedUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const maxDim = 256;
+              let w = img.width;
+              let h = img.height;
+              if (w > h) {
+                if (w > maxDim) {
+                  h = Math.round((h * maxDim) / w);
+                  w = maxDim;
+                }
+              } else {
+                if (h > maxDim) {
+                  w = Math.round((w * maxDim) / h);
+                  h = maxDim;
+                }
+              }
+              canvas.width = w;
+              canvas.height = h;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, w, h);
+              resolve(canvas.toDataURL('image/jpeg', 0.85));
+            };
+            img.onerror = () => resolve(e.target.result);
+            img.src = e.target.result;
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      } catch (b64Err) {
+        console.warn('[Profile] Fallback Base64 cảnh báo:', b64Err);
+      }
+    }
+
+    if (!uploadedUrl) {
+      throw new Error('Không thể tải hoặc xử lý ảnh đại diện.');
+    }
+
+    // 5. Cập nhật vào Supabase public.profiles & Auth metadata
     if (client && currentUser) {
       try {
         const { error: updateErr } = await client

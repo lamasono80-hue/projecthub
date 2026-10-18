@@ -65,7 +65,7 @@ async function initDashboardUser() {
     const displayName = profile?.display_name || profile?.full_name || authUser?.user_metadata?.full_name || authUser?.email?.split('@')[0] || 'Thành viên';
     const email = profile?.email || authUser?.email || '';
     const username = profile?.username || authUser?.user_metadata?.username || email.split('@')[0];
-    const avatarUrl = profile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=4F46E5&color=fff&size=128`;
+    const avatarUrl = profile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff&bold=true`;
     const skills = Array.isArray(profile?.skills) ? profile.skills : [];
     const experience = profile?.experience || 'beginner';
 
@@ -85,7 +85,14 @@ async function initDashboardUser() {
 
     // 2. Sidebar User info
     const sidebarAvatar = document.getElementById('sidebar-user-avatar');
-    if (sidebarAvatar) sidebarAvatar.src = avatarUrl;
+    if (sidebarAvatar) {
+      sidebarAvatar.referrerPolicy = 'no-referrer';
+      sidebarAvatar.src = avatarUrl;
+      sidebarAvatar.onerror = function() {
+        this.onerror = null;
+        this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff&bold=true`;
+      };
+    }
 
     const sidebarName = document.getElementById('sidebar-user-name');
     if (sidebarName) sidebarName.textContent = displayName;
@@ -129,7 +136,14 @@ async function initDashboardUser() {
     if (userCardUsername) userCardUsername.textContent = `@${username}`;
 
     const userCardAvatar = document.getElementById('dash-user-avatar');
-    if (userCardAvatar) userCardAvatar.src = avatarUrl;
+    if (userCardAvatar) {
+      userCardAvatar.referrerPolicy = 'no-referrer';
+      userCardAvatar.src = avatarUrl;
+      userCardAvatar.onerror = function() {
+        this.onerror = null;
+        this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6366f1&color=fff&bold=true`;
+      };
+    }
 
     // Skills
     const userCardSkills = document.getElementById('dash-user-skills');
@@ -421,9 +435,9 @@ async function loadDashboardAnalytics(userId) {
 
     const allProjects = Array.from(projectMap.values());
 
-    // 2. Tính toán 6 chỉ số Analytics Cards
+    // 2. Tính toán 6 chỉ số Analytics Cards (Chủ dự án đồng thời là thành viên chính thức)
     const projectsOwnedCount = ownedProjects.length;
-    const projectsJoinedCount = memberships.filter(m => m.projects && m.projects.owner_id !== userId).length;
+    const projectsJoinedCount = projectsOwnedCount + memberships.filter(m => m.projects && m.projects.owner_id !== userId).length;
     const projectsCompletedCount = allProjects.filter(p => p.status === 'completed').length;
     const tasksCompletedCount = userTasks.filter(t => t.status === 'done').length;
     const activeTasksCount = userTasks.filter(t => t.status !== 'done').length;

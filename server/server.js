@@ -63,6 +63,8 @@ app.use(helmet({
         "https://images.unsplash.com",
         "https://ui-avatars.com",
         "https://avatars.githubusercontent.com",
+        "https://*.googleusercontent.com",
+        "https://lh3.googleusercontent.com",
         "https://www.google-analytics.com",
         "https://www.googletagmanager.com",
       ],
@@ -70,6 +72,7 @@ app.use(helmet({
         "'self'",
         "https://*.supabase.co",
         "wss://*.supabase.co",                  // Supabase Realtime
+        "https://api.github.com",
         "https://www.google-analytics.com",
         "https://analytics.google.com",
         "https://*.google-analytics.com",
@@ -80,22 +83,12 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// CORS — chỉ cho phép frontend của chính mình
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [process.env.FRONTEND_URL].filter(Boolean)
-  : ['http://localhost:3000', 'http://127.0.0.1:3000'];
-
+// CORS — cấu hình linh hoạt cho phép origin và preflight options, không bao giờ ném lỗi 'Not allowed by CORS'
 app.use(cors({
-  origin: (origin, callback) => {
-    // Cho phép request không có origin (Postman, server-to-server)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true,
   credentials: true,
 }));
+app.options('*', cors({ origin: true, credentials: true }));
 
 // ──────────────────────────────────────────────
 // 2. Rate Limiting

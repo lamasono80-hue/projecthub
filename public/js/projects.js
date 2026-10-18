@@ -565,7 +565,7 @@ function renderProjectCard(project) {
 
     const owner     = project.profiles || {};
     const ownerName = sanitizeHTML(owner.display_name || 'Người dùng');
-    const avatarSrc = owner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=4F46E5&color=fff&size=64`;
+    const avatarSrc = owner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=6366f1&color=fff&bold=true`;
     const imageUrl  = project.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(project.title)}&background=random&size=400&bold=true&format=svg`;
     const deadline  = project.deadline ? new Date(project.deadline).toLocaleDateString('vi-VN') : 'Không có';
     const colClass  = currentGridCols === 2 ? 'col-12 col-md-6 col-xl-6' : 'col-12 col-md-6 col-xl-4';
@@ -595,7 +595,7 @@ function renderProjectCard(project) {
 
                     <div class="d-flex justify-content-between align-items-center mb-2 pt-2 border-top">
                         <div class="d-flex align-items-center" title="Người tạo: ${ownerName}">
-                            <img src="${avatarSrc}" class="rounded-circle me-1" width="22" height="22" style="object-fit:cover" alt="${ownerName}">
+                            <img src="${avatarSrc}" class="rounded-circle me-1" width="22" height="22" style="width:22px;height:22px;object-fit:cover;aspect-ratio:1/1;" alt="" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=6366f1&color=fff&bold=true';">
                             <small class="text-muted text-truncate" style="max-width: 95px;">${ownerName}</small>
                         </div>
                         <small class="text-muted" title="Hạn chót"><i class="bi bi-calendar3 me-1"></i>${deadline}</small>
@@ -894,9 +894,9 @@ function populateDetailPage(project, roles, members, ctx) {
     // Owner info
     const ownerEl = document.getElementById('project-owner');
     if (ownerEl) {
-        const avatarSrc = owner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=4F46E5&color=fff&size=128`;
+        const avatarSrc = owner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=6366f1&color=fff&bold=true`;
         ownerEl.innerHTML = `
-            <img src="${avatarSrc}" class="rounded-circle me-3" style="width:50px;height:50px;object-fit:cover" alt="${sanitizeHTML(ownerName)}">
+            <img src="${avatarSrc}" class="rounded-circle me-3" style="width:50px;height:50px;object-fit:cover;aspect-ratio:1/1;" alt="" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=6366f1&color=fff&bold=true';">
             <div>
                 <div class="fw-bold">${sanitizeHTML(ownerName)}</div>
                 <div class="text-muted small">Project Owner${owner.username ? ' · @' + sanitizeHTML(owner.username) : ''}</div>
@@ -1025,9 +1025,9 @@ function renderRestrictedDetailPage(project, roles, members, ctx) {
     // 5. Owner info
     const ownerEl = document.getElementById('project-owner');
     if (ownerEl) {
-        const avatarSrc = owner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=4F46E5&color=fff&size=128`;
+        const avatarSrc = owner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=6366f1&color=fff&bold=true`;
         ownerEl.innerHTML = `
-            <img src="${avatarSrc}" class="rounded-circle me-3" style="width:50px;height:50px;object-fit:cover" alt="${sanitizeHTML(ownerName)}">
+            <img src="${avatarSrc}" class="rounded-circle me-3" style="width:50px;height:50px;object-fit:cover;aspect-ratio:1/1;" alt="" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=6366f1&color=fff&bold=true';">
             <div>
                 <div class="fw-bold">${sanitizeHTML(ownerName)}</div>
                 <div class="text-muted small">Chủ dự án${owner.username ? ' · @' + sanitizeHTML(owner.username) : ''}</div>
@@ -1708,12 +1708,12 @@ function renderTeamMembersList(project, members, { currentUser, isOwner, isAdmin
 
     const owner = project.profiles || {};
     const ownerName = sanitizeHTML(owner.display_name || 'Chủ dự án');
-    const ownerAvatar = owner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=4F46E5&color=fff&size=64`;
+    const ownerAvatar = owner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=6366f1&color=fff&bold=true`;
 
     let html = `
         <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light">
             <div class="d-flex align-items-center gap-2">
-                <img src="${ownerAvatar}" class="rounded-circle" width="36" height="36" style="object-fit:cover" alt="${ownerName}">
+                <img src="${ownerAvatar}" class="rounded-circle" width="36" height="36" style="width:36px;height:36px;object-fit:cover;aspect-ratio:1/1;" alt="" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName)}&background=6366f1&color=fff&bold=true';">
                 <div>
                     <div class="fw-semibold small text-truncate" style="max-width: 150px;">${ownerName}</div>
                     <span class="badge bg-primary bg-opacity-10 text-primary" style="font-size: 0.7rem;">Chủ dự án</span>
@@ -1727,14 +1727,14 @@ function renderTeamMembersList(project, members, { currentUser, isOwner, isAdmin
         html += members.map(m => {
             const prof = m.profiles || {};
             const mName = sanitizeHTML(prof.display_name || 'Thành viên');
-            const mAvatar = prof.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(mName)}&background=10B981&color=fff&size=64`;
+            const mAvatar = prof.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(mName)}&background=10B981&color=fff&bold=true`;
             const roleName = sanitizeHTML(m.role_name || 'Thành viên');
             const isMe = currentUser && currentUser.id === m.user_id;
 
             return `
                 <div class="d-flex align-items-center justify-content-between p-2 rounded border-bottom">
                     <div class="d-flex align-items-center gap-2">
-                        <img src="${mAvatar}" class="rounded-circle" width="36" height="36" style="object-fit:cover" alt="${mName}">
+                        <img src="${mAvatar}" class="rounded-circle" width="36" height="36" style="width:36px;height:36px;object-fit:cover;aspect-ratio:1/1;" alt="" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(mName)}&background=10B981&color=fff&bold=true';">
                         <div>
                             <div class="fw-medium small text-truncate" style="max-width: 140px;">
                                 ${mName} ${isMe ? '<span class="text-primary">(Bạn)</span>' : ''}
@@ -2761,6 +2761,18 @@ async function submitProject(form, technologies, imageFile, currentUser, isPubli
 
         if (error) throw error;
 
+        // Tự động ghi danh Chủ dự án vào bảng project_members với vai trò Chủ dự án
+        try {
+            await supabase.from('project_members').insert({
+                project_id: project.id,
+                user_id: currentUser.id,
+                role_name: 'Chủ dự án',
+                status: 'active'
+            });
+        } catch (memErr) {
+            console.warn('[Project] Tự động thêm owner vào project_members cảnh báo:', memErr);
+        }
+
         // Insert project_roles if any checked
         const roleInserts = [];
         document.querySelectorAll('.role-checkbox:checked').forEach(cb => {
@@ -3154,10 +3166,10 @@ async function loadDashboardMyProjects(userId) {
             const deadline = p.deadline ? new Date(p.deadline).toLocaleDateString('vi-VN') : null;
 
             return `
-                <div class="d-flex align-items-start py-3 border-bottom">
-                    <div class="flex-grow-1 me-3">
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <a href="project-detail.html?id=${p.id}" class="fw-semibold text-dark text-decoration-none text-truncate" style="max-width: 300px;">${sanitizeHTML(p.title)}</a>
+                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between py-3 border-bottom gap-2">
+                    <div class="flex-grow-1 me-md-3 min-w-0 w-100">
+                        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                            <a href="project-detail.html?id=${p.id}" class="fw-semibold text-dark text-decoration-none text-truncate" style="max-width: 320px;">${sanitizeHTML(p.title)}</a>
                             <span class="badge bg-${status.color} flex-shrink-0">${status.label}</span>
                         </div>
                         <div class="d-flex align-items-center gap-2 text-muted small mb-2">
@@ -3167,17 +3179,17 @@ async function loadDashboardMyProjects(userId) {
                         <div class="mb-2">
                             ${techs.map(t => `<span class="badge bg-light text-dark border me-1">${sanitizeHTML(t)}</span>`).join('')}
                         </div>
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-2" style="max-width: 360px;">
                             <div class="progress flex-grow-1" style="height: 5px;">
                                 <div class="progress-bar bg-success" style="width: ${p.progress || 0}%"></div>
                             </div>
                             <small class="text-muted fw-medium" style="min-width: 35px;">${p.progress || 0}%</small>
                         </div>
                     </div>
-                    <div class="d-flex flex-column gap-1">
-                        <a href="workspace.html?id=${p.id}" class="btn btn-sm btn-outline-success"><i class="bi bi-kanban me-1"></i>Workspace</a>
-                        <a href="project-detail.html?id=${p.id}" class="btn btn-sm btn-outline-primary">Xem</a>
-                        <a href="edit-project.html?id=${p.id}" class="btn btn-sm btn-outline-secondary">Sửa</a>
+                    <div class="d-flex align-items-center gap-2 flex-shrink-0 mt-2 mt-md-0">
+                        <a href="workspace.html?id=${p.id}" class="btn btn-sm btn-outline-success text-nowrap"><i class="bi bi-kanban me-1"></i>Workspace</a>
+                        <a href="project-detail.html?id=${p.id}" class="btn btn-sm btn-outline-primary text-nowrap">Xem</a>
+                        <a href="edit-project.html?id=${p.id}" class="btn btn-sm btn-outline-secondary text-nowrap">Sửa</a>
                     </div>
                 </div>
             `;

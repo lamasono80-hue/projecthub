@@ -58,8 +58,16 @@ async function initWorkspacePage() {
         // Cập nhật thông tin user trên sidebar
         const sbAvatar = document.getElementById('sidebar-user-avatar');
         const sbName   = document.getElementById('sidebar-user-name');
-        if (sbAvatar) sbAvatar.src = _currentProfile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(_currentUser.email)}&background=4F46E5&color=fff`;
-        if (sbName)   sbName.textContent = _currentProfile?.display_name || _currentUser.email.split('@')[0];
+        const userDisplayName = _currentProfile?.display_name || _currentUser?.user_metadata?.full_name || _currentUser.email.split('@')[0];
+        if (sbAvatar) {
+            sbAvatar.referrerPolicy = 'no-referrer';
+            sbAvatar.src = _currentProfile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=6366f1&color=fff&bold=true`;
+            sbAvatar.onerror = function() {
+                this.onerror = null;
+                this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=6366f1&color=fff&bold=true`;
+            };
+        }
+        if (sbName) sbName.textContent = userDisplayName;
 
         // 2. Lấy ID dự án từ URL (?id=... hoặc ?project=...)
         const urlParams = new URLSearchParams(window.location.search);
@@ -85,37 +93,77 @@ async function initWorkspacePage() {
             }
         }
 
-        // 3. Tải thông tin dự án
-        const { data: project, error: projErr } = await supabase
+        // 3. Tải thông tin dự án trực tiếp từ bảng projects (không ép foreign key join để tránh lỗi quan hệ PostgREST)
+        const { data: rawProject, error: projErr } = await supabase
             .from('projects')
-            .select(`
-                *,
-                profiles:owner_id ( id, display_name, avatar_url, username, email )
-            `)
+            .select('*')
             .eq('id', projectId)
-            .single();
+            .maybeSingle();
 
-        if (projErr || !project) {
+        if (projErr || !rawProject) {
+            // Nếu projectId không tồn tại trong DB, tự động chuyển về dự án mới nhất của user
+            if (userProjects.length > 0) {
+                console.warn(`[Workspace] Dự án ${projectId} không tồn tại hoặc đã bị xóa. Chuyển hướng về dự án gần nhất: ${userProjects[0].title}`);
+                window.location.replace(`workspace.html?id=${userProjects[0].id}`);
+                return;
+            }
             showAccessDenied('Dự án không tồn tại hoặc đã bị xóa.', userProjects);
             return;
         }
+
+        const project = rawProject;
+
+        // Lấy profile của owner an toàn
+        try {
+            if (project.owner_id) {
+                const { data: ownerProf } = await supabase
+                    .from('profiles')
+                    .select('id, display_name, avatar_url, username, email')
+                    .eq('id', project.owner_id)
+                    .maybeSingle();
+                if (ownerProf) project.profiles = ownerProf;
+            }
+        } catch (e) {
+            console.warn('[Workspace] Lỗi tải profile owner:', e);
+        }
+
         _currentProject = project;
 
         // 4. Tải danh sách thành viên active
-        const { data: members, error: memErr } = await supabase
-            .from('project_members')
-            .select(`
-                id, project_id, user_id, role_name, joined_at, status,
-                profiles:user_id ( id, display_name, avatar_url, username, skills, experience, email )
-            `)
-            .eq('project_id', projectId)
-            .eq('status', 'active');
+        let activeMembers = [];
+        try {
+            const { data: members } = await supabase
+                .from('project_members')
+                .select('*')
+                .eq('project_id', projectId)
+                .eq('status', 'active');
+            if (members) activeMembers = members;
+        } catch (memErr) {
+            console.warn('[Workspace] Lỗi tải project_members:', memErr);
+        }
 
-        const activeMembers = members || [];
+        // Tải thông tin profiles của các thành viên nếu có
+        const memberUserIds = activeMembers.map(m => m.user_id).filter(Boolean);
+        if (memberUserIds.length > 0) {
+            try {
+                const { data: memberProfiles } = await supabase
+                    .from('profiles')
+                    .select('id, display_name, avatar_url, username, skills, experience, email')
+                    .in('id', memberUserIds);
+                if (memberProfiles) {
+                    const profMap = new Map();
+                    memberProfiles.forEach(p => profMap.set(p.id, p));
+                    activeMembers.forEach(m => {
+                        m.profiles = profMap.get(m.user_id);
+                    });
+                }
+            } catch (pErr) {
+                console.warn('[Workspace] Lỗi tải profiles thành viên:', pErr);
+            }
+        }
 
-        // 5. Kiểm tra quyền truy cập: PHẢI LÀ OWNER, MEMBER HOẶC ADMIN
-        _isOwner = _currentUser.id === project.owner_id;
-        _isMember = activeMembers.some(m => m.user_id === _currentUser.id);
+        // 5. Kiểm tra quyền truy cập: CHỦ DỰ ÁN (OWNER) LUÔN CÓ TOÀN QUYỀN
+        _isOwner = Boolean(_currentUser && project.owner_id === _currentUser.id);
         _isAdmin = _currentUser && (
             (_currentUser.email && _currentUser.email.toLowerCase().trim() === 'lamasono80@gmail.com') ||
             _currentUser.role === 'admin' ||
@@ -124,10 +172,25 @@ async function initWorkspacePage() {
             (_currentUser.user_metadata && _currentUser.user_metadata.role === 'admin') ||
             (_currentProfile && (_currentProfile.role === 'admin' || _currentProfile.is_admin === true))
         );
+        _isMember = activeMembers.some(m => m.user_id === _currentUser.id) || _isOwner;
 
         if (!_isOwner && !_isMember && !_isAdmin) {
             showAccessDenied(`Bạn không phải là thành viên của dự án "${project.title}". Chỉ Chủ dự án, Thành viên chính thức hoặc Quản trị viên (Admin) mới có quyền vào Không gian làm việc này.`, userProjects);
             return;
+        }
+
+        // Tự động đồng bộ Chủ dự án vào bảng project_members nếu chưa có
+        if (_isOwner && !activeMembers.some(m => m.user_id === _currentUser.id)) {
+            try {
+                await supabase.from('project_members').insert({
+                    project_id: project.id,
+                    user_id: _currentUser.id,
+                    role_name: 'Chủ dự án',
+                    status: 'active'
+                });
+            } catch (autoInsErr) {
+                console.warn('[Workspace] Tự động thêm owner vào project_members cảnh báo:', autoInsErr);
+            }
         }
 
         // 6. Xây dựng danh sách Team Members cho Assignee Dropdown
@@ -337,8 +400,8 @@ function renderWorkspaceHeader(project, members, userProjects = []) {
     // Render avatar chồng lên nhau
     if (avatarsEl) {
         avatarsEl.innerHTML = _projectTeamMembers.slice(0, 4).map((m, i) => {
-            const avatar = m.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.display_name)}&background=4F46E5&color=fff&size=48`;
-            return `<img src="${avatar}" class="rounded-circle border border-2 border-white" width="28" height="28" style="object-fit:cover; margin-left:${i > 0 ? '-8px' : '0'}; z-index:${10 - i}" title="${m.display_name}" alt="${m.display_name}">`;
+            const avatar = m.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.display_name)}&background=6366f1&color=fff&bold=true`;
+            return `<img src="${avatar}" class="rounded-circle border border-2 border-white" width="28" height="28" style="width:28px;height:28px;object-fit:cover;aspect-ratio:1/1;margin-left:${i > 0 ? '-8px' : '0'}; z-index:${10 - i}" title="${sanitizeText(m.display_name)}" alt="" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.display_name)}&background=6366f1&color=fff&bold=true';">`;
         }).join('');
     }
 }
@@ -1144,11 +1207,11 @@ function renderMembersTab() {
         ${recruitBanner}
         <div class="row g-3">
             ${_projectTeamMembers.map(m => {
-                const avatar = m.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.display_name)}&background=4F46E5&color=fff&size=80`;
+                const avatar = m.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.display_name)}&background=6366f1&color=fff&bold=true`;
                 return `
                     <div class="col-md-6 col-lg-4">
                         <div class="card border-0 shadow-sm p-3 h-100 text-center">
-                            <img src="${avatar}" class="rounded-circle mx-auto mb-2" width="64" height="64" style="object-fit:cover;" alt="${sanitizeText(m.display_name)}">
+                            <img src="${avatar}" class="rounded-circle mx-auto mb-2" width="64" height="64" style="width:64px;height:64px;object-fit:cover;aspect-ratio:1/1;" alt="" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.display_name)}&background=6366f1&color=fff&bold=true';">
                             <h6 class="fw-bold mb-1">${sanitizeText(m.display_name)}</h6>
                             <span class="badge ${m.isOwner ? 'bg-primary' : 'bg-success bg-opacity-10 text-success'} mx-auto mb-3">
                                 ${m.isOwner ? 'Chủ dự án (Owner)' : (m.role_name || 'Thành viên')}
